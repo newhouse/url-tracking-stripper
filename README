@@ -1,2 +1,10 @@
 # url-tracking-stripper
-Will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
+A pretty simple, open-source Chrome Extension that will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
+
+## Utilizes:
+- Chrome Extensions Tabs onUpdated:
+    https://developer.chrome.com/extensions/tabs#event-onUpdated
+- Chrome Extensions Tabs executeScript:
+    https://developer.chrome.com/extensions/tabs#method-executeScript
+- Window History pushState():
+    https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
