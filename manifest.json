@@ -13,8 +13,13 @@
       "scripts": [ "background.js" ]
    },
    "permissions": [
+	  "storage",
 	  "tabs",
 	  "http://*/*",
 	  "https://*/*"
-   ]
+   ],
+   "options_ui": {
+	  "page": "options.html",
+	  "chrome_style": true
+   }
 }
