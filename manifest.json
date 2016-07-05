@@ -10,11 +10,15 @@
       "48": "icon-48.png"
    },
    "background": {
-      "scripts": [ "background.js" ]
+      "scripts": [
+		 "background.js"
+	  ]
    },
    "permissions": [
 	  "storage",
 	  "tabs",
+	  "webRequest",
+	  "webRequestBlocking",
 	  "http://*/*",
 	  "https://*/*"
    ],
