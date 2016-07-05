@@ -47,29 +47,6 @@ STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()] = {
 };
 
 
-
-
-
-
-
-
-// More detailed string pattern suffixes, stored by their common root.
-var trackers_by_root = {
-    "utm_": [
-        "source",
-        "medium",
-        "term",
-        "campaign",
-        "content",
-        "cid",
-        "reader"
-
-    ],
-    "mkt_": [
-        "tok"
-    ]
-};
-
 // Go through all the trackers by their root and turn them into a big regex...
 var regexes_by_root = {};
 for (var root in trackers_by_root) {
