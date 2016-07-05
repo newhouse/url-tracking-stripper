@@ -9,7 +9,7 @@ and choose which one is right for you:
 
 1) History Change: This approach will simply monitor for URLs that you visit which contain tracking parameters, and
 *after the page loads* it will update your browser History and remove the tracking parameters from the URL for that tab.
-This is pretty slick, shoulnd't slow your browsing down and requires no page re-load. However, it provides absolutely
+This is pretty slick, shouldn't slow your browsing down and requires no page re-load. However, it provides absolutely
 *no increased privacy* for you, as any sites have already registered and tracked your visit by the time the change is
 made to the URL. You can think of it as a purely cosmetic fix.
 
