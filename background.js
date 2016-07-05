@@ -81,7 +81,7 @@ function generate_patterns_array() {
     var array = [];
     for (var root in trackers_by_root) {
         for (var i=0; i<trackers_by_root[root].length; i++) {
-            array.push( "*://*/*" + root + trackers_by_root[root][i] + "=*" );
+            array.push( "*://*/*?*" + root + trackers_by_root[root][i] + "=*" );
         }
     }
     return array;
