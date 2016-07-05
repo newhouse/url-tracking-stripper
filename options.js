@@ -1,28 +1,12 @@
-/**********************
-	API:
-
-		https://developer.chrome.com/extensions/storage#property-sync
-		Requires permission: storage
-
-		https://developer.chrome.com/extensions/runtime#method-sendMessage
-		Requires permission: n/a
-
-***********************/
-
-
-function log(msg) {
-	console.log(msg);
-}
-
 var options_saved_timeout = 2000;
 
 // Called to save the selected options
 function save_options() {
 
-	var stripping_method = document.getElementById('stripping_method').value;
+	var stripping_method = parseInt(document.getElementById('stripping_method').value);
 
 	chrome.storage.sync.set({
-		'STRIPPING_METHOD_TO_USE': parseInt(stripping_method)
+		'STRIPPING_METHOD_TO_USE': stripping_method
 		}, function() {
 			// Update status to let user know options were saved.
 			var status = document.getElementById('status');
@@ -33,10 +17,12 @@ function save_options() {
 		}
 	);
 
+	// Send the new options values to the background script so it can handle
+	// accordingly
 	chrome.runtime.sendMessage({
 			action: 'options_saved',
 			options: {
-				stripping_method: stripping_method
+				'STRIPPING_METHOD_TO_USE': stripping_method
 			}
 		}
 	);
@@ -44,16 +30,18 @@ function save_options() {
 }
 
 // Dynamically generate the options page elements
-function generate_elements() {
+function generate_option_elements() {
 	chrome.runtime.getBackgroundPage(function(bp) {
 		var option;
 		var select = document.getElementById('stripping_method');
-		for(stripping_method_id in bp.STRIPPING_METHOD_DESCRIPTIONS_BY_ID) {
+		for(stripping_method_id in bp.STUFF_BY_STRIPPING_METHOD_ID) {
 			option = document.createElement('option');
 			option.value = stripping_method_id;
-			option.innerHTML = bp.STRIPPING_METHOD_DESCRIPTIONS_BY_ID[stripping_method_id];
+			option.innerHTML = bp.STUFF_BY_STRIPPING_METHOD_ID[stripping_method_id].html;
 			select.appendChild(option);
 		}
+
+		// Set the appropriate option(s) to be selected
 		restore_options();
 	});
 }
@@ -76,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.getElementById('title').textContent = manifest.short_name;
 
 	// Generate the elements on the page
-	generate_elements();
+	generate_option_elements();
 
 	// Monitor for save clicks
 	document.getElementById('save').addEventListener('click', save_options);
