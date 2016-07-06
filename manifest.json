@@ -2,19 +2,29 @@
    "manifest_version": 2,
    "name": "URL Tracking Stripper",
    "short_name": "URL Tracking Stripper",
-   "version": "0.0.1",
-   "description": "Will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.",
+   "version": "0.0.2",
+   "description": "Will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc. This Extension is free and open source, and in no way is trying to keep track of what you do.  However, different options provide different pros and cons around things like permissions, speed and privacy.",
    "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
    "icons": {
       "128": "icon-128.png",
       "48": "icon-48.png"
    },
    "background": {
-      "scripts": [ "background.js" ]
+      "scripts": [
+		 "trackers.js",
+		 "background.js"
+	  ]
    },
    "permissions": [
+	  "storage",
 	  "tabs",
+	  "webRequest",
+	  "webRequestBlocking",
 	  "http://*/*",
 	  "https://*/*"
-   ]
+   ],
+   "options_ui": {
+	  "page": "options.html",
+	  "chrome_style": true
+   }
 }
