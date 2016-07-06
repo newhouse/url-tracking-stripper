@@ -2,6 +2,8 @@
 
 A pretty simple, open-source Chrome Extension that will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
 
+You can install this Extension in the Chrome Webstore here: https://chrome.google.com/webstore/detail/url-tracking-stripper/flnagcobkfofedknnnmofijmmkbgfamf
+
 ## Utilizes:
 - Chrome Extensions Runtime onMessage (chrome.runtime.onMessage): https://developer.chrome.com/extensions/runtime#event-onMessage
 - Chrome Extensions Runtime sendMessage (chrome.runtime.sendMessage): https://developer.chrome.com/extensions/runtime#method-sendMessage
