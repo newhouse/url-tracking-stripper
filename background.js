@@ -73,7 +73,7 @@ function remove_trackers_from_url(url) {
     }
 
     // Go through all the pattern roots
-    for (var root in regexes_by_root ) {
+    for (var root in regexes_by_root) {
         // If we see the root in the params part, then we should probably try to do some replacements
         if (url_pieces[1].indexOf(root) !== -1) {
             url_pieces[1] = url_pieces[1].replace(regexes_by_root[ root ], '');
