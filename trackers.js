@@ -15,7 +15,16 @@ var trackers_by_root = {
     "mkt_": [
         "tok"
     ],
+	// Simple Reach
+	"sr_": [
+		"share"
+	],
+	// Unknown
     "nr_": [
         "email_referer"
-    ]
+    ],
+	// Unknown
+	"nc": [
+		"id"
+	]
 };

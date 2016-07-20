@@ -50,7 +50,7 @@ STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()] = {
 // Go through all the trackers by their root and turn them into a big regex...
 var regexes_by_root = {};
 for (var root in trackers_by_root) {
-    regexes_by_root[root] = new RegExp("([\?\&]" + root + "(" + trackers_by_root[root].join('|') + ")=[^&#]+)", "ig");
+    regexes_by_root[root] = new RegExp("((^|&)" + root + "(" + trackers_by_root[root].join('|') + ")=[^&#]+)", "ig");
 }
 
 // Generate the URL patterns used for webRequest filtering
@@ -66,25 +66,27 @@ function generate_patterns_array() {
 
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
 function remove_trackers_from_url(url) {
-    var params_index = url.indexOf('?');
+	var url_pieces = url.split('?');
     // If no params, nothing to modify
-    if (params_index == -1) {
+    if (url_pieces.length === 1) {
         return url;
     }
 
     // Go through all the pattern roots
     for (var root in regexes_by_root ) {
-        // If we see the root, then we should probably try to do some replacements
-        if (url.indexOf(root) > params_index) {
-            url = url.replace(regexes_by_root[ root ], '');
-            // If we've collapsed the URL to the point where there's an '&' against the '?'
-            // then we need to get rid of that.
-            if (url.charAt(params_index) === '&') {
-                url = url.substr(0, params_index) + '?' + url.substr(params_index + 1);
-            }
+        // If we see the root in the params part, then we should probably try to do some replacements
+        if (url_pieces[1].indexOf(root) !== -1) {
+            url_pieces[1] = url_pieces[1].replace(regexes_by_root[ root ], '');
         }
     }
-    return url;
+
+	// If we've collapsed the URL to the point where there's an '&' against the '?'
+	// then we need to get rid of that.
+	while (url_pieces[1].charAt(0) === '&') {
+		url_pieces[1] = url_pieces[1].substr(1);
+	}
+
+    return url_pieces[1] ? url_pieces.join('?') : url_pieces[0];
 }
 
 function check_url(original_url) {
