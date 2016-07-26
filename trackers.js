@@ -8,8 +8,9 @@ var trackers_by_root = {
         "campaign",
         "content",
         "cid",
-        "reader"
-
+        "reader",
+        "viz_id",
+        "pubreferrer"
     ],
     // Marketo
     "mkt_": [
