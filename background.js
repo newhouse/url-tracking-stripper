@@ -189,17 +189,6 @@ var web_navigation_monitor = function(details) {
 	});
 };
 
-// Function to set handlers
-function set_handlers() {
-	// Remove any other listeners
-    for (method in STUFF_BY_STRIPPING_METHOD_ID) {
-        STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
-    }
-	// Add the listener the user wants
-    STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
-}
-
-
 
 var changeManager = {
 	changesByTabId: {},
@@ -225,6 +214,16 @@ var changeManager = {
 };
 
 
+
+// Function to set handlers
+function set_handlers() {
+	// Remove any other listeners
+    for (method in STUFF_BY_STRIPPING_METHOD_ID) {
+        STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
+    }
+	// Add the listener the user wants
+    STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
+}
 
 
 // Get all the options from storage and put them into their globals
