@@ -202,6 +202,8 @@ var changeManager = {
 				'tabId': tabId,
 				'title': "URL changed from " + changeManager.changesByTabId[tabId].originalUrl
 			});
+			// We can pass params into the URL like any other webpage, which is useful for dynamically generating the content:
+			chrome.pageAction.setPopup({tabId: tabId, popup:"info.html?title=URL Changed&originalUrl=" + encodeURIComponent(changeManager.changesByTabId[tabId].originalUrl)});
 			changeManager.clearTab(tabId);
 		}
 	},
