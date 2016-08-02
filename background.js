@@ -180,7 +180,6 @@ var web_navigation_monitor = function(details) {
 	chrome.tabs.get(details.tabId, function(tab) {
 		// Problems are caught by the runtim.lastError mechanism
 		if (chrome.runtime.lastError) {
-			log(chrome.runtime.lastError);
 			changeManager.clearTab(details.tabId);
 			return;
 		}
