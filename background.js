@@ -1,3 +1,4 @@
+// Helper function to log things
 function log(msg) {
     console.log(msg);
 }
@@ -15,6 +16,7 @@ var STUFF_BY_STRIPPING_METHOD_ID = {};
 STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_HISTORY_CHANGE.toString()] = {
     'html': "History Change [speed: &uarr; privacy: &darr; permissions: &uarr;]",
     'add': function() {
+		// Monitor tab updates so that we may update the history/url to not contain tracking params
         chrome.tabs.onUpdated.addListener(history_change_handler);
     },
     'remove': function() {
@@ -24,6 +26,7 @@ STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_HISTORY_CHANGE.toString()] = {
 STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()] = {
     'html': "Cancel and Re-load [speed: &darr; privacy: &uarr; permissions: &darr;]",
     'add': function() {
+		// Monitor tab updates so that we may cancel and re-load them without tracking params
         chrome.tabs.onUpdated.addListener(cancel_and_reload_handler);
 		// Monitor for subsequent Navigations so that we may indicate if a change
 		// was made or not.
@@ -38,11 +41,14 @@ STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()] = {
 STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()] = {
     'html': "Block and Re-load [speed: &darr; privacy: &uarr; permissions: &uarr;]",
     'add': function() {
+		// We are only concerned with URLs that appear to have tracking parameters in them
+		// and are in the main frame
         var filters = {
             urls: generate_patterns_array(),
             types: ["main_frame"]
         }
         var extra = ["blocking"];
+		// Monitor WebRequests so that we may block and re-load them without tracking params
         chrome.webRequest.onBeforeRequest.addListener(block_and_reload_handler, filters, extra);
 		// Monitor for subsequent Navigations so that we may indicate if a change
 		// was made or not.
@@ -102,7 +108,7 @@ function remove_trackers_from_url(url) {
 // false if there was nothing to strip out
 function check_url(original_url) {
     var cleansed_url = remove_trackers_from_url(original_url);
-    // If it looks like we altered the URL
+    // If it looks like we altered the URL, return a cleansed URL, otherwise false
     return (original_url != cleansed_url) ? cleansed_url : false;
 
 }
@@ -124,8 +130,8 @@ function history_change_handler(tabId, changeInfo, tab) {
 
 		// Save the fact that we stripped something for indication later on.
 		changeManager.storeChanges(tab.id, tab.url, cleansed_url);
-		// And immediately indicate this fact since WebNavigation has already taken place
-		// so there's no other hook.
+		// And then immediately indicate this fact since WebNavigation has already
+		// taken place since there's no other possible hook.
 		changeManager.indicateChange(tab.id, cleansed_url);
     }
 }
@@ -190,11 +196,18 @@ var web_navigation_monitor = function(details) {
 
 
 var changeManager = {
+	// We'll store URL change information by tab id
 	changesByTabId: {},
+
+	// Clear URL change information for a given tab
 	clearTab: function(tabId) {
 		delete changeManager.changesByTabId[tabId];
 	},
+
+	// Check to see if it looks like we changed the URL for a tab, and update/display
+	// the pageAction if so
 	indicateChange: function(tabId, cleansedUrl) {
+		// If we have change data for a tab and the URLs appear to match, let's update the pageAction
 		if (changeManager.changesByTabId[tabId] && changeManager.changesByTabId[tabId].cleansedUrl === cleansedUrl) {
 			chrome.pageAction.show(tabId);
 			chrome.pageAction.setTitle({
@@ -203,9 +216,14 @@ var changeManager = {
 			});
 			// We can pass params into the URL like any other webpage, which is useful for dynamically generating the content:
 			chrome.pageAction.setPopup({tabId: tabId, popup:"info.html?title=URL Changed&originalUrl=" + encodeURIComponent(changeManager.changesByTabId[tabId].originalUrl)});
+			// Once we've updated the pageAction, we should clear out the change for that tab
+			// so that it does not show for any subsequent navigation (re-load, etc)
 			changeManager.clearTab(tabId);
 		}
 	},
+
+	// If we made changes to a URL for a tab, let's keep that information around so that
+	// we can show the pageAction at the appropriate time
 	storeChanges: function(tabId, originalUrl, cleansedUrl) {
 		changeManager.changesByTabId[tabId] = {
 			originalUrl: originalUrl,
@@ -216,7 +234,7 @@ var changeManager = {
 
 
 
-// Function to set handlers
+// Function to set/unset handlers for our stripping methods
 function set_handlers() {
 	// Remove any other listeners
     for (method in STUFF_BY_STRIPPING_METHOD_ID) {
@@ -250,5 +268,5 @@ function listen_for_messsages(message, sender) {
 // OK, finally let's:
 // 1) Restore the options from storage
 restore_options_from_storage();
-// 2) Listen for messages (from the Options page)
+// 2) Listen for messages (will only come from the Options page for now)
 chrome.runtime.onMessage.addListener(listen_for_messsages);
