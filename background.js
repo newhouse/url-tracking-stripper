@@ -25,9 +25,14 @@ STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()] = {
     'html': "Cancel and Re-load [speed: &darr; privacy: &uarr; permissions: &darr;]",
     'add': function() {
         chrome.tabs.onUpdated.addListener(cancel_and_reload_handler);
+		// Monitor for subsequent Navigations so that we may indicate if a change
+		// was made or not.
+		chrome.webNavigation.onCompleted.addListener(web_navigation_monitor);
     },
     'remove': function() {
         chrome.tabs.onUpdated.removeListener(cancel_and_reload_handler);
+		chrome.webNavigation.onCompleted.removeListener(web_navigation_monitor);
+
     }
 };
 STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()] = {
@@ -39,10 +44,14 @@ STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()] = {
         }
         var extra = ["blocking"];
         chrome.webRequest.onBeforeRequest.addListener(block_and_reload_handler, filters, extra);
+		// Monitor for subsequent Navigations so that we may indicate if a change
+		// was made or not.
+		chrome.webNavigation.onCompleted.addListener(web_navigation_monitor);
 
     },
     'remove': function() {
         chrome.webRequest.onBeforeRequest.removeListener(block_and_reload_handler);
+		chrome.webNavigation.onCompleted.removeListener(web_navigation_monitor);
     }
 };
 
@@ -105,9 +114,6 @@ function history_change_handler(tabId, changeInfo, tab) {
         return;
     }
 
-	// Clear what we think we've stripped for this tab
-	strippedManager.clearThingsStrippedForTab(tab.id);
-
 	// Returns false if we didn't replace antyhing
     var cleansed_url = check_url(tab.url);
     if (cleansed_url) {
@@ -115,8 +121,12 @@ function history_change_handler(tabId, changeInfo, tab) {
         chrome.tabs.executeScript(tabId, {
             code: "history.pushState(history.state, document.title, '" + cleansed_url + "');"
         });
-		// Indicate that we stripped something.
-		strippedManager.addThingsStrippedForTab(tab.id, tab.url, cleansed_url);
+
+		// Save the fact that we stripped something for indication later on.
+		changeManager.storeChanges(tab.id, tab.url, cleansed_url);
+		// And immediately indicate this fact since WebNavigation has already taken place
+		// so there's no other hook.
+		changeManager.indicateChange(tab.id, cleansed_url);
     }
 }
 
@@ -127,16 +137,13 @@ function cancel_and_reload_handler(tabId, changeInfo, tab) {
         return;
     }
 
-	// Clear what we think we've stripped for this tab
-	strippedManager.clearThingsStrippedForTab(tab.id);
-
 	// Returns false if we didn't replace antyhing
     var cleansed_url = check_url(tab.url);
     if (cleansed_url) {
         // Update the URL for that tab.
         chrome.tabs.update(tabId, {url: cleansed_url});
-		// Indicate that we stripped something.
-		strippedManager.addThingsStrippedForTab(tab.id, tab.url, cleansed_url);
+		// Save the fact that we stripped something for indication later on.
+		changeManager.storeChanges(tab.id, tab.url, cleansed_url);
     }
 }
 
@@ -146,14 +153,11 @@ function block_and_reload_handler(details) {
         return {};
     }
 
-	// Clear what we think we've stripped for this tab
-	strippedManager.clearThingsStrippedForTab(details.tabId);
-
 	// Returns false if we didn't replace antyhing
     var cleansed_url = check_url(details.url);
     if (cleansed_url) {
-		// Indicate that we stripped something.
-		strippedManager.addThingsStrippedForTab(details.tabId, details.url, cleansed_url);
+		// Save the fact that we stripped something for indication later on.
+		changeManager.storeChanges(details.tabId, details.url, cleansed_url);
 		// Redirect the browser to the cleansed URL and be done here
 		return { redirectUrl: cleansed_url };
     }
@@ -161,18 +165,6 @@ function block_and_reload_handler(details) {
 	// request
     return {};
 }
-
-// Function to set handlers
-function set_handlers() {
-	// Remove any other listeners
-    for (method in STUFF_BY_STRIPPING_METHOD_ID) {
-        STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
-    }
-	// Add the listener the user wants
-    STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
-}
-
-
 
 // We may need to monitor navigation so that we can let the user know when we've
 // stripped something from a URL
@@ -188,62 +180,47 @@ var web_navigation_monitor = function(details) {
 	chrome.tabs.get(details.tabId, function(tab) {
 		// Problems are caught by the runtim.lastError mechanism
 		if (chrome.runtime.lastError) {
+			log(chrome.runtime.lastError);
+			changeManager.clearTab(details.tabId);
 			return;
 		}
 		// OK, let's see if we likely stripped something from the URL of this page
-		strippedManager.checkIfWeShouldIndicate(details.tabId, details.url);
+		changeManager.indicateChange(details.tabId, details.url);
 	});
 };
 
-// Monitor for WebNavigation
-chrome.webNavigation.onCompleted.addListener(web_navigation_monitor);
+// Function to set handlers
+function set_handlers() {
+	// Remove any other listeners
+    for (method in STUFF_BY_STRIPPING_METHOD_ID) {
+        STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
+    }
+	// Add the listener the user wants
+    STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
+}
 
 
 
-
-var strippedManager = {
-
-	things_stripped_by_tab_id: {},
-	cleansed_urls_by_tab_id: {},
-
-	checkIfWeShouldIndicate: function(tabId, url) {
-		if (strippedManager.cleansed_urls_by_tab_id[tabId] && strippedManager.things_stripped_by_tab_id[tabId]) {
-			if (strippedManager.cleansed_urls_by_tab_id[tabId] == url) {
-
-				var options = {
-					'tabId': tabId,
-					'title': "URL changed from " + strippedManager.things_stripped_by_tab_id[tabId]
-				};
-
-				chrome.pageAction.show(tabId);
-				chrome.pageAction.setTitle(options);
-				strippedManager.clearThingsStrippedForTab(tabId, false);
-			}
-			else {
-				strippedManager.clearThingsStrippedForTab(tabId);
-			}
+var changeManager = {
+	changesByTabId: {},
+	clearTab: function(tabId) {
+		delete changeManager.changesByTabId[tabId];
+	},
+	indicateChange: function(tabId, cleansedUrl) {
+		if (changeManager.changesByTabId[tabId] && changeManager.changesByTabId[tabId].cleansedUrl === cleansedUrl) {
+			chrome.pageAction.show(tabId);
+			chrome.pageAction.setTitle({
+				'tabId': tabId,
+				'title': "URL changed from " + changeManager.changesByTabId[tabId].originalUrl
+			});
+			changeManager.clearTab(tabId);
 		}
 	},
-
-	clearThingsStrippedForTab: function(tabId, hidePageAction) {
-
-		hidePageAction = (typeof hidePageAction !== 'undefined') ? hidePageAction : true;
-
-		// Did we have this tab before?
-		if (hidePageAction && strippedManager.things_stripped_by_tab_id[tabId]) {
-			chrome.pageAction.hide(tabId);
-		}
-
-		// Strip stuff
-		strippedManager.things_stripped_by_tab_id[tabId] = [];
-		strippedManager.cleansed_urls_by_tab_id[tabId] = undefined;
-
-
-	},
-
-	addThingsStrippedForTab: function(tabId, originalUrl, cleansed_url) {
-		strippedManager.things_stripped_by_tab_id[tabId] = [originalUrl];
-		strippedManager.cleansed_urls_by_tab_id[tabId] = cleansed_url;
+	storeChanges: function(tabId, originalUrl, cleansedUrl) {
+		changeManager.changesByTabId[tabId] = {
+			originalUrl: originalUrl,
+			cleansedUrl: cleansedUrl
+		};
 	}
 };
 
