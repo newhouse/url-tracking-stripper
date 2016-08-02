@@ -2,7 +2,7 @@
    "manifest_version": 2,
    "name": "URL Tracking Stripper",
    "short_name": "URL Tracking Stripper",
-   "version": "0.0.4",
+   "version": "0.0.5",
    "description": "Will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.",
    "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
    "icons": {
@@ -20,11 +20,20 @@
 	  "tabs",
 	  "webRequest",
 	  "webRequestBlocking",
+	  "webNavigation",
 	  "http://*/*",
 	  "https://*/*"
    ],
    "options_ui": {
 	  "page": "options.html",
 	  "chrome_style": true
+   },
+   "page_action": {
+      "default_title": "Nothing stripped on this page.",
+      "default_icon": {
+	     "19": "icon-19.png",
+	     "38": "icon-38.png",
+		 "48": "icon-48.png"
+      }
    }
 }
