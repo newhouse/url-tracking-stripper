@@ -68,5 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Monitor for save clicks
 	document.getElementById('save').addEventListener('click', save_options);
+	// Monitor for choice changes as well, even though it's redundant
+	document.getElementById('stripping_method').addEventListener('change', save_options);
 });
-
