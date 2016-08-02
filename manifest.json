@@ -20,11 +20,20 @@
 	  "tabs",
 	  "webRequest",
 	  "webRequestBlocking",
+	  "webNavigation",
 	  "http://*/*",
 	  "https://*/*"
    ],
    "options_ui": {
 	  "page": "options.html",
 	  "chrome_style": true
+   },
+   "page_action": {
+      "default_title": "URL Tracking Stripper",
+      "default_icon": {
+	     "19": "icon-19.png",
+	     "38": "icon-38.png",
+		 "48": "icon-48.png"
+      }
    }
 }

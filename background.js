@@ -57,7 +57,7 @@ for (var root in trackers_by_root) {
 function generate_patterns_array() {
     var array = [];
     for (var root in trackers_by_root) {
-        for (var i=0; i<trackers_by_root[root].length; i++) {
+        for (var i=0; i < trackers_by_root[root].length; i++) {
             array.push( "*://*/*?*" + root + trackers_by_root[root][i] + "=*" );
         }
     }
@@ -89,6 +89,8 @@ function remove_trackers_from_url(url) {
     return url_pieces[1] ? url_pieces.join('?') : url_pieces[0];
 }
 
+// Let's check a URL to see if there's anything to strip from it. Will return
+// false if there was nothing to strip out
 function check_url(original_url) {
     var cleansed_url = remove_trackers_from_url(original_url);
     // If it looks like we altered the URL
@@ -102,12 +104,19 @@ function history_change_handler(tabId, changeInfo, tab) {
     if (!changeInfo.url) {
         return;
     }
+
+	// Clear what we think we've stripped for this tab
+	strippedManager.clearThingsStrippedForTab(tab.id);
+
+	// Returns false if we didn't replace antyhing
     var cleansed_url = check_url(tab.url);
     if (cleansed_url) {
         // Execute script in that tab to update the History
         chrome.tabs.executeScript(tabId, {
             code: "history.pushState(history.state, document.title, '" + cleansed_url + "');"
         });
+		// Indicate that we stripped something.
+		strippedManager.addThingsStrippedForTab(tab.id, tab.url, cleansed_url);
     }
 }
 
@@ -117,10 +126,17 @@ function cancel_and_reload_handler(tabId, changeInfo, tab) {
     if (!changeInfo.url) {
         return;
     }
+
+	// Clear what we think we've stripped for this tab
+	strippedManager.clearThingsStrippedForTab(tab.id);
+
+	// Returns false if we didn't replace antyhing
     var cleansed_url = check_url(tab.url);
     if (cleansed_url) {
         // Update the URL for that tab.
         chrome.tabs.update(tabId, {url: cleansed_url});
+		// Indicate that we stripped something.
+		strippedManager.addThingsStrippedForTab(tab.id, tab.url, cleansed_url);
     }
 }
 
@@ -129,21 +145,107 @@ function block_and_reload_handler(details) {
     if (!details.url) {
         return {};
     }
+
+	// Clear what we think we've stripped for this tab
+	strippedManager.clearThingsStrippedForTab(details.tabId);
+
+	// Returns false if we didn't replace antyhing
     var cleansed_url = check_url(details.url);
     if (cleansed_url) {
-        return { redirectUrl: cleansed_url };
+		// Indicate that we stripped something.
+		strippedManager.addThingsStrippedForTab(details.tabId, details.url, cleansed_url);
+		// Redirect the browser to the cleansed URL and be done here
+		return { redirectUrl: cleansed_url };
     }
+	// Return an empty object, which indicates we're not blocking/redirecting this
+	// request
     return {};
 }
 
 // Function to set handlers
 function set_handlers() {
-    for(method in STUFF_BY_STRIPPING_METHOD_ID) {
+	// Remove any other listeners
+    for (method in STUFF_BY_STRIPPING_METHOD_ID) {
         STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
     }
+	// Add the listener the user wants
     STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
 }
 
+
+
+// We may need to monitor navigation so that we can let the user know when we've
+// stripped something from a URL
+var web_navigation_monitor = function(details) {
+	//  We only care about "main_frame"
+	if (details.frameId !== 0) {
+		return;
+	}
+
+	// Let's make sure this tab exists. Have seen some issues with Chrome pre-rendering
+	// but not firing the tabs.onReplaced event, so just have to be a little
+	// cautious.
+	chrome.tabs.get(details.tabId, function(tab) {
+		// Problems are caught by the runtim.lastError mechanism
+		if (chrome.runtime.lastError) {
+			return;
+		}
+		// OK, let's see if we likely stripped something from the URL of this page
+		strippedManager.checkIfWeShouldIndicate(details.tabId, details.url);
+	});
+};
+
+// Monitor for WebNavigation
+chrome.webNavigation.onCompleted.addListener(web_navigation_monitor);
+
+
+
+
+var strippedManager = {
+
+	things_stripped_by_tab_id: {},
+	cleansed_urls_by_tab_id: {},
+
+	checkIfWeShouldIndicate: function(tabId, url) {
+		if (strippedManager.cleansed_urls_by_tab_id[tabId] && strippedManager.things_stripped_by_tab_id[tabId]) {
+			if (strippedManager.cleansed_urls_by_tab_id[tabId] == url) {
+
+				var options = {
+					'tabId': tabId,
+					'title': "URL changed from " + strippedManager.things_stripped_by_tab_id[tabId]
+				};
+
+				chrome.pageAction.show(tabId);
+				chrome.pageAction.setTitle(options);
+				strippedManager.clearThingsStrippedForTab(tabId, false);
+			}
+			else {
+				strippedManager.clearThingsStrippedForTab(tabId);
+			}
+		}
+	},
+
+	clearThingsStrippedForTab: function(tabId, hidePageAction) {
+
+		hidePageAction = (typeof hidePageAction !== 'undefined') ? hidePageAction : true;
+
+		// Did we have this tab before?
+		if (hidePageAction && strippedManager.things_stripped_by_tab_id[tabId]) {
+			chrome.pageAction.hide(tabId);
+		}
+
+		// Strip stuff
+		strippedManager.things_stripped_by_tab_id[tabId] = [];
+		strippedManager.cleansed_urls_by_tab_id[tabId] = undefined;
+
+
+	},
+
+	addThingsStrippedForTab: function(tabId, originalUrl, cleansed_url) {
+		strippedManager.things_stripped_by_tab_id[tabId] = [originalUrl];
+		strippedManager.cleansed_urls_by_tab_id[tabId] = cleansed_url;
+	}
+};
 
 
 
@@ -153,7 +255,7 @@ function restore_options_from_storage() {
     chrome.storage.sync.get({
         'STRIPPING_METHOD_TO_USE': STRIPPING_METHOD_HISTORY_CHANGE },
         function(items) {
-            STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE ? items.STRIPPING_METHOD_TO_USE : STRIPPING_METHOD_HISTORY_CHANGE;
+            STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_HISTORY_CHANGE;
             // Set the handler now that we know what method we'd like to use
             set_handlers();
         }
@@ -161,7 +263,7 @@ function restore_options_from_storage() {
 }
 
 function listen_for_messsages(message, sender) {
-    if( message.action == 'options_saved') {
+    if (message.action == 'options_saved') {
         STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
         set_handlers();
     }
