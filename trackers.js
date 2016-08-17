@@ -10,7 +10,8 @@ var trackers_by_root = {
         "cid",
         "reader",
         "viz_id",
-        "pubreferrer"
+        "pubreferrer",
+		"swu"
     ],
     // Marketo
     "mkt_": [
