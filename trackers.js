@@ -21,6 +21,11 @@ var trackers_by_root = {
 	"sr_": [
 		"share"
 	],
+	// Vero
+	"vero_": [
+		"conv",
+		"id"
+	],
 	// Unknown
     "nr_": [
         "email_referer"
