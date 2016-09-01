@@ -107,6 +107,11 @@ function remove_trackers_from_url(url) {
 // Let's check a URL to see if there's anything to strip from it. Will return
 // false if there was nothing to strip out
 function check_url(original_url) {
+    // If the URL is "excepted", that means we should not try to strip any junk
+    // from it, so we're done here.
+    if (exceptionsManager.isExceptedUrl(original_url)) {
+        return false;
+    }
     var cleansed_url = remove_trackers_from_url(original_url);
     // If it looks like we altered the URL, return a cleansed URL, otherwise false
     return (original_url != cleansed_url) ? cleansed_url : false;
@@ -195,6 +200,36 @@ var web_navigation_monitor = function(details) {
 };
 
 
+// Let's manage any exceptions that the User has indicated they would like
+var exceptionsManager = {
+    url_exceptions: [],
+
+    addUrlException: function(url) {
+        exceptionsManager.url_exceptions.push(url);
+    },
+
+    isExceptedUrl: function(url) {
+        // Will check to see if a URL is "excepted" from being stripped. If it is
+        // then it's removed from the list of exceptions as it's 1-time only, and
+        // true is returned. Otherwise false is returned.
+
+        // If there are no exceptions (most likely) or this URL is not among them
+        // then return false
+        if (exceptionsManager.url_exceptions.length === 0) {
+            return false;
+        }
+        var index = exceptionsManager.url_exceptions.indexOf(url);
+        if (index === -1) {
+            return false;
+        }
+        else {
+            // We have an exeption here!
+            exceptionsManager.url_exceptions.splice(index,1);
+            return true;
+        }
+    }
+}
+
 var changeManager = {
     // We'll store URL change information by tab id
     changesByTabId: {},
@@ -258,9 +293,26 @@ function restore_options_from_storage() {
 }
 
 function listen_for_messsages(message, sender) {
+    // User has updated their options/preferences
     if (message.action == 'options_saved') {
         STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
         set_handlers();
+    }
+
+    // User would like to re-load with params allowed
+    if (message.action == 'reload_and_allow_params') {
+        if (!message.url) {
+            return;
+        }
+
+        // Add this URL to the list of exceptions.
+        exceptionsManager.addUrlException(message.url);
+
+        // Re-load this full URL in the tab
+        chrome.tabs.update({
+            //tabId: DON'T NEED B/C DEFAULT IS CURRENT ACTIVE TAB
+            url: message.url
+        });
     }
 }
 
@@ -268,5 +320,5 @@ function listen_for_messsages(message, sender) {
 // OK, finally let's:
 // 1) Restore the options from storage
 restore_options_from_storage();
-// 2) Listen for messages (will only come from the Options page for now)
+// 2) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(listen_for_messsages);

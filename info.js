@@ -13,4 +13,16 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('title').textContent = params.title;
     document.getElementById('original').textContent = params.originalUrl;
 
+
+	document.getElementById('go_to_original').addEventListener('click', function() {
+		// Send message to background script that the user would like to re-load this
+		// url un-stripped
+		chrome.runtime.sendMessage({
+			action: 'reload_and_allow_params',
+			url: params.originalUrl
+		});
+		// Close the window.
+		window.close();
+	});
+
 });
