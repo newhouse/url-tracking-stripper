@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Send message to background script that the user would like to re-load this
 		// url un-stripped
 		chrome.runtime.sendMessage({
-            action: 'reload_and_allow_params',
+			action: 'reload_and_allow_params',
 			url: params.originalUrl
 		});
 		// Close the window.

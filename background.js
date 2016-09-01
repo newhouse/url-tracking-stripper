@@ -219,7 +219,7 @@ var exceptionsManager = {
             return false;
         }
         var index = exceptionsManager.url_exceptions.indexOf(url);
-        if ( index === -1) {
+        if (index === -1) {
             return false;
         }
         else {
@@ -320,5 +320,5 @@ function listen_for_messsages(message, sender) {
 // OK, finally let's:
 // 1) Restore the options from storage
 restore_options_from_storage();
-// 2) Listen for messages (will only come from the Options page for now)
+// 2) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(listen_for_messsages);
