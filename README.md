@@ -3,11 +3,12 @@
 A Chrome Extension designed with one intention: remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
 
 You can install this Extension in the [Chrome Webstore][store]
-[Chrome Webstore](webstore_badge.png "Chrome Webstore")
+
+[![Chrome Webstore](webstore_badge.png)][store]
 
 
-The following URL parameters are removed:
-- Google's Urchin Tracking Module
+####The following URL parameters are removed:
+Google's Urchin Tracking Module
 - `utm_source`
 - `utm_medium`
 - `utm_term`
@@ -19,28 +20,25 @@ The following URL parameters are removed:
 - `utm_pubreferrer`
 - `utm_swu`
 
-- Marketo
-- `mkt_tok`
-
--Simple Reach
-- `sr_share`
-
-- Vero
-- `vero_conv`
-- `vero_id`
-
-- Unknown
-- `nr_email_referer`
-
-- Unknown
-- `ncid`
-
-- Adobe Omniture SiteCatalyst
+Adobe Omniture SiteCatalyst
 - `ICID`
 - `icid`
 
+Marketo
+- `mkt_tok`
 
-Please file an Issue if you would like others tracked.
+Simple Reach
+- `sr_share`
+
+Vero
+- `vero_conv`
+- `vero_id`
+
+Unknown
+- `nr_email_referer`
+- `ncid`
+
+Please file an Issue if you would like others tracked!
 
 # Stripping Methods
 This Extension is free and open source, and in no way is trying to keep tabs on you. However,
@@ -88,8 +86,7 @@ recommended you take a look at something that was designed with that as its goal
 - Chrome Extensions Tabs [update](https://developer.chrome.com/extensions/tabs#method-update) (`chrome.tabs.update`)
 - Chrome Extensions Tabs [executeScript](https://developer.chrome.com/extensions/tabs#method-executeScript) (`chrome.tabs.executeScript`)
 - Chrome Extensions [webRequest & webRequestBlocking](https://developer.chrome.com/extensions/webRequest) (`chrome.webRequest.onBeforeRequest`)
-
-- Window History pushState(): https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
+- Window History [pushState()](https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method)
 
 
 
