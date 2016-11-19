@@ -91,10 +91,10 @@ recommended you take a look at something that was designed with that as its goal
 
 
 # Version History
-v1.1 - added more trackers to the list. Changed some image and description, etc.
-v1.0 - added ability to re-load a page with trackers allowed 1-time from the PageAction (icon)
-v0.0.7-8 - Added more trackers.
-v0.0.6 - Icon will become active when a URL has some pieces stripped by the extension so you know when it's done something. The original URL will be shown if you click on it.
-v.0.0.5 - Added support for more trackers. Made faster. Fixed bugs around removing matches that are *not* parameters, etc.
+- v1.1 - added more trackers to the list. Changed some image and description, etc.
+- v1.0 - added ability to re-load a page with trackers allowed 1-time from the PageAction (icon)
+- v0.0.7-8 - Added more trackers.
+- v0.0.6 - Icon will become active when a URL has some pieces stripped by the extension so you know when it's done something. The original URL will be shown if you click on it.
+- v.0.0.5 - Added support for more trackers. Made faster. Fixed bugs around removing matches that are *not* parameters, etc.
 
 [store]: https://chrome.google.com/webstore/detail/url-tracking-stripper/flnagcobkfofedknnnmofijmmkbgfamf
