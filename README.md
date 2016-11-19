@@ -8,36 +8,36 @@ You can install this Extension in the [Chrome Webstore][store]
 
 The following URL parameters are removed:
 - Google's Urchin Tracking Module
-`utm_source`
-`utm_medium`
-`utm_term`
-`utm_campaign`
-`utm_content`
-`utm_cid`
-`utm_reader`
-`utm_viz_id`
-`utm_pubreferrer`
-`utm_swu`
+- `utm_source`
+- `utm_medium`
+- `utm_term`
+- `utm_campaign`
+- `utm_content`
+- `utm_cid`
+- `utm_reader`
+- `utm_viz_id`
+- `utm_pubreferrer`
+- `utm_swu`
 
 - Marketo
-`mkt_tok`
+- `mkt_tok`
 
 -Simple Reach
-`sr_share`
+- `sr_share`
 
 - Vero
-`vero_conv`
-`vero_id`
+- `vero_conv`
+- `vero_id`
 
 - Unknown
-`nr_email_referer`
+- `nr_email_referer`
 
 - Unknown
-`ncid`
+- `ncid`
 
 - Adobe Omniture SiteCatalyst
-`ICID`
-`icid`
+- `ICID`
+- `icid`
 
 
 Please file an Issue if you would like others tracked.
@@ -77,16 +77,17 @@ visiting in your tabs, and does not monitor any resources that are subesquently 
 tracking parameters. If you are really interested in privacy and actually blocking all tracking requests, I highly
 recommended you take a look at something that was designed with that as its goal, such as Ghostery [https://www.ghostery.com/].
 
+
 ## Utilizes:
-- Chrome Extensions Runtime onMessage (chrome.runtime.onMessage): https://developer.chrome.com/extensions/runtime#event-onMessage
-- Chrome Extensions Runtime sendMessage (chrome.runtime.sendMessage): https://developer.chrome.com/extensions/runtime#method-sendMessage
-- Chrome Extensions Runtime getManifest (chrome.runtime.getManifest): https://developer.chrome.com/extensions/runtime#method-getManifest
-- Chrome Extensions Runtime getBackgroundPage (chrome.runtime.getBackgroundPage): https://developer.chrome.com/extensions/runtime#method-getBackgroundPage
-- Chrome Extensions Storage Sync (chrome.storage.sync): https://developer.chrome.com/extensions/storage
-- Chrome Extensions Tabs onUpdated (chrome.tabs.onUpdated): https://developer.chrome.com/extensions/tabs#event-onUpdated
-- Chrome Extensions Tabs Update (chrome.tabs.update): https://developer.chrome.com/extensions/tabs#method-update
-- Chrome Extensions Tabs executeScript (chrome.tabs.executeScript): https://developer.chrome.com/extensions/tabs#method-executeScript
-- Chrome Extensions webRequest & webRequestBlocking (chrome.webRequest.onBeforeRequest): https://developer.chrome.com/extensions/webRequest
+- Chrome Extensions Runtime [onMessage](https://developer.chrome.com/extensions/runtime#event-onMessage) (`chrome.runtime.onMessage`)
+- Chrome Extensions Runtime [sendMessage](https://developer.chrome.com/extensions/runtime#method-sendMessage) (`chrome.runtime.sendMessage`)
+- Chrome Extensions Runtime [getManifest](https://developer.chrome.com/extensions/runtime#method-getManifest) (`chrome.runtime.getManifest`)
+- Chrome Extensions Runtime [getBackgroundPage](https://developer.chrome.com/extensions/runtime#method-getBackgroundPage) (`chrome.runtime.getBackgroundPage`)
+- Chrome Extensions [Storage Sync](https://developer.chrome.com/extensions/storage) (`chrome.storage.sync`)
+- Chrome Extensions Tabs [onUpdated](https://developer.chrome.com/extensions/tabs#event-onUpdated) (`chrome.tabs.onUpdated`)
+- Chrome Extensions Tabs [update](https://developer.chrome.com/extensions/tabs#method-update) (`chrome.tabs.update`)
+- Chrome Extensions Tabs [executeScript](https://developer.chrome.com/extensions/tabs#method-executeScript) (`chrome.tabs.executeScript`)
+- Chrome Extensions [webRequest & webRequestBlocking](https://developer.chrome.com/extensions/webRequest) (`chrome.webRequest.onBeforeRequest`)
 
 - Window History pushState(): https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
 
