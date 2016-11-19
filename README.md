@@ -1,22 +1,46 @@
-# url-tracking-stripper
+# URL Tracking Stripper
 
-A pretty simple, open-source Chrome Extension that will remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
+A Chrome Extension designed with one intention: remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
 
-You can install this Extension in the Chrome Webstore here: https://chrome.google.com/webstore/detail/url-tracking-stripper/flnagcobkfofedknnnmofijmmkbgfamf
+You can install this Extension in the [Chrome Webstore][store]
+[Chrome Webstore](webstore_badge.png "Chrome Webstore")
 
-## Utilizes:
-- Chrome Extensions Runtime onMessage (chrome.runtime.onMessage): https://developer.chrome.com/extensions/runtime#event-onMessage
-- Chrome Extensions Runtime sendMessage (chrome.runtime.sendMessage): https://developer.chrome.com/extensions/runtime#method-sendMessage
-- Chrome Extensions Runtime getManifest (chrome.runtime.getManifest): https://developer.chrome.com/extensions/runtime#method-getManifest
-- Chrome Extensions Runtime getBackgroundPage (chrome.runtime.getBackgroundPage): https://developer.chrome.com/extensions/runtime#method-getBackgroundPage
-- Chrome Extensions Storage Sync (chrome.storage.sync): https://developer.chrome.com/extensions/storage
-- Chrome Extensions Tabs onUpdated (chrome.tabs.onUpdated): https://developer.chrome.com/extensions/tabs#event-onUpdated
-- Chrome Extensions Tabs Update (chrome.tabs.update): https://developer.chrome.com/extensions/tabs#method-update
-- Chrome Extensions Tabs executeScript (chrome.tabs.executeScript): https://developer.chrome.com/extensions/tabs#method-executeScript
-- Chrome Extensions webRequest & webRequestBlocking (chrome.webRequest.onBeforeRequest): https://developer.chrome.com/extensions/webRequest
 
-- Window History pushState(): https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
+The following URL parameters are removed:
+- Google's Urchin Tracking Module
+- `utm_source`
+- `utm_medium`
+- `utm_term`
+- `utm_campaign`
+- `utm_content`
+- `utm_cid`
+- `utm_reader`
+- `utm_viz_id`
+- `utm_pubreferrer`
+- `utm_swu`
 
+- Marketo
+- `mkt_tok`
+
+-Simple Reach
+- `sr_share`
+
+- Vero
+- `vero_conv`
+- `vero_id`
+
+- Unknown
+- `nr_email_referer`
+
+- Unknown
+- `ncid`
+
+- Adobe Omniture SiteCatalyst
+- `ICID`
+- `icid`
+
+
+Please file an Issue if you would like others tracked.
 
 # Stripping Methods
 This Extension is free and open source, and in no way is trying to keep tabs on you. However,
@@ -35,7 +59,7 @@ tracking parameters, and try to instead re-load the equivalent URL without the t
 slow your general browsing since requests begin immediately *before* they are checked for containing a tracking parameter,
 this approach may slow down your experience slightly on URLs that contained tracking parameters. This is because some
 amount of resources will have been loaded already by the time the overall page request is cancelled, adjusted and then
-re-loaded with a clean URL. Furthermore, while this approach is likely to result in increased privacy when it is able to 
+re-loaded with a clean URL. Furthermore, while this approach is likely to result in increased privacy when it is able to
 removing tracking parameters before they are able to be processed, it's possible that the time between the original request
 and the cancellation was enough to be tracked, so __*increased privacy is not guaranteed*__.
 
@@ -52,3 +76,28 @@ Stripping Method) being an added benefit. This extension also __*only monitors t
 visiting in your tabs, and does not monitor any resources that are subesquently loaded by that page that may contain
 tracking parameters. If you are really interested in privacy and actually blocking all tracking requests, I highly
 recommended you take a look at something that was designed with that as its goal, such as Ghostery [https://www.ghostery.com/].
+
+
+## Utilizes:
+- Chrome Extensions Runtime [onMessage](https://developer.chrome.com/extensions/runtime#event-onMessage) (`chrome.runtime.onMessage`)
+- Chrome Extensions Runtime [sendMessage](https://developer.chrome.com/extensions/runtime#method-sendMessage) (`chrome.runtime.sendMessage`)
+- Chrome Extensions Runtime [getManifest](https://developer.chrome.com/extensions/runtime#method-getManifest) (`chrome.runtime.getManifest`)
+- Chrome Extensions Runtime [getBackgroundPage](https://developer.chrome.com/extensions/runtime#method-getBackgroundPage) (`chrome.runtime.getBackgroundPage`)
+- Chrome Extensions [Storage Sync](https://developer.chrome.com/extensions/storage) (`chrome.storage.sync`)
+- Chrome Extensions Tabs [onUpdated](https://developer.chrome.com/extensions/tabs#event-onUpdated) (`chrome.tabs.onUpdated`)
+- Chrome Extensions Tabs [update](https://developer.chrome.com/extensions/tabs#method-update) (`chrome.tabs.update`)
+- Chrome Extensions Tabs [executeScript](https://developer.chrome.com/extensions/tabs#method-executeScript) (`chrome.tabs.executeScript`)
+- Chrome Extensions [webRequest & webRequestBlocking](https://developer.chrome.com/extensions/webRequest) (`chrome.webRequest.onBeforeRequest`)
+
+- Window History pushState(): https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
+
+
+
+# Version History
+v1.1 - added more trackers to the list. Changed some image and description, etc.
+v1.0 - added ability to re-load a page with trackers allowed 1-time from the PageAction (icon)
+v0.0.7-8 - Added more trackers.
+v0.0.6 - Icon will become active when a URL has some pieces stripped by the extension so you know when it's done something. The original URL will be shown if you click on it.
+v.0.0.5 - Added support for more trackers. Made faster. Fixed bugs around removing matches that are *not* parameters, etc.
+
+[store]: https://chrome.google.com/webstore/detail/url-tracking-stripper/flnagcobkfofedknnnmofijmmkbgfamf
