@@ -3,7 +3,7 @@
   "name": "URL Tracking Stripper",
   "short_name": "URL Tracking Stripper",
   "version": "1.1",
-  "description": "Removes tracking tokens and parameters from URLs for Google Analytics & others making them shorter & cleaner to share, bookmark, etc",
+  "description": "Removes tracking tokens from URLs to keep them short and clean for sharing, bookmarking, etc. UTM and others. Fast and customizable.",
   "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
   "icons": {
     "128": "icon-128.png",
