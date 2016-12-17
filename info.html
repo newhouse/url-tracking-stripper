@@ -1,17 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
+<style>
+body {
+ width:320px !important;
+}
+button {
+  margin:0 auto !important;
+  display: block !important;
+}
+.notification-card.mdl-card {
+  width: 320px;
+  height: 320px;
+}
+.notification-card > .mdl-card__title {
+  color: #fff;
+  background: #3162CB;
+}
+.mdl-card__title-text.url {
+  position: absolute !important;
+  top: 20px !important;
+  overflow: scroll !important;
+  white-space: nowrap !important;
+  z-index: 0 !important;
+}
+#scissor-left {
+  position: absolute !important;
+  top: 11px !important;
+  right: 92px !important;
+  z-index: 5 !important;
+}
+#scissor-right {
+  position: absolute !important;
+  top: 0px !important;
+  right: 20px !important;
+  z-index: 0 !important;
+}
+#original {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+</style>
+  <link rel="stylesheet" href="lib/material.blue-red.min.css" />
 	<title id="title"></title>
 </head>
 <body>
-This URL has had some pieces stripped! The original was:
-<br>
-<br>
-<b>
-	<div id="original"></div>
-</b>
-<br>
-	<a id="go_to_original" href="#">Click here</a> to re-load and allow the parameters. Useful if you were having trouble loading a page.
+<div class="notification-card mdl-card mdl-shadow--2dp">
+  <div class="mdl-card__title mdl-card--expand">
+    <h2 id="url" class="url mdl-card__title-text"></h2>
+    <h2 class="mdl-card__title-text">Tracking removed!</h2>
+    <img id="scissor-left" src="./scissors-left.png">
+    <img id="scissor-right" src="./scissors-right.png">
+  </div>
+  <div class="mdl-card__supporting-text">
+    This URL has had some pieces stripped! The full URL was:<br>
+    <div id="original"></div>
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+  <button id="go_to_original" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Reload with full URL</button>
+  </div>
+</div>
+
 <script src="info.js"></script>
+<script src="lib/material.min.js"></script>
 </body>
 </html>
