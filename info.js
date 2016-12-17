@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Populate some areas with stuff passed in the URL
     document.getElementById('title').textContent = params.title;
     document.getElementById('original').textContent = params.originalUrl;
+    document.getElementById('url').textContent = params.originalUrl;
 
 
 	document.getElementById('go_to_original').addEventListener('click', function() {
