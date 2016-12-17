@@ -91,6 +91,7 @@ recommended you take a look at something that was designed with that as its goal
 
 
 # Version History
+- v1.2 - Made the Page Action popup better looking with MDL.
 - v1.1 - added more trackers to the list. Changed some image and description, etc.
 - v1.0 - added ability to re-load a page with trackers allowed 1-time from the PageAction (icon)
 - v0.0.7-8 - Added more trackers.
