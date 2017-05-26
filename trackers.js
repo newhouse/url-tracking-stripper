@@ -49,5 +49,11 @@ var trackers_by_root = {
   // Adobe Omniture SiteCatalyst
   "ic": [
     "id"
+  ],
+
+  // Hubspot
+  "_hs": [
+    "enc",
+    "mi"
   ]
 };
