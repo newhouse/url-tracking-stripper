@@ -8,6 +8,7 @@ var trackers_by_root = {
     "term",
     "campaign",
     "content",
+    "name",
     "cid",
     "reader",
     "viz_id",

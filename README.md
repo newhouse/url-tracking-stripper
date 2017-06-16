@@ -7,13 +7,14 @@ You can install this Extension in the [Chrome Webstore][store]
 [![Chrome Webstore](webstore_badge.png)][store]
 
 
-####The following URL parameters are removed:
+#### The following URL parameters are removed:
 Google's Urchin Tracking Module
 - `utm_source`
 - `utm_medium`
 - `utm_term`
 - `utm_campaign`
 - `utm_content`
+- `utm_name`
 - `utm_cid`
 - `utm_reader`
 - `utm_viz_id`
@@ -95,6 +96,7 @@ recommended you take a look at something that was designed with that as its goal
 
 
 # Version History
+- v1.4 - Added tracker: `utm_name`.
 - v1.3 - Added Hubspot trackers.
 - v1.2 - Made the Page Action popup better looking with MDL.
 - v1.1 - added more trackers to the list. Changed some image and description, etc.
