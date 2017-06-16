@@ -7,13 +7,14 @@ You can install this Extension in the [Chrome Webstore][store]
 [![Chrome Webstore](webstore_badge.png)][store]
 
 
-####The following URL parameters are removed:
+#### The following URL parameters are removed:
 Google's Urchin Tracking Module
 - `utm_source`
 - `utm_medium`
 - `utm_term`
 - `utm_campaign`
 - `utm_content`
+- `utm_name`
 - `utm_cid`
 - `utm_reader`
 - `utm_viz_id`
