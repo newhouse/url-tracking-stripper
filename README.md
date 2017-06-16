@@ -96,7 +96,7 @@ recommended you take a look at something that was designed with that as its goal
 
 
 # Version History
-- v1.4 - Added tracker: `utm_name`. Added Material Icons font to the `info.html` popup.
+- v1.4 - Added tracker: `utm_name`.
 - v1.3 - Added Hubspot trackers.
 - v1.2 - Made the Page Action popup better looking with MDL.
 - v1.1 - added more trackers to the list. Changed some image and description, etc.
