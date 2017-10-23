@@ -63,7 +63,7 @@ slow your general browsing since requests begin immediately *before* they are ch
 this approach may slow down your experience slightly on URLs that contained tracking parameters. This is because some
 amount of resources will have been loaded already by the time the overall page request is cancelled, adjusted and then
 re-loaded with a clean URL. Furthermore, while this approach is likely to result in increased privacy when it is able to
-removing tracking parameters before they are able to be processed, it's possible that the time between the original request
+remove tracking parameters before they are able to be processed, it's possible that the time between the original request
 and the cancellation was enough to be tracked, so __*increased privacy is not guaranteed*__.
 
 3) __Block and Re-Load__: This approach will evaluate any URLs you attempt to visit __*before*__ the request is actually executed.

@@ -3,13 +3,23 @@ var options_saved_timeout = 2000;
 // Called to save the selected options
 function save_options() {
 
-    var stripping_method = parseInt(document.getElementById('stripping_method').value);
+    adjust_checkbox();
 
-    chrome.storage.sync.set({
-        'STRIPPING_METHOD_TO_USE': stripping_method
-        }, function() {
+    const stripping_method_value = parseInt(document.getElementById('stripping_method').value);
+    const skip_google = document.getElementById('skipgoogle').checked;
+
+    const options = {
+        'STRIPPING_METHOD_TO_USE': stripping_method_value,
+        'SKIP_GOOGLE_REDIRECTS': skip_google
+    };
+
+    console.log('options:', options);
+
+    chrome.storage.sync.set(
+        options,
+        function() {
             // Update status to let user know options were saved.
-            var status = document.getElementById('status');
+            let status = document.getElementById('status');
             status.textContent = 'Options saved!';
             setTimeout(function() {
                 status.textContent = '';
@@ -19,14 +29,30 @@ function save_options() {
 
     // Send the new options values to the background script so it can handle
     // accordingly
-    chrome.runtime.sendMessage({
+    chrome.runtime.sendMessage(
+        {
             action: 'options_saved',
-            options: {
-                'STRIPPING_METHOD_TO_USE': stripping_method
-            }
+            options: options
         }
     );
+}
 
+function adjust_checkbox() {
+    const stripping_method = document.getElementById('stripping_method');
+    const skip_google = document.getElementById('skipgoogle');
+    const skip_google_wrapper = document.getElementById('skipgoogle_wrapper');
+
+    console.log('stripping_method.value', parseInt(stripping_method.value));
+
+    if (parseInt(stripping_method.value) === 1) {
+        skip_google.checked = false;
+        skip_google.disabled = true;
+        skip_google_wrapper.style.display = "none";
+    }
+    else {
+        skip_google.disabled = false;
+        skip_google_wrapper.style.display = "block";
+    }
 }
 
 // Dynamically generate the options page elements
@@ -50,9 +76,14 @@ function generate_option_elements() {
 // stored in chrome.storage.
 function restore_options() {
     chrome.storage.sync.get({
-        'STRIPPING_METHOD_TO_USE': "1"
-        }, function(items) {
+        'STRIPPING_METHOD_TO_USE': "1",
+        'SKIP_GOOGLE_REDIRECTS': false
+        },
+        function(items) {
             document.getElementById('stripping_method').value = items['STRIPPING_METHOD_TO_USE'];
+            document.getElementById('skipgoogle').checked = items['SKIP_GOOGLE_REDIRECTS'];
+
+            adjust_checkbox();
         }
     );
 }
@@ -70,4 +101,5 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('save').addEventListener('click', save_options);
     // Monitor for choice changes as well, even though it's redundant
     document.getElementById('stripping_method').addEventListener('change', save_options);
+    document.getElementById('skipgoogle').addEventListener('change', save_options);
 });
