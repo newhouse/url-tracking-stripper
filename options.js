@@ -20,9 +20,11 @@ function save_options() {
         function() {
             // Update status to let user know options were saved.
             let status = document.getElementById('status');
-            status.textContent = 'Options saved!';
+            // status.textContent = 'Options saved!';
+            status.style.opacity = 1;
             setTimeout(function() {
-                status.textContent = '';
+                // status.textContent = '';
+                status.style.opacity = 0;
             }, options_saved_timeout);
         }
     );

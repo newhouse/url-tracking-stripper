@@ -73,6 +73,9 @@ Chrome has spent a lot of time optimizing this area as well, this will still add
 web page requests. However, of the available methods, this one adds the most privacy due to the fact that tracking paramters
 are stripped from URLs before they are requested.
 
+#### Skipping Google Search Results redirect
+Some links on Google Search Results pages look like they take you directly to the target URL, but really they will pass you through Google's servers, cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the Google Search Results redirect. When this option is available, a checkbox will appear.
+
 Additional thoughts: This extension was not intended to be a catch-all for removing tracking and increasing your privacy.
 Its main purpose was simply to get a bunch of noise out of your address bar, with additional privacy (depending on your
 Stripping Method) being an added benefit. This extension also __*only monitors the URLs for the "main page"*__ that you are
