@@ -64,14 +64,14 @@ this approach may slow down your experience slightly on URLs that contained trac
 amount of resources will have been loaded already by the time the overall page request is cancelled, adjusted and then
 re-loaded with a clean URL. Furthermore, while this approach is likely to result in increased privacy when it is able to
 remove tracking parameters before they are able to be processed, it's possible that the time between the original request
-and the cancellation was enough to be tracked, so __*increased privacy is not guaranteed*__.
+and the cancellation was enough to be tracked, so __*increased privacy is not guaranteed*__. This method allows for skipping [Google Search Results redirects](#skipping-google-search-results-redirect) - see below for more info.
 
 3) __Block and Re-Load__: This approach will evaluate any URLs you attempt to visit __*before*__ the request is actually executed.
 Any URLs that appear to contain tracking will be blocked and then the equivalent URL without the tracking parameters will
 be re-loaded instead.  While every effort to make the impact of this implementation minimal/unnoticeable has been made, and
 Chrome has spent a lot of time optimizing this area as well, this will still add a small amount of overhead to your
 web page requests. However, of the available methods, this one adds the most privacy due to the fact that tracking paramters
-are stripped from URLs before they are requested.
+are stripped from URLs before they are requested. This method allows for skipping [Google Search Results redirects](#skipping-google-search-results-redirect) - see below for more info.
 
 #### Skipping Google Search Results redirect
 Some links on Google Search Results pages look like they take you directly to the target URL, but really they will pass you through Google's servers, cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the Google Search Results redirect. When this option is available, a checkbox will appear.

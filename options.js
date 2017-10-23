@@ -13,8 +13,6 @@ function save_options() {
         'SKIP_GOOGLE_REDIRECTS': skip_google
     };
 
-    console.log('options:', options);
-
     chrome.storage.sync.set(
         options,
         function() {
@@ -44,8 +42,8 @@ function adjust_checkbox() {
     const skip_google = document.getElementById('skipgoogle');
     const skip_google_wrapper = document.getElementById('skipgoogle_wrapper');
 
-    console.log('stripping_method.value', parseInt(stripping_method.value));
-
+    // If the Stripping Method is History Change, then there is nothing we can
+    // do to help with Google redirects, so disable and remove this option
     if (parseInt(stripping_method.value) === 1) {
         skip_google.checked = false;
         skip_google.disabled = true;
