@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "URL Tracking Stripper",
   "short_name": "URL Tracking Stripper",
-  "version": "1.6",
+  "version": "1.5",
   "description": "Removes tracking tokens from URLs to keep them short and clean for sharing, bookmarking, etc. UTM and others. Fast and customizable.",
   "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
   "icons": {
@@ -12,6 +12,7 @@
   "background": {
     "scripts": [
       "trackers.js",
+      "common.js",
       "background.js"
     ]
   },

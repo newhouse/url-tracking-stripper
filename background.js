@@ -1,7 +1,10 @@
 // Helper function to log things
-function log(msg) {
-    console.log(msg);
+function log() {
+    console.log(...arguments);
 }
+
+const REASON_INSTALL = 'install';
+const REASON_UPDATE  = 'update';
 
 // CONSTS
 var STRIPPING_METHOD_HISTORY_CHANGE     = 1;
@@ -9,7 +12,7 @@ var STRIPPING_METHOD_CANCEL_AND_RELOAD  = 2;
 var STRIPPING_METHOD_BLOCK_AND_RELOAD   = 3;
 
 // SHOULD WE SKIP GOOGLE SEARCH RESULTS PAGE REDIRECTS AND GO RIGHT TO THE TARGET?
-let SKIP_GOOGLE_REDIRECTS = true;
+let SKIP_KNOWN_REDIRECTS = true;
 
 // What method are we using?  Defaults to history change
 var STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
@@ -81,10 +84,11 @@ function generate_patterns_array() {
         }
     }
     // Add a pattern that matches Google SERP links if the User has allowed this feature.
-    if (SKIP_GOOGLE_REDIRECTS) {
+    if (SKIP_KNOWN_REDIRECTS) {
         array.push("*://*.google.com/url?*url=*");
     }
 
+    console.log('patterns array:', array);
     return array;
 }
 
@@ -127,13 +131,13 @@ function check_url_for_trackers(original_url) {
     // The cleansed URL starts out as false
     let cleansed_url        = false;
     // Let's see if a Google Search Results target can/should be extracted
-    const google_target_url = extract_google_target(url_to_cleanse);
+    const redirect_target_url = extract_redirect_target(url_to_cleanse);
 
     // If there was a Google Search target URL, then let's swap out
     // both the url_to_cleanse and the cleansed_url with that
-    if (google_target_url) {
-        url_to_cleanse  = google_target_url;
-        cleansed_url    = google_target_url;
+    if (redirect_target_url) {
+        url_to_cleanse  = redirect_target_url;
+        cleansed_url    = redirect_target_url;
     }
 
     // See if there is anything to strip from the URL to cleanse, else use whatever
@@ -147,39 +151,21 @@ function check_url_for_trackers(original_url) {
 
 // Let's see if this URL is a Google Search Results Page URL, and if so try to
 // extract the target URL from it.
-function extract_google_target(url) {
+function extract_redirect_target(url) {
     // If skipping of Google Redirects is not enabled OR the URL doesn't look right
     // just return false and be done.
-    if (!(SKIP_GOOGLE_REDIRECTS && url.startsWith('https://www.google.com/url?'))) {
+    if (!(SKIP_KNOWN_REDIRECTS && url.startsWith('https://www.google.com/url?'))) {
         return false;
     }
 
     // Starts out returning false
-    let target = false;
+    let target = findQueryParam('url', url);
 
-    // Split the URL at the '?' to get the query string
-    const query_string = url.split('?')[1];
-
-    // If we have a query string...
-    if (query_string) {
-        // Get the key/value pairs from the query string
-        const key_vals = query_string.split('&');
-        // Figure out how many pairs we have
-        const kvs_length = key_vals.length;
-        // For each iteration fo the loop
-        let kv;
-
-        for(let i=0; i < kvs_length; i++) {
-            // Get this key/value pair and split it up into its pieces
-            kv = key_vals[i].split('=');
-            // We are looking for "url=blahblahblah", so see if this is the one
-            if (kv[0] === 'url' && typeof kv[1] === 'string') {
-                // Decode this URL and save it as the target
-                target = decodeURIComponent(kv[1]) || false;
-                // Set i really high so we break the loop
-                i = kvs_length;
-            }
-        }
+    if (typeof target === 'string') {
+        target = decodeURIComponent(target);
+    }
+    else {
+        target = false;
     }
 
     return target;
@@ -242,6 +228,7 @@ function block_and_reload_handler(details) {
     const cleansed_url = check_url_for_trackers(details.url);
 
     if (cleansed_url) {
+        log('cleansed:', cleansed_url);
         // Save the fact that we stripped something for indication later on.
         changeManager.storeChanges(details.tabId, details.url, cleansed_url);
         // Redirect the browser to the cleansed URL and be done here
@@ -360,11 +347,11 @@ function restore_options_from_storage() {
     chrome.storage.sync.get(
         {
             'STRIPPING_METHOD_TO_USE': STRIPPING_METHOD_HISTORY_CHANGE,
-            'SKIP_GOOGLE_REDIRECTS': false
+            'SKIP_KNOWN_REDIRECTS': false
         },
         function(items) {
             STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_HISTORY_CHANGE;
-            SKIP_GOOGLE_REDIRECTS = items.SKIP_GOOGLE_REDIRECTS ? true : false;
+            SKIP_KNOWN_REDIRECTS = items.SKIP_KNOWN_REDIRECTS ? true : false;
             // Set the handler now that we know what method we'd like to use
             set_handlers();
         }
@@ -375,7 +362,7 @@ function listen_for_messsages(message, sender) {
     // User has updated their options/preferences
     if (message.action == 'options_saved') {
         STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
-        SKIP_GOOGLE_REDIRECTS = message.options.SKIP_GOOGLE_REDIRECTS;
+        SKIP_KNOWN_REDIRECTS = message.options.SKIP_KNOWN_REDIRECTS;
         set_handlers();
     }
 
@@ -396,9 +383,22 @@ function listen_for_messsages(message, sender) {
     }
 }
 
+function on_install_handler(details) {
+    return;
+    const reason = details.reason;
+    if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
+        chrome.tabs.create({
+            url: chrome.runtime.getURL('welcome.html?reason=' + reason),
+            active: true
+        });
+    }
+}
+
 
 // OK, finally let's:
 // 1) Restore the options from storage
 restore_options_from_storage();
 // 2) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(listen_for_messsages);
+// 3) Do anything we need to do when installed/updated
+chrome.runtime.onInstalled.addListener(on_install_handler);

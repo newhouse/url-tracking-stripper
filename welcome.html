@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Welcome!</title>
+</head>
+<body>
+  <img id="image" class="center-image">
+  <div id="headline" class="headline center-text">Thanks for using me!</div>
+  <br><br>
+  <ul>
+    <li>
+      I know that my HTML/design skills are terrible, but I assure you this extension can do some realy awesome things for your privacy and URL clutter in general!
+    </li>
+    <li>
+      Be sure to choose your desired <b>Stripping Method</b> from the Options Page <a id="options_link" href="">here</a>.
+    </li>
+    <li>
+      <b>IMPORTANT UPDATE:</b><br>
+      <i>tl;dr: If you want the best privacy, I recommend <b>choosing</b> the "<b>Block and Re-load</b>" Stripping Method and <b>enabling</b> the "<b>Skip Known Redirects</b>" checkbox.</i>
+      <br><br>
+      One recent addition to the extension that's quite important is the ability to "Skip Known Redirects." If enabled, this feature will recognize certain links that will pass you through some "intermediate" URL before being redirected to the final URL that you're after, call the "target". An example of this would be Google Search result links where you are briefly passed through a Google tracking page before being redirected to the target URL of the search result you clicked. Some affiliate links also do this same type of thing. These links all have some things in common:<br><br>
+      <ol>
+        <li>The intermediate URL that is visited is not the target URL that you are ultimately going to land on.
+        </li>
+        <li>The intermediate URL is usually there only to cookie/track you.
+        </li>
+        <li>The actual target URL is embedded somewhere in the parameters of the intermediate URL, so we can grab it and skip the intermediate step.
+        </li>
+      </ol>
+    </li>
+    <li>
+      If you want to learn more about the different Stripping Methods, please see the documentation <a id="documentation_link" href="" target="__blank">here</a>.
+    </li>
+  </ul>
+
+  </span>
+  <script src="common.js"></script>
+  <script src="welcome.js"></script>
+</body>
+</html>
+<style>
+ul li {
+  padding-bottom: 15px;
+}
+ol li {
+  padding-bottom: 5px;
+}
+.headline {
+  font-size: large;
+}
+.center-text {
+    text-align: center;
+}
+.center-image {
+  margin: auto;
+  display: block;
+}
+</style>

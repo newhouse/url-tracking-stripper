@@ -1,27 +1,31 @@
 var options_saved_timeout = 2000;
+let options_saved_timer;
 
 // Called to save the selected options
 function save_options() {
 
     adjust_checkbox();
 
-    const stripping_method_value = parseInt(document.getElementById('stripping_method').value);
-    const skip_google = document.getElementById('skipgoogle').checked;
+    const stripping_method_value    = parseInt(document.getElementById('stripping_method').value);
+    const skip_known_redirects      = document.getElementById('skip_redirects').checked;
 
     const options = {
-        'STRIPPING_METHOD_TO_USE': stripping_method_value,
-        'SKIP_GOOGLE_REDIRECTS': skip_google
+        'STRIPPING_METHOD_TO_USE':  stripping_method_value,
+        'SKIP_KNOWN_REDIRECTS':     skip_known_redirects
     };
 
     chrome.storage.sync.set(
         options,
         function() {
+            // CLEAR ANY OTHER TIMEOUT THAT MAY HAVE BEEN RUNNING
+            clearTimeout(options_saved_timer);
+
             // Update status to let user know options were saved.
             let status = document.getElementById('status');
-            // status.textContent = 'Options saved!';
             status.style.opacity = 1;
-            setTimeout(function() {
-                // status.textContent = '';
+
+            // SAVE THE TIMER SO THAT IT CAN BE CANCELLED
+            options_saved_timer = setTimeout(function() {
                 status.style.opacity = 0;
             }, options_saved_timeout);
         }
@@ -38,20 +42,20 @@ function save_options() {
 }
 
 function adjust_checkbox() {
-    const stripping_method = document.getElementById('stripping_method');
-    const skip_google = document.getElementById('skipgoogle');
-    const skip_google_wrapper = document.getElementById('skipgoogle_wrapper');
+    const stripping_method              = document.getElementById('stripping_method');
+    const skip_known_redirects          = document.getElementById('skip_redirects');
+    const skip_known_redirects_wrapper  = document.getElementById('skip_redirects_wrapper');
 
     // If the Stripping Method is History Change, then there is nothing we can
-    // do to help with Google redirects, so disable and remove this option
+    // do to help with skipping redirects, so disable and remove this option
     if (parseInt(stripping_method.value) === 1) {
-        skip_google.checked = false;
-        skip_google.disabled = true;
-        skip_google_wrapper.style.display = "none";
+        skip_known_redirects.checked = false;
+        skip_known_redirects.disabled = true;
+        skip_known_redirects_wrapper.style.display = "none";
     }
     else {
-        skip_google.disabled = false;
-        skip_google_wrapper.style.display = "block";
+        skip_known_redirects.disabled = false;
+        skip_known_redirects_wrapper.style.display = "block";
     }
 }
 
@@ -60,7 +64,8 @@ function generate_option_elements() {
     chrome.runtime.getBackgroundPage(function(bp) {
         var option;
         var select = document.getElementById('stripping_method');
-        for(stripping_method_id in bp.STUFF_BY_STRIPPING_METHOD_ID) {
+
+        for (stripping_method_id in bp.STUFF_BY_STRIPPING_METHOD_ID) {
             option = document.createElement('option');
             option.value = stripping_method_id;
             option.innerHTML = bp.STUFF_BY_STRIPPING_METHOD_ID[stripping_method_id].html;
@@ -77,11 +82,11 @@ function generate_option_elements() {
 function restore_options() {
     chrome.storage.sync.get({
         'STRIPPING_METHOD_TO_USE': "1",
-        'SKIP_GOOGLE_REDIRECTS': false
+        'SKIP_KNOWN_REDIRECTS': false
         },
         function(items) {
             document.getElementById('stripping_method').value = items['STRIPPING_METHOD_TO_USE'];
-            document.getElementById('skipgoogle').checked = items['SKIP_GOOGLE_REDIRECTS'];
+            document.getElementById('skip_redirects').checked = items['SKIP_KNOWN_REDIRECTS'];
 
             adjust_checkbox();
         }
@@ -101,5 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('save').addEventListener('click', save_options);
     // Monitor for choice changes as well, even though it's redundant
     document.getElementById('stripping_method').addEventListener('change', save_options);
-    document.getElementById('skipgoogle').addEventListener('change', save_options);
+    document.getElementById('skip_redirects').addEventListener('change', save_options);
+
+    document.getElementById('homage_url').href = manifest.homepage_url + '#readme';
 });
