@@ -1,7 +1,3 @@
-function log() {
-    console.log(...arguments);
-}
-
 function findQueryParam(targetParam, url) {
     url = url || window.location.href;
 
@@ -23,16 +19,12 @@ function findQueryParam(targetParam, url) {
         let kv;
 
         for(let i=0; i < kvs_length; i++) {
-            log('loop i:', i);
             // Get this key/value pair and split it up into its pieces
             kv = key_vals[i].split('=');
             // We are looking for "url=blahblahblah", so see if this is the one
             if (kv[0] === targetParam) {
-                log('found target', targetParam);
                 return kv[1];
             }
         }
     }
 }
-
-console.log('common!');

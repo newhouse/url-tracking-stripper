@@ -3,14 +3,6 @@ function log() {
     console.log(...arguments);
 }
 
-const REASON_INSTALL = 'install';
-const REASON_UPDATE  = 'update';
-
-// CONSTS
-var STRIPPING_METHOD_HISTORY_CHANGE     = 1;
-var STRIPPING_METHOD_CANCEL_AND_RELOAD  = 2;
-var STRIPPING_METHOD_BLOCK_AND_RELOAD   = 3;
-
 // SHOULD WE SKIP GOOGLE SEARCH RESULTS PAGE REDIRECTS AND GO RIGHT TO THE TARGET?
 let SKIP_KNOWN_REDIRECTS = true;
 
@@ -88,7 +80,6 @@ function generate_patterns_array() {
         array.push("*://*.google.com/url?*url=*");
     }
 
-    console.log('patterns array:', array);
     return array;
 }
 
@@ -120,6 +111,7 @@ function remove_trackers_from_url(url) {
 // Let's check a URL to see if there's anything to strip from it. Will return
 // false if there was nothing to strip out
 function check_url_for_trackers(original_url) {
+
     // If the URL is "excepted", that means we should not try to strip any junk
     // from it, so we're done here.
     if (exceptionsManager.isExceptedUrl(original_url)) {
@@ -228,7 +220,6 @@ function block_and_reload_handler(details) {
     const cleansed_url = check_url_for_trackers(details.url);
 
     if (cleansed_url) {
-        log('cleansed:', cleansed_url);
         // Save the fact that we stripped something for indication later on.
         changeManager.storeChanges(details.tabId, details.url, cleansed_url);
         // Redirect the browser to the cleansed URL and be done here
@@ -384,7 +375,7 @@ function listen_for_messsages(message, sender) {
 }
 
 function on_install_handler(details) {
-    return;
+    // return;
     const reason = details.reason;
     if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
         chrome.tabs.create({

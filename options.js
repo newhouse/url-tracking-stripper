@@ -1,6 +1,7 @@
 var options_saved_timeout = 2000;
 let options_saved_timer;
 
+
 // Called to save the selected options
 function save_options() {
 
@@ -10,8 +11,8 @@ function save_options() {
     const skip_known_redirects      = document.getElementById('skip_redirects').checked;
 
     const options = {
-        'STRIPPING_METHOD_TO_USE':  stripping_method_value,
-        'SKIP_KNOWN_REDIRECTS':     skip_known_redirects
+        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  stripping_method_value,
+        [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:     skip_known_redirects
     };
 
     chrome.storage.sync.set(
@@ -81,12 +82,12 @@ function generate_option_elements() {
 // stored in chrome.storage.
 function restore_options() {
     chrome.storage.sync.get({
-        'STRIPPING_METHOD_TO_USE': "1",
-        'SKIP_KNOWN_REDIRECTS': false
+        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: STRIPPING_METHOD_HISTORY_CHANGE,
+        [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:    false
         },
         function(items) {
-            document.getElementById('stripping_method').value = items['STRIPPING_METHOD_TO_USE'];
-            document.getElementById('skip_redirects').checked = items['SKIP_KNOWN_REDIRECTS'];
+            document.getElementById('stripping_method').value = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE];
+            document.getElementById('skip_redirects').checked = items[STORAGE_KEY_SKIP_KNOWN_REDIRECTS];
 
             adjust_checkbox();
         }

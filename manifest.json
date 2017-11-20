@@ -12,6 +12,7 @@
   "background": {
     "scripts": [
       "trackers.js",
+      "consts.js",
       "common.js",
       "background.js"
     ]

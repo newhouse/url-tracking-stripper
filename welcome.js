@@ -4,16 +4,14 @@ document.addEventListener('DOMContentLoaded', function() {
     var manifest = chrome.runtime.getManifest();
 
     const reason = findQueryParam('reason');
-    console.log(reason);
-
 
     document.getElementById('image').src = chrome.runtime.getURL(manifest.icons[48]);
 
     let headline = '';
-    if (reason === 'install') {
+    if (reason === REASON_INSTALL) {
         headline += `Thanks for installing ${manifest.short_name}!`;
     }
-    else if (reason === 'update') {
+    else if (reason === REASON_UPDATE) {
         headline += `${manifest.short_name} has been updated to version ${manifest.version}!`;
     }
     document.getElementById('headline').textContent = headline;
