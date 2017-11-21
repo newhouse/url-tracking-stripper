@@ -7,73 +7,77 @@ function log() {
 let SKIP_KNOWN_REDIRECTS = true;
 
 // What method are we using?  Defaults to history change
-var STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
+let STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
 
 // Store some things in various ways for centralized definitiion of what's available.
-var STUFF_BY_STRIPPING_METHOD_ID = {};
-STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_HISTORY_CHANGE.toString()] = {
-  'html': "History Change [speed: &uarr; privacy: &darr; permissions: &uarr;]",
-  'add': function() {
-    // Monitor tab updates so that we may update the history/url to not contain tracking params
-    chrome.tabs.onUpdated.addListener(history_change_handler);
-  },
-  'remove': function() {
-    chrome.tabs.onUpdated.removeListener(history_change_handler);
-  }
-};
+const STUFF_BY_STRIPPING_METHOD_ID = {
 
-STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()] = {
-  'html': "Cancel and Re-load [speed: &darr; privacy: &uarr; permissions: &darr;]",
-  'add': function() {
-    // Monitor tab updates so that we may cancel and re-load them without tracking params
-    chrome.tabs.onUpdated.addListener(cancel_and_reload_handler);
-    // Monitor for subsequent Navigations so that we may indicate if a change
-    // was made or not.
-    chrome.webNavigation.onCompleted.addListener(web_navigation_monitor);
-  },
-  'remove': function() {
-    chrome.tabs.onUpdated.removeListener(cancel_and_reload_handler);
-    chrome.webNavigation.onCompleted.removeListener(web_navigation_monitor);
-  }
-};
-
-STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()] = {
-  'html': "Block and Re-load [speed: &darr; privacy: &uarr; permissions: &uarr;]",
-  'add': function() {
-    // We are only concerned with URLs that appear to have tracking parameters in them
-    // and are in the main frame
-    var filters = {
-      urls: generate_patterns_array(),
-      types: ["main_frame"]
+  [STRIPPING_METHOD_HISTORY_CHANGE.toString()]: {
+    html: "History Change [speed: &uarr; privacy: &darr; permissions: &uarr;]",
+    add: function() {
+      // Monitor tab updates so that we may update the history/url to not contain tracking params
+      chrome.tabs.onUpdated.addListener(historyChangeHandler);
+    },
+    remove: function() {
+      chrome.tabs.onUpdated.removeListener(historyChangeHandler);
     }
-    var extra = ["blocking"];
-    // Monitor WebRequests so that we may block and re-load them without tracking params
-    chrome.webRequest.onBeforeRequest.addListener(block_and_reload_handler, filters, extra);
-    // Monitor for subsequent Navigations so that we may indicate if a change
-    // was made or not.
-    chrome.webNavigation.onCompleted.addListener(web_navigation_monitor);
-
   },
-  'remove': function() {
-    chrome.webRequest.onBeforeRequest.removeListener(block_and_reload_handler);
-    chrome.webNavigation.onCompleted.removeListener(web_navigation_monitor);
+
+
+  [STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()]: {
+    html: "Cancel and Re-load [speed: &darr; privacy: &uarr; permissions: &darr;]",
+    add: function() {
+      // Monitor tab updates so that we may cancel and re-load them without tracking params
+      chrome.tabs.onUpdated.addListener(cancelAndReloadHandler);
+      // Monitor for subsequent Navigations so that we may indicate if a change
+      // was made or not.
+      chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
+    },
+    remove: function() {
+      chrome.tabs.onUpdated.removeListener(cancelAndReloadHandler);
+      chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
+    }
+  },
+
+
+  [STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()]: {
+    html: "Block and Re-load [speed: &darr; privacy: &uarr; permissions: &uarr;]",
+    add: function() {
+      // We are only concerned with URLs that appear to have tracking parameters in them
+      // and are in the main frame
+      const filters = {
+        urls: generatePatternsArray(),
+        types: ["main_frame"]
+      }
+      const extra = ["blocking"];
+      // Monitor WebRequests so that we may block and re-load them without tracking params
+      chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
+      // Monitor for subsequent Navigations so that we may indicate if a change
+      // was made or not.
+      chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
+
+    },
+    remove: function() {
+      chrome.webRequest.onBeforeRequest.removeListener(blockAndReloadHandler);
+      chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
+    }
   }
 };
 
 
 // Go through all the trackers by their root and turn them into a big regex...
-var regexes_by_root = {};
-for (var root in trackers_by_root) {
-  regexes_by_root[root] = new RegExp("((^|&)" + root + "(" + trackers_by_root[root].join('|') + ")=[^&#]+)", "ig");
+const regexesByRoot = {};
+for (let root in trackersByRoot) {
+  regexesByRoot[root] = new RegExp("((^|&)" + root + "(" + trackersByRoot[root].join('|') + ")=[^&#]+)", "ig");
 }
 
 // Generate the URL patterns used for webRequest filtering
 // https://developer.chrome.com/extensions/match_patterns
-function generate_patterns_array() {
+function generatePatternsArray() {
   const array = [];
-  for (var root in trackers_by_root) {
-    for (var i=0; i < trackers_by_root[root].length; i++) {
-      array.push( "*://*/*?*" + root + trackers_by_root[root][i] + "=*" );
+  for (let root in trackersByRoot) {
+    for (let i=0; i < trackersByRoot[root].length; i++) {
+      array.push( "*://*/*?*" + root + trackersByRoot[root][i] + "=*" );
     }
   }
   // Add a pattern that matches Google SERP links if the User has allowed this feature.
@@ -85,66 +89,67 @@ function generate_patterns_array() {
 }
 
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
-function remove_trackers_from_url(url) {
-  const url_pieces = url.split('?');
+function removeTrackersFromUrl(url) {
+  const urlPieces = url.split('?');
   // If no params, nothing to modify
-  if (url_pieces.length === 1) {
+  if (urlPieces.length === 1) {
     return url;
   }
 
   // Go through all the pattern roots
-  for (let root in regexes_by_root) {
+  for (let root in regexesByRoot) {
     // If we see the root in the params part, then we should probably try to do some replacements
-    if (url_pieces[1].indexOf(root) !== -1) {
-      url_pieces[1] = url_pieces[1].replace(regexes_by_root[ root ], '');
+    if (urlPieces[1].indexOf(root) !== -1) {
+      urlPieces[1] = urlPieces[1].replace(regexesByRoot[ root ], '');
     }
   }
 
   // If we've collapsed the URL to the point where there's an '&' against the '?'
   // then we need to get rid of that.
-  while (url_pieces[1].charAt(0) === '&') {
-    url_pieces[1] = url_pieces[1].substr(1);
+  while (urlPieces[1].charAt(0) === '&') {
+    urlPieces[1] = urlPieces[1].substr(1);
   }
 
-  return url_pieces[1] ? url_pieces.join('?') : url_pieces[0];
+  return urlPieces[1] ? urlPieces.join('?') : urlPieces[0];
 }
 
 // Let's check a URL to see if there's anything to strip from it. Will return
 // false if there was nothing to strip out
-function check_url_for_trackers(original_url) {
+function checkUrlForTrackers(originalUrl) {
 
   // If the URL is "excepted", that means we should not try to strip any junk
   // from it, so we're done here.
-  if (exceptionsManager.isExceptedUrl(original_url)) {
+  if (exceptionsManager.isExceptedUrl(originalUrl)) {
     return false;
   }
 
   // The URL to cleanse starts out as the original URL
-  let url_to_cleanse    = original_url;
+  let urlToCleanse  = originalUrl;
   // The cleansed URL starts out as false
-  let cleansed_url    = false;
+  let cleansedUrl   = false;
+
   // Let's see if a Google Search Results target can/should be extracted
-  const redirect_target_url = extract_redirect_target(url_to_cleanse);
+  const redirectTargetUrl = extractRedirectTarget(urlToCleanse);
 
   // If there was a Google Search target URL, then let's swap out
-  // both the url_to_cleanse and the cleansed_url with that
-  if (redirect_target_url) {
-    url_to_cleanse  = redirect_target_url;
-    cleansed_url  = redirect_target_url;
+  // both the urlToCleanse and the cleansedUrl with that
+  if (redirectTargetUrl) {
+    urlToCleanse  = redirectTargetUrl;
+    cleansedUrl  = redirectTargetUrl;
   }
 
   // See if there is anything to strip from the URL to cleanse, else use whatever
-  // we already have stored in 'cleansed_url'
-  cleansed_url = remove_trackers_from_url(url_to_cleanse) || cleansed_url;
+  // we already have stored in 'cleansedUrl'
+  cleansedUrl = removeTrackersFromUrl(urlToCleanse) || cleansedUrl;
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
-  return (original_url != cleansed_url) ? cleansed_url : false;
+  return (originalUrl != cleansedUrl) ? cleansedUrl : false;
 
 }
 
 // Let's see if this URL is a Google Search Results Page URL, and if so try to
 // extract the target URL from it.
-function extract_redirect_target(url) {
+function extractRedirectTarget(url) {
   // If skipping of Google Redirects is not enabled OR the URL doesn't look right
   // just return false and be done.
   if (!(SKIP_KNOWN_REDIRECTS && url.startsWith('https://www.google.com/url?'))) {
@@ -166,65 +171,65 @@ function extract_redirect_target(url) {
 
 
 // Handler for doing History Change approach
-function history_change_handler(tabId, changeInfo, tab) {
+function historyChangeHandler(tabId, changeInfo, tab) {
   // If the change was not to the URL, we're done.
   if (!changeInfo.url) {
     return;
   }
 
   // Returns false if we didn't replace antyhing
-  const cleansed_url = check_url_for_trackers(tab.url);
+  const cleansedUrl = checkUrlForTrackers(tab.url);
 
-  if (cleansed_url) {
+  if (cleansedUrl) {
     // Execute script in that tab to update the History
     chrome.tabs.executeScript(tabId, {
-      code: "history.pushState(history.state, document.title, '" + cleansed_url + "');"
+      code: "history.pushState(history.state, document.title, '" + cleansedUrl + "');"
     });
 
     // Save the fact that we stripped something for indication later on.
-    changeManager.storeChanges(tab.id, tab.url, cleansed_url);
+    changeManager.storeChanges(tab.id, tab.url, cleansedUrl);
     // And then immediately indicate this fact since WebNavigation has already
     // taken place since there's no other possible hook.
-    changeManager.indicateChange(tab.id, cleansed_url);
+    changeManager.indicateChange(tab.id, cleansedUrl);
   }
 }
 
 // Handler for doing Cancel and Re-load approach
-function cancel_and_reload_handler(tabId, changeInfo, tab) {
+function cancelAndReloadHandler(tabId, changeInfo, tab) {
   // If the change was not to the URL, we're done.
   if (!changeInfo.url) {
     return;
   }
 
   // Returns false if we didn't replace anything, but let's use what
-  // we had for cleansed_url in that case as it could have
-  const cleansed_url = check_url_for_trackers(tab.url);
+  // we had for cleansedUrl in that case as it could have
+  const cleansedUrl = checkUrlForTrackers(tab.url);
 
-  if (cleansed_url) {
+  if (cleansedUrl) {
     // Update the URL for that tab.
-    chrome.tabs.update(tabId, {url: cleansed_url});
+    chrome.tabs.update(tabId, {url: cleansedUrl});
     // Save the fact that we stripped something for indication later on.
     // Actually pass the original URL here so that it can be show in the
     // indication on the Page Action
-    changeManager.storeChanges(tab.id, tab.url, cleansed_url);
+    changeManager.storeChanges(tab.id, tab.url, cleansedUrl);
   }
 }
 
 // Handler for doing Block Web-request and Re-load approach
-function block_and_reload_handler(details) {
+function blockAndReloadHandler(details) {
   if (!details.url) {
     return {};
   }
 
   // Returns false if we didn't replace anything, but let's use what
-  // we had for cleansed_url in that case as it could have
-  const cleansed_url = check_url_for_trackers(details.url);
+  // we had for cleansedUrl in that case as it could have
+  const cleansedUrl = checkUrlForTrackers(details.url);
 
-  if (cleansed_url) {
+  if (cleansedUrl) {
     // Save the fact that we stripped something for indication later on.
-    changeManager.storeChanges(details.tabId, details.url, cleansed_url);
+    changeManager.storeChanges(details.tabId, details.url, cleansedUrl);
     // Redirect the browser to the cleansed URL and be done here
-    return { redirectUrl: cleansed_url };
+    return { redirectUrl: cleansedUrl };
   }
   // Return an empty object, which indicates we're not blocking/redirecting this
   // request
@@ -233,7 +238,7 @@ function block_and_reload_handler(details) {
 
 // We may need to monitor navigation so that we can let the user know when we've
 // stripped something from a URL
-var web_navigation_monitor = function(details) {
+var webNavigationMonitor = function(details) {
   //  We only care about "main_frame"
   if (details.frameId !== 0) {
     return;
@@ -272,7 +277,9 @@ var exceptionsManager = {
     if (exceptionsManager.url_exceptions.length === 0) {
       return false;
     }
-    var index = exceptionsManager.url_exceptions.indexOf(url);
+
+    const index = exceptionsManager.url_exceptions.indexOf(url);
+
     if (index === -1) {
       return false;
     }
@@ -284,7 +291,7 @@ var exceptionsManager = {
   }
 }
 
-var changeManager = {
+const changeManager = {
   // We'll store URL change information by tab id
   changesByTabId: {},
 
@@ -324,9 +331,9 @@ var changeManager = {
 
 
 // Function to set/unset handlers for our stripping methods
-function set_handlers() {
+function setHandlers() {
   // Remove any other listeners
-  for (method in STUFF_BY_STRIPPING_METHOD_ID) {
+  for (let method in STUFF_BY_STRIPPING_METHOD_ID) {
     STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
   }
   // Add the listener the user wants
@@ -335,7 +342,7 @@ function set_handlers() {
 
 
 // Get all the options from storage and put them into their globals
-function restore_options_from_storage() {
+function restoreOptionsFromStorage() {
   chrome.storage.sync.get(
     {
       'STRIPPING_METHOD_TO_USE': STRIPPING_METHOD_HISTORY_CHANGE,
@@ -345,7 +352,7 @@ function restore_options_from_storage() {
       STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_HISTORY_CHANGE;
       SKIP_KNOWN_REDIRECTS = items.SKIP_KNOWN_REDIRECTS ? true : false;
       // Set the handler now that we know what method we'd like to use
-      set_handlers();
+      setHandlers();
     }
   );
 }
@@ -355,7 +362,7 @@ function listen_for_messsages(message, sender) {
   if (message.action == 'options_saved') {
     STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
     SKIP_KNOWN_REDIRECTS = message.options.SKIP_KNOWN_REDIRECTS;
-    set_handlers();
+    setHandlers();
   }
 
   // User would like to re-load with params allowed
@@ -389,7 +396,7 @@ function on_install_handler(details) {
 
 // OK, finally let's:
 // 1) Restore the options from storage
-restore_options_from_storage();
+restoreOptionsFromStorage();
 // 2) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(listen_for_messsages);
 // 3) Do anything we need to do when installed/updated

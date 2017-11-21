@@ -1,5 +1,5 @@
 // More detailed string pattern suffixes, stored by their common root.
-var trackers_by_root = {
+var trackersByRoot = {
 
   // Google's Urchin Tracking Module
   "utm_": [
