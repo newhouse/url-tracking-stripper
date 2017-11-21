@@ -10,7 +10,8 @@ let SKIP_KNOWN_REDIRECTS = true;
 let STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
 
 // Store some things in various ways for centralized definitiion of what's available.
-const STUFF_BY_STRIPPING_METHOD_ID = {
+// Must use 'var' here because it's accessed in the options.js via chrome.runtime.getBackgroundPage
+var STUFF_BY_STRIPPING_METHOD_ID = {
 
   [STRIPPING_METHOD_HISTORY_CHANGE.toString()]: {
     html: "History Change [speed: &uarr; privacy: &darr; permissions: &uarr;]",
@@ -343,30 +344,24 @@ function setHandlers() {
 
 // Get all the options from storage and put them into their globals
 function restoreOptionsFromStorage() {
-  chrome.storage.sync.get(
-    {
-      'STRIPPING_METHOD_TO_USE': STRIPPING_METHOD_HISTORY_CHANGE,
-      'SKIP_KNOWN_REDIRECTS': false
-    },
-    function(items) {
-      STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_HISTORY_CHANGE;
-      SKIP_KNOWN_REDIRECTS = items.SKIP_KNOWN_REDIRECTS ? true : false;
-      // Set the handler now that we know what method we'd like to use
-      setHandlers();
-    }
-  );
+  return getOptionsFromStorage(items => {
+    STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_HISTORY_CHANGE;
+    SKIP_KNOWN_REDIRECTS    = items.SKIP_KNOWN_REDIRECTS ? true : false;
+    // Set the handler now that we know what method we'd like to use
+    setHandlers();
+  });
 }
 
-function listen_for_messsages(message, sender) {
+function listenForMessages(message, sender) {
   // User has updated their options/preferences
-  if (message.action == 'options_saved') {
+  if (message.action === ACTION_OPTIONS_SAVED) {
     STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
     SKIP_KNOWN_REDIRECTS = message.options.SKIP_KNOWN_REDIRECTS;
     setHandlers();
   }
 
   // User would like to re-load with params allowed
-  if (message.action == 'reload_and_allow_params') {
+  if (message.action === ACTION_RELOAD_AND_ALLOW_PARAMS) {
     if (!message.url) {
       return;
     }
@@ -382,7 +377,7 @@ function listen_for_messsages(message, sender) {
   }
 }
 
-function on_install_handler(details) {
+function onInstallHandler(details) {
   // return;
   const reason = details.reason;
   if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
@@ -398,6 +393,6 @@ function on_install_handler(details) {
 // 1) Restore the options from storage
 restoreOptionsFromStorage();
 // 2) Listen for messages: from the Options page or from the PageAction
-chrome.runtime.onMessage.addListener(listen_for_messsages);
+chrome.runtime.onMessage.addListener(listenForMessages);
 // 3) Do anything we need to do when installed/updated
-chrome.runtime.onInstalled.addListener(on_install_handler);
+// chrome.runtime.onInstalled.addListener(onInstallHandler);
