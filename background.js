@@ -1,12 +1,10 @@
 // Helper function to log things
-function log(msg) {
-    console.log(msg);
+function log() {
+    console.log(...arguments);
 }
 
-// CONSTS
-var STRIPPING_METHOD_HISTORY_CHANGE = 1;
-var STRIPPING_METHOD_CANCEL_AND_RELOAD = 2;
-var STRIPPING_METHOD_BLOCK_AND_RELOAD = 3;
+// SHOULD WE SKIP GOOGLE SEARCH RESULTS PAGE REDIRECTS AND GO RIGHT TO THE TARGET?
+let SKIP_KNOWN_REDIRECTS = true;
 
 // What method are we using?  Defaults to history change
 var STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
@@ -69,26 +67,32 @@ for (var root in trackers_by_root) {
 }
 
 // Generate the URL patterns used for webRequest filtering
+// https://developer.chrome.com/extensions/match_patterns
 function generate_patterns_array() {
-    var array = [];
+    const array = [];
     for (var root in trackers_by_root) {
         for (var i=0; i < trackers_by_root[root].length; i++) {
             array.push( "*://*/*?*" + root + trackers_by_root[root][i] + "=*" );
         }
     }
+    // Add a pattern that matches Google SERP links if the User has allowed this feature.
+    if (SKIP_KNOWN_REDIRECTS) {
+        array.push("*://*.google.com/url?*url=*");
+    }
+
     return array;
 }
 
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
 function remove_trackers_from_url(url) {
-    var url_pieces = url.split('?');
+    const url_pieces = url.split('?');
     // If no params, nothing to modify
     if (url_pieces.length === 1) {
         return url;
     }
 
     // Go through all the pattern roots
-    for (var root in regexes_by_root) {
+    for (let root in regexes_by_root) {
         // If we see the root in the params part, then we should probably try to do some replacements
         if (url_pieces[1].indexOf(root) !== -1) {
             url_pieces[1] = url_pieces[1].replace(regexes_by_root[ root ], '');
@@ -106,17 +110,59 @@ function remove_trackers_from_url(url) {
 
 // Let's check a URL to see if there's anything to strip from it. Will return
 // false if there was nothing to strip out
-function check_url(original_url) {
+function check_url_for_trackers(original_url) {
+
     // If the URL is "excepted", that means we should not try to strip any junk
     // from it, so we're done here.
     if (exceptionsManager.isExceptedUrl(original_url)) {
         return false;
     }
-    var cleansed_url = remove_trackers_from_url(original_url);
+
+    // The URL to cleanse starts out as the original URL
+    let url_to_cleanse      = original_url;
+    // The cleansed URL starts out as false
+    let cleansed_url        = false;
+    // Let's see if a Google Search Results target can/should be extracted
+    const redirect_target_url = extract_redirect_target(url_to_cleanse);
+
+    // If there was a Google Search target URL, then let's swap out
+    // both the url_to_cleanse and the cleansed_url with that
+    if (redirect_target_url) {
+        url_to_cleanse  = redirect_target_url;
+        cleansed_url    = redirect_target_url;
+    }
+
+    // See if there is anything to strip from the URL to cleanse, else use whatever
+    // we already have stored in 'cleansed_url'
+    cleansed_url = remove_trackers_from_url(url_to_cleanse) || cleansed_url;
+
     // If it looks like we altered the URL, return a cleansed URL, otherwise false
     return (original_url != cleansed_url) ? cleansed_url : false;
 
 }
+
+// Let's see if this URL is a Google Search Results Page URL, and if so try to
+// extract the target URL from it.
+function extract_redirect_target(url) {
+    // If skipping of Google Redirects is not enabled OR the URL doesn't look right
+    // just return false and be done.
+    if (!(SKIP_KNOWN_REDIRECTS && url.startsWith('https://www.google.com/url?'))) {
+        return false;
+    }
+
+    // Starts out returning false
+    let target = findQueryParam('url', url);
+
+    if (typeof target === 'string') {
+        target = decodeURIComponent(target);
+    }
+    else {
+        target = false;
+    }
+
+    return target;
+}
+
 
 // Handler for doing History Change approach
 function history_change_handler(tabId, changeInfo, tab) {
@@ -126,7 +172,8 @@ function history_change_handler(tabId, changeInfo, tab) {
     }
 
     // Returns false if we didn't replace antyhing
-    var cleansed_url = check_url(tab.url);
+    const cleansed_url = check_url_for_trackers(tab.url);
+
     if (cleansed_url) {
         // Execute script in that tab to update the History
         chrome.tabs.executeScript(tabId, {
@@ -148,12 +195,16 @@ function cancel_and_reload_handler(tabId, changeInfo, tab) {
         return;
     }
 
-    // Returns false if we didn't replace antyhing
-    var cleansed_url = check_url(tab.url);
+    // Returns false if we didn't replace anything, but let's use what
+    // we had for cleansed_url in that case as it could have
+    const cleansed_url = check_url_for_trackers(tab.url);
+
     if (cleansed_url) {
         // Update the URL for that tab.
         chrome.tabs.update(tabId, {url: cleansed_url});
         // Save the fact that we stripped something for indication later on.
+        // Actually pass the original URL here so that it can be show in the
+        // indication on the Page Action
         changeManager.storeChanges(tab.id, tab.url, cleansed_url);
     }
 }
@@ -164,8 +215,10 @@ function block_and_reload_handler(details) {
         return {};
     }
 
-    // Returns false if we didn't replace antyhing
-    var cleansed_url = check_url(details.url);
+    // Returns false if we didn't replace anything, but let's use what
+    // we had for cleansed_url in that case as it could have
+    const cleansed_url = check_url_for_trackers(details.url);
+
     if (cleansed_url) {
         // Save the fact that we stripped something for indication later on.
         changeManager.storeChanges(details.tabId, details.url, cleansed_url);
@@ -282,10 +335,14 @@ function set_handlers() {
 
 // Get all the options from storage and put them into their globals
 function restore_options_from_storage() {
-    chrome.storage.sync.get({
-        'STRIPPING_METHOD_TO_USE': STRIPPING_METHOD_HISTORY_CHANGE },
+    chrome.storage.sync.get(
+        {
+            'STRIPPING_METHOD_TO_USE': STRIPPING_METHOD_HISTORY_CHANGE,
+            'SKIP_KNOWN_REDIRECTS': false
+        },
         function(items) {
             STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_HISTORY_CHANGE;
+            SKIP_KNOWN_REDIRECTS = items.SKIP_KNOWN_REDIRECTS ? true : false;
             // Set the handler now that we know what method we'd like to use
             set_handlers();
         }
@@ -296,6 +353,7 @@ function listen_for_messsages(message, sender) {
     // User has updated their options/preferences
     if (message.action == 'options_saved') {
         STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
+        SKIP_KNOWN_REDIRECTS = message.options.SKIP_KNOWN_REDIRECTS;
         set_handlers();
     }
 
@@ -316,9 +374,22 @@ function listen_for_messsages(message, sender) {
     }
 }
 
+function on_install_handler(details) {
+    // return;
+    const reason = details.reason;
+    if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
+        chrome.tabs.create({
+            url: chrome.runtime.getURL('welcome.html?reason=' + reason),
+            active: true
+        });
+    }
+}
+
 
 // OK, finally let's:
 // 1) Restore the options from storage
 restore_options_from_storage();
 // 2) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(listen_for_messsages);
+// 3) Do anything we need to do when installed/updated
+chrome.runtime.onInstalled.addListener(on_install_handler);
