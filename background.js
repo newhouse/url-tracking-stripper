@@ -4,15 +4,13 @@ function log() {
 }
 
 // SHOULD WE SKIP GOOGLE SEARCH RESULTS PAGE REDIRECTS AND GO RIGHT TO THE TARGET?
-let SKIP_KNOWN_REDIRECTS = true;
-
+let SKIP_KNOWN_REDIRECTS    = true;
 // What method are we using?  Defaults to history change
 let STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
 
 // Store some things in various ways for centralized definitiion of what's available.
 // Must use 'var' here because it's accessed in the options.js via chrome.runtime.getBackgroundPage
 var STUFF_BY_STRIPPING_METHOD_ID = {
-
   [STRIPPING_METHOD_HISTORY_CHANGE.toString()]: {
     html: "History Change [speed: &uarr; privacy: &darr; permissions: &uarr;]",
     add: function() {
@@ -23,8 +21,6 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
       chrome.tabs.onUpdated.removeListener(historyChangeHandler);
     }
   },
-
-
   [STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()]: {
     html: "Cancel and Re-load [speed: &darr; privacy: &uarr; permissions: &darr;]",
     add: function() {
@@ -39,16 +35,14 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
       chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
     }
   },
-
-
   [STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()]: {
     html: "Block and Re-load [speed: &darr; privacy: &uarr; permissions: &uarr;]",
     add: function() {
       // We are only concerned with URLs that appear to have tracking parameters in them
       // and are in the main frame
       const filters = {
-        urls: generatePatternsArray(),
-        types: ["main_frame"]
+        urls:   generatePatternsArray(),
+        types:  ["main_frame"]
       }
       const extra = ["blocking"];
       // Monitor WebRequests so that we may block and re-load them without tracking params
@@ -92,6 +86,7 @@ function generatePatternsArray() {
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
 function removeTrackersFromUrl(url) {
   const urlPieces = url.split('?');
+
   // If no params, nothing to modify
   if (urlPieces.length === 1) {
     return url;
@@ -101,7 +96,7 @@ function removeTrackersFromUrl(url) {
   for (let root in regexesByRoot) {
     // If we see the root in the params part, then we should probably try to do some replacements
     if (urlPieces[1].indexOf(root) !== -1) {
-      urlPieces[1] = urlPieces[1].replace(regexesByRoot[ root ], '');
+      urlPieces[1] = urlPieces[1].replace(regexesByRoot[root], '');
     }
   }
 
@@ -157,7 +152,7 @@ function extractRedirectTarget(url) {
     return false;
   }
 
-  // Starts out returning false
+  // See if we can find a target in the URL.
   let target = findQueryParam('url', url);
 
   if (typeof target === 'string') {
@@ -330,7 +325,6 @@ const changeManager = {
 };
 
 
-
 // Function to set/unset handlers for our stripping methods
 function setHandlers() {
   // Remove any other listeners
@@ -352,7 +346,8 @@ function restoreOptionsFromStorage() {
   });
 }
 
-function listenForMessages(message, sender) {
+// Handle messages from other parts of the extension
+function messageHandler(message, sender) {
   // User has updated their options/preferences
   if (message.action === ACTION_OPTIONS_SAVED) {
     STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE);
@@ -377,8 +372,8 @@ function listenForMessages(message, sender) {
   }
 }
 
+// Do anything we need to do when this extension is installed/updated
 function onInstallHandler(details) {
-  // return;
   const reason = details.reason;
   if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
     chrome.tabs.create({
@@ -393,6 +388,6 @@ function onInstallHandler(details) {
 // 1) Restore the options from storage
 restoreOptionsFromStorage();
 // 2) Listen for messages: from the Options page or from the PageAction
-chrome.runtime.onMessage.addListener(listenForMessages);
+chrome.runtime.onMessage.addListener(messageHandler);
 // 3) Do anything we need to do when installed/updated
-// chrome.runtime.onInstalled.addListener(onInstallHandler);
+chrome.runtime.onInstalled.addListener(onInstallHandler);
