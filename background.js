@@ -12,7 +12,7 @@ let STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
 // Must use 'var' here because it's accessed in the options.js via chrome.runtime.getBackgroundPage
 var STUFF_BY_STRIPPING_METHOD_ID = {
   [STRIPPING_METHOD_HISTORY_CHANGE.toString()]: {
-    html: "History Change [speed: &uarr; privacy: &darr; permissions: &uarr;]",
+    html: "History Change (cosmetic only)",
     add: function() {
       // Monitor tab updates so that we may update the history/url to not contain tracking params
       chrome.tabs.onUpdated.addListener(historyChangeHandler);
@@ -22,7 +22,7 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
     }
   },
   [STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()]: {
-    html: "Cancel and Re-load [speed: &darr; privacy: &uarr; permissions: &darr;]",
+    html: "Cancel and Re-load (some increased privacy)",
     add: function() {
       // Monitor tab updates so that we may cancel and re-load them without tracking params
       chrome.tabs.onUpdated.addListener(cancelAndReloadHandler);
@@ -36,7 +36,7 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
     }
   },
   [STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()]: {
-    html: "Block and Re-load [speed: &darr; privacy: &uarr; permissions: &uarr;]",
+    html: "Block and Re-load (most privacy)",
     add: function() {
       // We are only concerned with URLs that appear to have tracking parameters in them
       // and are in the main frame
@@ -234,7 +234,7 @@ function blockAndReloadHandler(details) {
 
 // We may need to monitor navigation so that we can let the user know when we've
 // stripped something from a URL
-var webNavigationMonitor = function(details) {
+const webNavigationMonitor = function(details) {
   //  We only care about "main_frame"
   if (details.frameId !== 0) {
     return;
@@ -256,7 +256,7 @@ var webNavigationMonitor = function(details) {
 
 
 // Let's manage any exceptions that the User has indicated they would like
-var exceptionsManager = {
+const exceptionsManager = {
   url_exceptions: [],
 
   addUrlException: function(url) {
