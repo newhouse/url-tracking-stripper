@@ -38,12 +38,15 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
   [STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()]: {
     html: "Block and Re-load (most privacy)",
     add: function() {
+
+      registerRedirectHandlers(false);
+
       // We are only concerned with URLs that appear to have tracking parameters in them
       // and are in the main frame
       const filters = {
         urls:   generatePatternsArray(),
         types:  ["main_frame"]
-      }
+      };
       const extra = ["blocking"];
       // Monitor WebRequests so that we may block and re-load them without tracking params
       chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
@@ -53,17 +56,92 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
 
     },
     remove: function() {
+      unRegisterRedirectHandlers();
       chrome.webRequest.onBeforeRequest.removeListener(blockAndReloadHandler);
       chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
     }
   }
 };
 
+function foo(details) {
+  console.log(1);
+  return {};
+}
 
 // Go through all the trackers by their root and turn them into a big regex...
 const regexesByRoot = {};
 for (let root in trackersByRoot) {
   regexesByRoot[root] = new RegExp("((^|&)" + root + "(" + trackersByRoot[root].join('|') + ")=[^&#]+)", "ig");
+}
+
+
+const REDIRECT_HANDLERS = [];
+
+
+function unRegisterRedirectHandlers() {
+  let handler;
+  while(handler = REDIRECT_HANDLERS.pop()) {
+    console.log('removing handler...');
+    chrome.webRequest.onBeforeRequest.removeListener(handler);
+  }
+}
+
+
+function registerRedirectHandlers(blocking = false) {
+  unRegisterRedirectHandlers();
+
+  blocking = blocking === true;
+
+  for (let targetParam in matchPatternsByTargetParam) {
+    const urls = matchPatternsByTargetParam[targetParam];
+
+    console.log('urls in for', targetParam, urls);
+
+    let filters = {
+      urls:   urls,
+      types:  ["main_frame"]
+    };
+
+    const extra = [];
+
+    if (blocking) {
+      extra.push("blocking");
+    }
+
+    const fn = details => {
+      console.log(`pattern matched for "${targetParam}" on ${details.url}`);
+      console.log('urls:', urls);
+      console.log('deets', details);
+
+      const targetUrl = extractRedirectTarget(details.url, targetParam);
+      console.log('targetUrl:', targetUrl);
+
+      if (targetUrl) {
+        if (blocking) {
+          console.log('redirecting...');
+
+          return {
+            redirectUrl: targetUrl
+          };
+        }
+        else {
+          setTimeout(() => {
+          console.log("tab updating...");
+          // let tabId = details.tabId;
+          chrome.tabs.update(details.tabId, {url: targetUrl});
+          // changeManager.storeChanges(details.tabId, details.url, targetUrl);
+          }, 10000);
+        }
+      }
+
+      return {};
+    }
+
+    console.log('Adding handler for', targetParam);
+
+    REDIRECT_HANDLERS.push(fn);
+    chrome.webRequest.onBeforeRequest.addListener(fn, filters, extra);
+  }
 }
 
 // Generate the URL patterns used for webRequest filtering
@@ -75,10 +153,18 @@ function generatePatternsArray() {
       array.push( "*://*/*?*" + root + trackersByRoot[root][i] + "=*" );
     }
   }
-  // Add a pattern that matches Google SERP links if the User has allowed this feature.
-  if (SKIP_KNOWN_REDIRECTS) {
-    array.push("*://*.google.com/url?*url=*");
-  }
+  // // If we are supposed to skip known redirects...
+  // if (SKIP_KNOWN_REDIRECTS) {
+  //   // For each redirect service
+  //   KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
+  //     // If there is a populated patterns array, add its elements to the array we are building
+  //     if (KNOWN_REDIRECT.patterns && KNOWN_REDIRECT.patterns.length) {
+  //       array.push(...KNOWN_REDIRECT.patterns);
+  //     }
+  //   })
+
+  //   console.log('KNOWN_REDIRECTS are in the array:', array);
+  // }
 
   return array;
 }
@@ -145,15 +231,32 @@ function checkUrlForTrackers(originalUrl) {
 
 // Let's see if this URL is a Google Search Results Page URL, and if so try to
 // extract the target URL from it.
-function extractRedirectTarget(url) {
+function extractRedirectTarget(url, targetParam = 'url') {
   // If skipping of Google Redirects is not enabled OR the URL doesn't look right
   // just return false and be done.
-  if (!(SKIP_KNOWN_REDIRECTS && url.startsWith('https://www.google.com/url?'))) {
+  if (false && !(SKIP_KNOWN_REDIRECTS)) {
     return false;
   }
 
+  let param = false;
+  const redirectsLength = KNOWN_REDIRECTS.length;
+
+  // for (let i=0; i < redirectsLength; i++) {
+  //   const redirect = KNOWN_REDIRECTS[i];
+  //   const patterns = redirect.patterns || [];
+  //   const patternsLength = patterns.length;
+
+  //   for (let j=0; j < patternsLength; j++) {
+  //     if ()
+  //   }
+  //   patterns.forEach
+  // }
+  // && url.startsWith('https://www.google.com/url?'))) {
+  //   return false;
+  // }
+
   // See if we can find a target in the URL.
-  let target = findQueryParam('url', url);
+  let target = findQueryParam(targetParam, url);
 
   if (typeof target === 'string') {
     target = decodeURIComponent(target);
@@ -213,6 +316,9 @@ function cancelAndReloadHandler(tabId, changeInfo, tab) {
 
 // Handler for doing Block Web-request and Re-load approach
 function blockAndReloadHandler(details) {
+
+  console.log('FOOOOOO');
+
   if (!details.url) {
     return {};
   }
@@ -374,6 +480,7 @@ function messageHandler(message, sender) {
 
 // Do anything we need to do when this extension is installed/updated
 function onInstallHandler(details) {
+  return;
   const reason = details.reason;
   if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
     chrome.tabs.create({

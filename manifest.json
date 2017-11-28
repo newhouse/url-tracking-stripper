@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "URL Tracking Stripper & Redirect Skipper",
   "short_name": "URL Tracking Stripper & Redirect Skipper",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Removes tracking tokens from URLs to keep them short & clean for sharing, saving, etc. UTM and others. Also skip tracking redirects.",
   "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
   "icons": {
@@ -12,6 +12,7 @@
   "background": {
     "scripts": [
       "trackers.js",
+      "redirects.js",
       "consts.js",
       "common.js",
       "background.js"
