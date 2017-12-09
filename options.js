@@ -40,6 +40,8 @@ function saveOptions() {
   );
 }
 
+// Adjust the "Skip Known Redirects" checkbox to be hidden or displayed based on the
+// User's choice of "Stripping Method":
 function adjustCheckbox() {
   const stripping_method          = document.getElementById('stripping_method');
   const skipKnownRedirects        = document.getElementById('skip_redirects');
@@ -48,11 +50,18 @@ function adjustCheckbox() {
   // If the Stripping Method is History Change, then there is nothing we can
   // do to help with skipping redirects, so disable and remove this option
   if (parseInt(stripping_method.value) === STRIPPING_METHOD_HISTORY_CHANGE) {
-    skipKnownRedirects.checked              = false;
+    // Disable and hide the checkbox
     skipKnownRedirects.disabled             = true;
     skipKnownRedirectsWrapper.style.display = "none";
+
+    // Commenting out below so that we don't actually uncheck it (anymore)
+    // so that the value can be re-used if the User chooses different
+    // Stripping Method later on:
+    //
+    // skipKnownRedirects.checked              = false;
   }
   else {
+    // Enable and show the checkbox
     skipKnownRedirects.disabled             = false;
     skipKnownRedirectsWrapper.style.display = "block";
   }
@@ -60,6 +69,8 @@ function adjustCheckbox() {
 
 // Dynamically generate the options page elements
 function generateOptionElements() {
+
+  // Get the Background page
   chrome.runtime.getBackgroundPage(function(bp) {
     const select = document.getElementById('stripping_method');
 
