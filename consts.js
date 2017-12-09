@@ -10,3 +10,6 @@ const STRIPPING_METHOD_BLOCK_AND_RELOAD   = 3;
 
 const ACTION_RELOAD_AND_ALLOW_PARAMS      = 'reload_and_allow_params';
 const ACTION_OPTIONS_SAVED                = 'options_saved';
+
+const CHANGE_TYPE_TRACKING_STRIP          = 'Tracking Stripped';
+const CHANGE_TYPE_REDIRECT_SKIP           = 'Redirect Skipped';

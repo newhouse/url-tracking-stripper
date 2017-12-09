@@ -8,6 +8,16 @@ let SKIP_KNOWN_REDIRECTS    = true;
 // What method are we using?  Defaults to history change
 let STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_HISTORY_CHANGE;
 
+// STORE ANY REDIRECT HANDLER FUNCTIONS HERE SO THAT THEY CAN BE UNREGISTERED
+// IF NEED BE
+const REDIRECT_HANDLERS = [];
+
+function foo(details) {
+  console.log(1);
+  return {};
+}
+
+
 // Store some things in various ways for centralized definitiion of what's available.
 // Must use 'var' here because it's accessed in the options.js via chrome.runtime.getBackgroundPage
 var STUFF_BY_STRIPPING_METHOD_ID = {
@@ -21,33 +31,37 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
       chrome.tabs.onUpdated.removeListener(historyChangeHandler);
     }
   },
-  [STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()]: {
-    html: "Cancel and Re-load (some increased privacy)",
-    add: function() {
-      // Monitor tab updates so that we may cancel and re-load them without tracking params
-      chrome.tabs.onUpdated.addListener(cancelAndReloadHandler);
-      // Monitor for subsequent Navigations so that we may indicate if a change
-      // was made or not.
-      chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
-    },
-    remove: function() {
-      chrome.tabs.onUpdated.removeListener(cancelAndReloadHandler);
-      chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
-    }
-  },
+  // [STRIPPING_METHOD_CANCEL_AND_RELOAD.toString()]: {
+  //   html: "Cancel and Re-load (some increased privacy)",
+  //   add: function() {
+  //     // Monitor tab updates so that we may cancel and re-load them without tracking params
+  //     chrome.tabs.onUpdated.addListener(cancelAndReloadHandler);
+  //     // Monitor for subsequent Navigations so that we may indicate if a change
+  //     // was made or not.
+  //     chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
+  //   },
+  //   remove: function() {
+  //     chrome.tabs.onUpdated.removeListener(cancelAndReloadHandler);
+  //     chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
+  //   }
+  // },
   [STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()]: {
     html: "Block and Re-load (most privacy)",
     add: function() {
 
-      registerRedirectHandlers(false);
+      // ADD SUPPORT FOR SKIPPING REDIRECTS IF WE SHOULD
+      if (SKIP_KNOWN_REDIRECTS) {
+        registerRedirectHandlers(true);
+      }
 
       // We are only concerned with URLs that appear to have tracking parameters in them
       // and are in the main frame
       const filters = {
-        urls:   generatePatternsArray(),
+        urls:   generateTrackerPatternsArray(),
         types:  ["main_frame"]
       };
       const extra = ["blocking"];
+
       // Monitor WebRequests so that we may block and re-load them without tracking params
       chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
       // Monitor for subsequent Navigations so that we may indicate if a change
@@ -63,53 +77,54 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
   }
 };
 
-function foo(details) {
-  console.log(1);
-  return {};
-}
 
 // Go through all the trackers by their root and turn them into a big regex...
-const regexesByRoot = {};
-for (let root in trackersByRoot) {
-  regexesByRoot[root] = new RegExp("((^|&)" + root + "(" + trackersByRoot[root].join('|') + ")=[^&#]+)", "ig");
+const TRACKER_REGEXES_BY_ROOT = {};
+for (let root in TRACKERS_BY_ROOT) {
+  TRACKER_REGEXES_BY_ROOT[root] = new RegExp("((^|&)" + root + "(" + TRACKERS_BY_ROOT[root].join('|') + ")=[^&#]+)", "ig");
 }
 
 
-const REDIRECT_HANDLERS = [];
-
-
+// Remove the listeners that we added to watch for redirect-skipping.
 function unRegisterRedirectHandlers() {
   let handler;
-  while(handler = REDIRECT_HANDLERS.pop()) {
+  while (handler = REDIRECT_HANDLERS.pop()) {
     console.log('removing handler...');
     chrome.webRequest.onBeforeRequest.removeListener(handler);
   }
 }
 
-
-function registerRedirectHandlers(blocking = false) {
+// Add listeners to watch for redirect-skipping opportunities
+function registerRedirectHandlers() {
+  // Remove any existing ones before we get started
   unRegisterRedirectHandlers();
 
-  blocking = blocking === true;
+  for (let targetParam in REDIRECT_PATTERNS_BY_TARGET_PARAM) {
+    const urls = REDIRECT_PATTERNS_BY_TARGET_PARAM[targetParam];
 
-  for (let targetParam in matchPatternsByTargetParam) {
-    const urls = matchPatternsByTargetParam[targetParam];
+    // Don't do anything stupid.
+    if (!(urls && urls.length)) {
+      return;
+    }
 
     console.log('urls in for', targetParam, urls);
 
-    let filters = {
+    const filters = {
       urls:   urls,
       types:  ["main_frame"]
     };
+    const extra = ["blocking"];
 
-    const extra = [];
-
-    if (blocking) {
-      extra.push("blocking");
-    }
-
-    const fn = details => {
+    const handler = details => {
       console.log(`pattern matched for "${targetParam}" on ${details.url}`);
+
+      // If this is to be excepted this time, then do not block.
+      if (exceptionsManager.isExceptedUrl(details.url)) {
+        console.log('BUT THIS THING IS EXCEPTED, SO FORGET IT');
+        return {};
+      }
+
+
       console.log('urls:', urls);
       console.log('deets', details);
 
@@ -117,21 +132,13 @@ function registerRedirectHandlers(blocking = false) {
       console.log('targetUrl:', targetUrl);
 
       if (targetUrl) {
-        if (blocking) {
-          console.log('redirecting...');
+        // Save the fact that we stripped something for indication later on.
+        changeManager.storeChanges(details.tabId, details.url, targetUrl, CHANGE_TYPE_REDIRECT_SKIP);
 
-          return {
-            redirectUrl: targetUrl
-          };
-        }
-        else {
-          setTimeout(() => {
-          console.log("tab updating...");
-          // let tabId = details.tabId;
-          chrome.tabs.update(details.tabId, {url: targetUrl});
-          // changeManager.storeChanges(details.tabId, details.url, targetUrl);
-          }, 10000);
-        }
+        console.log('blocking and redirecting...');
+        return {
+          redirectUrl: targetUrl
+        };
       }
 
       return {};
@@ -139,32 +146,23 @@ function registerRedirectHandlers(blocking = false) {
 
     console.log('Adding handler for', targetParam);
 
-    REDIRECT_HANDLERS.push(fn);
-    chrome.webRequest.onBeforeRequest.addListener(fn, filters, extra);
+    // SAVE DAT FUNCTION SO WE CAN UNREGISTER IT LATER
+    REDIRECT_HANDLERS.push(handler);
+
+    // REGISTER IT AS A LISTENER
+    chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
   }
 }
 
 // Generate the URL patterns used for webRequest filtering
 // https://developer.chrome.com/extensions/match_patterns
-function generatePatternsArray() {
+function generateTrackerPatternsArray() {
   const array = [];
-  for (let root in trackersByRoot) {
-    for (let i=0; i < trackersByRoot[root].length; i++) {
-      array.push( "*://*/*?*" + root + trackersByRoot[root][i] + "=*" );
+  for (let root in TRACKERS_BY_ROOT) {
+    for (let i=0; i < TRACKERS_BY_ROOT[root].length; i++) {
+      array.push( "*://*/*?*" + root + TRACKERS_BY_ROOT[root][i] + "=*" );
     }
   }
-  // // If we are supposed to skip known redirects...
-  // if (SKIP_KNOWN_REDIRECTS) {
-  //   // For each redirect service
-  //   KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
-  //     // If there is a populated patterns array, add its elements to the array we are building
-  //     if (KNOWN_REDIRECT.patterns && KNOWN_REDIRECT.patterns.length) {
-  //       array.push(...KNOWN_REDIRECT.patterns);
-  //     }
-  //   })
-
-  //   console.log('KNOWN_REDIRECTS are in the array:', array);
-  // }
 
   return array;
 }
@@ -179,10 +177,10 @@ function removeTrackersFromUrl(url) {
   }
 
   // Go through all the pattern roots
-  for (let root in regexesByRoot) {
+  for (let root in TRACKER_REGEXES_BY_ROOT) {
     // If we see the root in the params part, then we should probably try to do some replacements
     if (urlPieces[1].indexOf(root) !== -1) {
-      urlPieces[1] = urlPieces[1].replace(regexesByRoot[root], '');
+      urlPieces[1] = urlPieces[1].replace(TRACKER_REGEXES_BY_ROOT[root], '');
     }
   }
 
@@ -210,16 +208,6 @@ function checkUrlForTrackers(originalUrl) {
   // The cleansed URL starts out as false
   let cleansedUrl   = false;
 
-  // Let's see if a Google Search Results target can/should be extracted
-  const redirectTargetUrl = extractRedirectTarget(urlToCleanse);
-
-  // If there was a Google Search target URL, then let's swap out
-  // both the urlToCleanse and the cleansedUrl with that
-  if (redirectTargetUrl) {
-    urlToCleanse  = redirectTargetUrl;
-    cleansedUrl  = redirectTargetUrl;
-  }
-
   // See if there is anything to strip from the URL to cleanse, else use whatever
   // we already have stored in 'cleansedUrl'
   cleansedUrl = removeTrackersFromUrl(urlToCleanse) || cleansedUrl;
@@ -232,29 +220,6 @@ function checkUrlForTrackers(originalUrl) {
 // Let's see if this URL is a Google Search Results Page URL, and if so try to
 // extract the target URL from it.
 function extractRedirectTarget(url, targetParam = 'url') {
-  // If skipping of Google Redirects is not enabled OR the URL doesn't look right
-  // just return false and be done.
-  if (false && !(SKIP_KNOWN_REDIRECTS)) {
-    return false;
-  }
-
-  let param = false;
-  const redirectsLength = KNOWN_REDIRECTS.length;
-
-  // for (let i=0; i < redirectsLength; i++) {
-  //   const redirect = KNOWN_REDIRECTS[i];
-  //   const patterns = redirect.patterns || [];
-  //   const patternsLength = patterns.length;
-
-  //   for (let j=0; j < patternsLength; j++) {
-  //     if ()
-  //   }
-  //   patterns.forEach
-  // }
-  // && url.startsWith('https://www.google.com/url?'))) {
-  //   return false;
-  // }
-
   // See if we can find a target in the URL.
   let target = findQueryParam(targetParam, url);
 
@@ -286,39 +251,16 @@ function historyChangeHandler(tabId, changeInfo, tab) {
     });
 
     // Save the fact that we stripped something for indication later on.
-    changeManager.storeChanges(tab.id, tab.url, cleansedUrl);
+    changeManager.storeChanges(tab.id, tab.url, cleansedUrl, CHANGE_TYPE_TRACKING_STRIP);
     // And then immediately indicate this fact since WebNavigation has already
     // taken place since there's no other possible hook.
     changeManager.indicateChange(tab.id, cleansedUrl);
   }
 }
 
-// Handler for doing Cancel and Re-load approach
-function cancelAndReloadHandler(tabId, changeInfo, tab) {
-  // If the change was not to the URL, we're done.
-  if (!changeInfo.url) {
-    return;
-  }
-
-  // Returns false if we didn't replace anything, but let's use what
-  // we had for cleansedUrl in that case as it could have
-  const cleansedUrl = checkUrlForTrackers(tab.url);
-
-  if (cleansedUrl) {
-    // Update the URL for that tab.
-    chrome.tabs.update(tabId, {url: cleansedUrl});
-    // Save the fact that we stripped something for indication later on.
-    // Actually pass the original URL here so that it can be show in the
-    // indication on the Page Action
-    changeManager.storeChanges(tab.id, tab.url, cleansedUrl);
-  }
-}
 
 // Handler for doing Block Web-request and Re-load approach
 function blockAndReloadHandler(details) {
-
-  console.log('FOOOOOO');
-
   if (!details.url) {
     return {};
   }
@@ -329,7 +271,7 @@ function blockAndReloadHandler(details) {
 
   if (cleansedUrl) {
     // Save the fact that we stripped something for indication later on.
-    changeManager.storeChanges(details.tabId, details.url, cleansedUrl);
+    changeManager.storeChanges(details.tabId, details.url, cleansedUrl, CHANGE_TYPE_TRACKING_STRIP);
     // Redirect the browser to the cleansed URL and be done here
     return { redirectUrl: cleansedUrl };
   }
@@ -393,7 +335,7 @@ const exceptionsManager = {
   }
 }
 
-const changeManager = {
+var changeManager = {
   // We'll store URL change information by tab id
   changesByTabId: {},
 
@@ -405,15 +347,25 @@ const changeManager = {
   // Check to see if it looks like we changed the URL for a tab, and update/display
   // the pageAction if so
   indicateChange: function(tabId, cleansedUrl) {
+
+    console.log('thinking about indicate change:', {tabId, cleansedUrl});
+    const changes = changeManager.changesByTabId[tabId];
+    console.log({changes});
+
     // If we have change data for a tab and the URLs appear to match, let's update the pageAction
-    if (changeManager.changesByTabId[tabId] && changeManager.changesByTabId[tabId].cleansedUrl === cleansedUrl) {
+    if (changes) {
+      const title = 'URL Changed!';
       chrome.pageAction.show(tabId);
       chrome.pageAction.setTitle({
-        'tabId': tabId,
-        'title': "URL changed from " + changeManager.changesByTabId[tabId].originalUrl
+        tabId,
+        title
       });
+
+      // Pass a bunch of stuff in the URL
+      const url = `info.html?title=${encodeURIComponent(title)}&changes=${encodeURIComponent(JSON.stringify(changes))}`;
       // We can pass params into the URL like any other webpage, which is useful for dynamically generating the content:
-      chrome.pageAction.setPopup({tabId: tabId, popup:"info.html?title=URL Changed&originalUrl=" + encodeURIComponent(changeManager.changesByTabId[tabId].originalUrl)});
+      chrome.pageAction.setPopup({tabId: tabId, popup: url});
+
       // Once we've updated the pageAction, we should clear out the change for that tab
       // so that it does not show for any subsequent navigation (re-load, etc)
       changeManager.clearTab(tabId);
@@ -422,11 +374,13 @@ const changeManager = {
 
   // If we made changes to a URL for a tab, let's keep that information around so that
   // we can show the pageAction at the appropriate time
-  storeChanges: function(tabId, originalUrl, cleansedUrl) {
-    changeManager.changesByTabId[tabId] = {
-      originalUrl: originalUrl,
-      cleansedUrl: cleansedUrl
-    };
+  storeChanges: function(tabId, originalUrl, cleansedUrl, type = CHANGE_TYPE_TRACKING_STRIP) {
+    changeManager.changesByTabId[tabId] = changeManager.changesByTabId[tabId] || [];
+    changeManager.changesByTabId[tabId].push({
+      originalUrl,
+      cleansedUrl,
+      type
+    });
   }
 };
 
