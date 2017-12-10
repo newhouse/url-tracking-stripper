@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
       originalUrl,
       cleansedUrl,
       type
-    }               = change;
+    } = change;
 
     // Description Type starts out as the type
     let descriptionType = `${type}:`;

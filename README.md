@@ -1,6 +1,6 @@
 # URL Tracking Stripper
 
-A Chrome Extension designed with one intention: remove the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
+A Chrome Extension designed with one intention: Increase your speed and privacy of your web browsing by skipping tracking redirects and removing the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
 
 You can install this Extension in the [Chrome Webstore][store]
 
@@ -45,6 +45,8 @@ Unknown
 
 Please file an Issue if you would like others tracked!
 
+You can find the file with the trackers [here](https://github.com/newhouse/url-tracking-stripper/blob/master/trackers.js).
+
 # Stripping Methods
 This Extension is free and open source, and in no way is trying to keep tabs on you. However,
 different options provide different pros and cons around things like
@@ -57,16 +59,7 @@ This is pretty slick, shouldn't slow your browsing down and requires no page re-
 __*no increased privacy*__ for you, as any sites have already registered and tracked your visit by the time the change is
 made to the URL. You can think of it as a purely cosmetic fix. This method ***DOES NOT*** allow for the [Skip Known Redirects](#skip-known-redirects) feature to be enabled - see below for more info.
 
-2) __Cancel and Re-Load__: This approach will attempt to cancel any Web Requests made by tabs that are found to contain
-tracking parameters, and try to instead re-load the equivalent URL without the tracking parameters. While this should not
-slow your general browsing since requests begin immediately *before* they are checked for containing a tracking parameter,
-this approach may slow down your experience slightly on URLs that contained tracking parameters. This is because some
-amount of resources will have been loaded already by the time the overall page request is cancelled, adjusted and then
-re-loaded with a clean URL. Furthermore, while this approach is likely to result in increased privacy when it is able to
-remove tracking parameters before they are able to be processed, it's possible that the time between the original request
-and the cancellation was enough to be tracked, so __*increased privacy is not guaranteed*__. This method allows for the [Skip Known Redirects](#skip-known-redirects) feature to be enabled - see below for more info.
-
-3) __Block and Re-Load__: This approach will evaluate any URLs you attempt to visit __*before*__ the request is actually executed.
+2) __Block and Re-Load__: This approach will evaluate any URLs you attempt to visit __*before*__ the request is actually executed.
 Any URLs that appear to contain tracking will be blocked and then the equivalent URL without the tracking parameters will
 be re-loaded instead.  While every effort to make the impact of this implementation minimal/unnoticeable has been made, and
 Chrome has spent a lot of time optimizing this area as well, this will still add a small amount of overhead to your
@@ -75,6 +68,8 @@ are stripped from URLs before they are requested. This method allows for the [Sk
 
 #### Skip Known Redirects
 Some links on pages (e.g. Google Search Results) look like they take you directly to the target URL, but really they will pass you through (an) intermediate server(s), cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the redirect and unnecessary tracking. When this option is available based on your Stripping Method, a checkbox will appear. I recommend choosing the "Block and Re-load" Stripping Method with the "Skip Known Redirects" feature enabled.
+
+You can find the file with the known redirects [here](https://github.com/newhouse/url-tracking-stripper/blob/master/redirects.js).
 
 Additional thoughts: This extension was not intended to be a catch-all for removing tracking and increasing your privacy.
 Its main purpose was simply to get a bunch of noise out of your address bar, with additional privacy (depending on your

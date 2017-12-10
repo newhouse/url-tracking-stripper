@@ -3,7 +3,7 @@
   "name": "URL Tracking Stripper & Redirect Skipper",
   "short_name": "URL Tracking Stripper & Redirect Skipper",
   "version": "2.1.0",
-  "description": "Removes tracking tokens from URLs to keep them short & clean for sharing, saving, etc. UTM and others. Also skip tracking redirects.",
+  "description": "Skips tracking redirects and removes tracking tokens from URLs to keep them short & clean for sharing, saving, etc. UTM and others.",
   "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
   "icons": {
     "128": "icon-128.png",

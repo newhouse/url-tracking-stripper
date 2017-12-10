@@ -15,10 +15,15 @@ function saveOptions() {
     [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:     skipKnownRedirects
   };
 
-  chrome.storage.sync.set(
-    options,
+  // Send the new options values to the background script so it can handle accordingly
+  chrome.runtime.sendMessage(
+    {
+      action:   ACTION_OPTIONS_SAVED,
+      options:  options
+    },
+    // Do this when it's completed
     function() {
-      // CLEAR ANY OTHER TIMEOUT THAT MAY HAVE BEEN RUNNING
+      // Clear any other timeout that may have been running
       clearTimeout(OPTIONS_SAVED_TIMER);
 
       // Update status to let user know options were saved.
@@ -29,16 +34,8 @@ function saveOptions() {
       OPTIONS_SAVED_TIMER = setTimeout(function() { status.style.opacity = 0; }, OPTIONS_SAVED_TIMEOUT);
     }
   );
-
-  // Send the new options values to the background script so it can handle
-  // accordingly
-  chrome.runtime.sendMessage(
-    {
-      action:   ACTION_OPTIONS_SAVED,
-      options:  options
-    }
-  );
 }
+
 
 // Adjust the "Skip Known Redirects" checkbox to be hidden or displayed based on the
 // User's choice of "Stripping Method":
@@ -53,7 +50,6 @@ function adjustCheckbox() {
     // Disable and hide the checkbox
     skipKnownRedirects.disabled             = true;
     skipKnownRedirectsWrapper.style.display = "none";
-
     // Commenting out below so that we don't actually uncheck it (anymore)
     // so that the value can be re-used if the User chooses different
     // Stripping Method later on:

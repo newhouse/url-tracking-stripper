@@ -1,3 +1,5 @@
+const BUTT_UP_PREVENTER = '<BUTT_UP_PREVENTER>';
+
 const KNOWN_REDIRECTS = [
   {
     name: 'Google Search Results',
