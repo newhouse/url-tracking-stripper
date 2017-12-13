@@ -11,6 +11,9 @@ const STRIPPING_METHOD_CANCEL_AND_RELOAD                = 2; // DEPRECATED
 const STRIPPING_METHOD_BLOCK_AND_RELOAD                 = 3;
 const STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS  = 4;
 
+// Default Stripping Method to use when in doubt.
+const DEFAULT_STRIPPING_METHOD                          = STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS;
+
 const ACTION_RELOAD_AND_ALLOW_PARAMS                    = 'reload_and_allow_params';
 const ACTION_OPTIONS_SAVED                              = 'options_saved';
 

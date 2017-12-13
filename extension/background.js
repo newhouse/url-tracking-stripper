@@ -1,8 +1,5 @@
 'use strict';
 
-// Default Stripping Method to use when in doubt.
-const DEFAULT_STRIPPING_METHOD = STRIPPING_METHOD_BLOCK_AND_RELOAD;
-
 // What method are we using?  Starts with the default
 let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
 
@@ -420,8 +417,8 @@ function setHandlers() {
 // Get all the options from storage and put them into their globals
 function restoreOptionsFromStorage() {
   return getOptionsFromStorage(items => {
-    // Use the found method, or the default
-    STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || DEFAULT_STRIPPING_METHOD;
+     // Use the found method, or the default
+    STRIPPING_METHOD_TO_USE = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE] || DEFAULT_STRIPPING_METHOD;
     // Set the handler now that we know what method we'd like to use
     setHandlers();
   });
@@ -430,9 +427,10 @@ function restoreOptionsFromStorage() {
 
 // Handle messages from other parts of the extension
 function messageHandler(message, sender, cb) {
+
   // User has updated their options/preferences
   if (message.action === ACTION_OPTIONS_SAVED) {
-    STRIPPING_METHOD_TO_USE   = parseInt(message.options.STRIPPING_METHOD_TO_USE) || DEFAULT_STRIPPING_METHOD;
+    STRIPPING_METHOD_TO_USE   = parseInt(message.options[STORAGE_KEY_STRIPPING_METHOD_TO_USE]) || DEFAULT_STRIPPING_METHOD;
 
     // Set the handlers to do what they do
     setHandlers();
@@ -477,29 +475,25 @@ function onInstallHandler(details) {
   // If it's an Update or an Install
   if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
 
-    // The new Stripping Method to use will start out as the one the User has chosen
-    let NEW_STRIPPING_METHOD_TO_USE = STRIPPING_METHOD_TO_USE;
+    // MUST REMOVE ALL OF THIS BEFORE NEXT VERSION ONCE PEOPLE KNOW WHAT THEY ARE DOING:
 
-    // If the User had previously set their stuff to Cancel & Reload, well that's no longer
-    // an option. Sorry! Will use new deafults in that case.
-    if (STRIPPING_METHOD_TO_USE === STRIPPING_METHOD_CANCEL_AND_RELOAD) {
-      // Set the new Stripping Method to use to be the new default
-      NEW_STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
-    }
+    // Remove the Skip Known Redirects entry from storage
+    chrome.storage.sync.remove(STORAGE_KEY_SKIP_KNOWN_REDIRECTS, () => {
 
-    // Spoof a message that says the User updated their settings.
-    messageHandler(
-      {
-        action: ACTION_OPTIONS_SAVED,
-        options: {
-          // Set the Stripping Method use, possibly changing it around
-          [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  NEW_STRIPPING_METHOD_TO_USE
-        }
-      },
-      {},
-      // Empty callback for the messageHandler
-      function() {}
-    );
+      // Spoof a message that says the User updated their settings.
+      messageHandler(
+        {
+          action: ACTION_OPTIONS_SAVED,
+          options: {
+            // Set the Stripping Method use, possibly changing it around
+            [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD
+          }
+        },
+        {},
+        // NOW THAT WE'VE TIDIED THINGS UP, LET'S RESTORE OPTIONS FROM STORAGE
+        restoreOptionsFromStorage
+      );
+    });
 
     // Let the User know about things
     chrome.tabs.create({
@@ -510,10 +504,12 @@ function onInstallHandler(details) {
 }
 
 
+
 // OK, finally let's:
-// 1) Restore the options from storage
-restoreOptionsFromStorage();
-// 2) Listen for messages: from the Options page or from the PageAction
-chrome.runtime.onMessage.addListener(messageHandler);
-// 3) Do anything we need to do when installed/updated
+// 1) Do anything we need to do when installed/updated
 chrome.runtime.onInstalled.addListener(onInstallHandler);
+// 2) Restore the options from storage
+// NOPE: For now this will be taken care of after the stuff goes down with cleaning up storage and choices
+// restoreOptionsFromStorage();
+// 3) Listen for messages: from the Options page or from the PageAction
+chrome.runtime.onMessage.addListener(messageHandler);

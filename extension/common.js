@@ -1,8 +1,7 @@
 function getOptionsFromStorage(cb, options) {
   options = options ||
     {
-      [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  STRIPPING_METHOD_HISTORY_CHANGE,
-      [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:     false
+      [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  DEFAULT_STRIPPING_METHOD
     };
 
   return chrome.storage.sync.get(options, cb);
