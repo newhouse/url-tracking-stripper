@@ -1,6 +1,7 @@
-const OPTIONS_SAVED_TIMEOUT = 2000;
-let OPTIONS_SAVED_TIMER;
+'use strict';
 
+const OPTIONS_SAVED_TIMEOUT = 2000;
+let   OPTIONS_SAVED_TIMER;
 
 // Called to save the selected options
 function saveOptions() {
@@ -63,6 +64,7 @@ function adjustCheckbox() {
   }
 }
 
+
 // Dynamically generate the options page elements
 function generateOptionElements() {
 
@@ -84,6 +86,7 @@ function generateOptionElements() {
   });
 }
 
+
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
 function restoreOptions() {
@@ -94,6 +97,7 @@ function restoreOptions() {
     adjustCheckbox();
   });
 }
+
 
 // Once the page content is loaded:
 document.addEventListener('DOMContentLoaded', function() {

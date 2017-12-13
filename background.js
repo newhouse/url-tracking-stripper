@@ -1,9 +1,4 @@
-// Helper function to log things
-function log() {
-  if (false) {
-    console.log(...arguments);
-  }
-}
+'use strict';
 
 // Default Stripping Method to use when in doubt.
 const DEFAULT_STRIPPING_METHOD = STRIPPING_METHOD_BLOCK_AND_RELOAD;
@@ -117,35 +112,31 @@ function registerRedirectHandlers() {
   // Remove any existing ones before we get started
   unRegisterRedirectHandlers();
 
-  for (let targetParam in REDIRECT_PATTERNS_BY_TARGET_PARAM) {
-    const urls = REDIRECT_PATTERNS_BY_TARGET_PARAM[targetParam];
+  for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
+    const {
+      patterns,
+      types
+    } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
 
     // Don't do anything stupid.
-    if (!(urls && urls.length)) {
+    if (!(patterns && patterns.length && types && types.length)) {
       return;
     }
 
-    log(`Adding the following "Skip Known Redirect" URL patterns for ${targetParam}:`);
-    log(urls);
-
     const filters = {
-      urls:   urls,
-      types:  ["main_frame"]
+      urls:   patterns,
+      types:  types
     };
     const extra = ["blocking"];
 
     const handler = details => {
-      log(`"Skip Known Redirect" pattern matched for "${targetParam}" on ${details.url}`);
-
       // If this is to be excepted this time, then do not block.
       if (exceptionsManager.isExceptedUrl(details.url)) {
-        log('BUT THIS THING IS EXCEPTED, SO FORGET IT');
         // Return nothing to do nothing.
         return {};
       }
 
       const targetUrl = extractRedirectTarget(details.url, targetParam);
-      log(`Extracted target URL: ${targetUrl}`);
 
       if (!targetUrl) {
         // Return nothing to do nothing.
@@ -156,7 +147,6 @@ function registerRedirectHandlers() {
       // Save the fact that we stripped something for indication later on.
       changeManager.storeChanges(details.tabId, details.url, targetUrl, CHANGE_TYPE_REDIRECT_SKIP);
 
-      log(`Blocking and redirecting to ${targetUrl}`);
       // Return this redirect URL in order to actually redirect the tab
       return { redirectUrl: targetUrl };
     }
@@ -165,7 +155,6 @@ function registerRedirectHandlers() {
     REDIRECT_HANDLERS.push(handler);
 
     // REGISTER IT AS A LISTENER
-    log(`Attaching handler for ${targetParam}`);
     chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
   }
 }
@@ -419,6 +408,11 @@ function setHandlers() {
   }
   // Add the listener the user wants
   STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
+
+  // Let Chrome know that things may be different this time around.
+  // Actually, it says: "You don't need to call handlerBehaviorChanged() after registering or unregistering an event listener."
+  // https://developer.chrome.com/extensions/webRequest#method-handlerBehaviorChanged
+  // chrome.webRequest.handlerBehaviorChanged();
 }
 
 
@@ -438,12 +432,10 @@ function restoreOptionsFromStorage() {
 // Handle messages from other parts of the extension
 function messageHandler(message, sender, cb) {
 
-  console.log('MESSAGE RECEIVED:', {message});
-
   // User has updated their options/preferences
   if (message.action === ACTION_OPTIONS_SAVED) {
-    STRIPPING_METHOD_TO_USE = parseInt(message.options.STRIPPING_METHOD_TO_USE) || DEFAULT_STRIPPING_METHOD;
-    SKIP_KNOWN_REDIRECTS = message.options.SKIP_KNOWN_REDIRECTS || DEFAULT_SKIP_KNOWN_REDIRECTS;
+    STRIPPING_METHOD_TO_USE   = parseInt(message.options.STRIPPING_METHOD_TO_USE) || DEFAULT_STRIPPING_METHOD;
+    SKIP_KNOWN_REDIRECTS      = typeof message.options.SKIP_KNOWN_REDIRECTS === 'undefined' ? DEFAULT_SKIP_KNOWN_REDIRECTS : message.options.SKIP_KNOWN_REDIRECTS === true;
 
     // Set the handlers to do what they do
     setHandlers();
@@ -484,7 +476,6 @@ function messageHandler(message, sender, cb) {
 
 // Do anything we need to do when this extension is installed/updated
 function onInstallHandler(details) {
-
   const reason = details.reason;
 
   // If it's an Update or an Install
@@ -496,7 +487,6 @@ function onInstallHandler(details) {
     // If the User had previously set their stuff to Cancel & Reload, well that's no longer
     // an option. Sorry! Will use new deafults in that case.
     if (STRIPPING_METHOD_TO_USE === STRIPPING_METHOD_CANCEL_AND_RELOAD) {
-      log('THIS USER WAS USING OLD METHOD. UPDATE THAT STUFF!');
       // Set the new Stripping Method to use to be the new default
       NEW_STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
     }

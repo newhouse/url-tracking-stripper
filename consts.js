@@ -1,3 +1,5 @@
+'use strict';
+
 const REASON_INSTALL                      = 'install';
 const REASON_UPDATE                       = 'update';
 

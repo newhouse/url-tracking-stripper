@@ -1,3 +1,5 @@
+'use strict';
+
 // Once the page skeleton is loaded
 document.addEventListener('DOMContentLoaded', function() {
 
