@@ -73,7 +73,7 @@ function generateOptionElements() {
 }
 
 
-// Restores radio button and checkbox state using the preferences
+// Restores radio button state using the preferences
 // stored in chrome.storage.
 function restoreOptions() {
   return getOptionsFromStorage(items => {
