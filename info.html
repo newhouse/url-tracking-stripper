@@ -8,9 +8,12 @@ button {
 }
 .notification-card.mdl-card {
   width: 320px;
-  height: 320px;
+  /*height: 320px;*/
+  height: auto;
+  min-height: 215px;
 }
 .notification-card > .mdl-card__title {
+  height: 160px;
   color: #fff;
   background: #3162CB;
 }
@@ -37,6 +40,25 @@ button {
   overflow: hidden !important;
   white-space: nowrap !important;
 }
+.scroller {
+  text-decoration:none;
+  margin-top: 0em;
+  text-align: center;
+  display:inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-transition: 1.5s;
+  -moz-transition: 1.5s;
+  transition: 1.5s;
+  -webkit-transition-timing-function: linear;
+  -moz-transition-timing-function: linear;
+  transition-timing-function: linear;
+}
+.scroller:hover {
+  margin-left: -320px;
+}
+
 </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="lib/material.blue-red.min.css" />
@@ -45,17 +67,12 @@ button {
 <body>
 <div class="notification-card mdl-card mdl-shadow--2dp">
   <div class="mdl-card__title mdl-card--expand">
-    <h2 id="url" class="url mdl-card__title-text"></h2>
-    <h2 class="mdl-card__title-text">Tracking removed!</h2>
+    <h2 id="scissor_url_div" class="url mdl-card__title-text"></h2>
+    <h2 id="notification" class="mdl-card__title-text"></h2>
     <img id="scissor-left" src="./scissors-left.png">
     <img id="scissor-right" src="./scissors-right.png">
   </div>
-  <div class="mdl-card__supporting-text">
-    This URL has had some pieces stripped! The full URL was:<br>
-    <div id="original"></div>
-  </div>
-  <div class="mdl-card__actions mdl-card--border">
-  <button id="go_to_original" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Reload with full URL</button>
+  <div id="buttons">
   </div>
 </div>
 <script src="consts.js"></script>

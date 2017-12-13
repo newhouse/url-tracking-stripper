@@ -1,3 +1,5 @@
+'use strict';
+
 // Once the page content is loaded:
 document.addEventListener('DOMContentLoaded', function() {
   const manifest  = chrome.runtime.getManifest();
