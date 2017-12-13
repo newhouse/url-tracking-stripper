@@ -6,8 +6,8 @@
   "description": "Increase the speed & privacy of your browsing. Skip/remove tracking parameters & redirects from URLs to keep them shorter & cleaner.",
   "homepage_url": "https://github.com/newhouse/url-tracking-stripper",
   "icons": {
-    "128": "icon-128.png",
-    "48": "icon-48.png"
+    "128": "images/icon-128.png",
+    "48": "images/icon-48.png"
   },
   "background": {
     "scripts": [
@@ -34,9 +34,9 @@
   "page_action": {
     "default_title": "Nothing stripped on this page.",
     "default_icon": {
-      "19": "icon-19.png",
-      "38": "icon-38.png",
-      "48": "icon-48.png"
+      "19": "images/icon-19.png",
+      "38": "images/icon-38.png",
+      "48": "images/icon-48.png"
     }
   }
 }
