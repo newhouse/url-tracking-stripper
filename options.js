@@ -6,14 +6,8 @@ let   OPTIONS_SAVED_TIMER;
 // Called to save the selected options
 function saveOptions() {
 
-  adjustCheckbox();
-
-  const strippingMethodValue  = parseInt(document.getElementById('stripping_method').value);
-  const skipKnownRedirects    = document.getElementById('skip_redirects').checked;
-
   const options = {
-    [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  strippingMethodValue,
-    [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:     skipKnownRedirects
+    [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  getSelectedStrippingMethod()
   };
 
   // Send the new options values to the background script so it can handle accordingly
@@ -38,47 +32,39 @@ function saveOptions() {
 }
 
 
-// Adjust the "Skip Known Redirects" checkbox to be hidden or displayed based on the
-// User's choice of "Stripping Method":
-function adjustCheckbox() {
-  const stripping_method          = document.getElementById('stripping_method');
-  const skipKnownRedirects        = document.getElementById('skip_redirects');
-  const skipKnownRedirectsWrapper = document.getElementById('skip_redirects_wrapper');
-
-  // If the Stripping Method is History Change, then there is nothing we can
-  // do to help with skipping redirects, so disable and remove this option
-  if (parseInt(stripping_method.value) === STRIPPING_METHOD_HISTORY_CHANGE) {
-    // Disable and hide the checkbox
-    skipKnownRedirects.disabled             = true;
-    skipKnownRedirectsWrapper.style.display = "none";
-    // Commenting out below so that we don't actually uncheck it (anymore)
-    // so that the value can be re-used if the User chooses different
-    // Stripping Method later on:
-    //
-    // skipKnownRedirects.checked              = false;
-  }
-  else {
-    // Enable and show the checkbox
-    skipKnownRedirects.disabled             = false;
-    skipKnownRedirectsWrapper.style.display = "block";
-  }
+function getSelectedStrippingMethod() {
+  return parseInt(document.querySelector('input[name="stripping_method"]:checked').value)
 }
 
+function generateRadioId(id) {
+  return `radio_${id}`;
+}
 
 // Dynamically generate the options page elements
 function generateOptionElements() {
 
   // Get the Background page
   chrome.runtime.getBackgroundPage(function(bp) {
-    const select = document.getElementById('stripping_method');
+    const radios = document.getElementById('stripping_method');
 
     for (let strippingMethodId in bp.STUFF_BY_STRIPPING_METHOD_ID) {
 
-      let option        = document.createElement('option');
-      option.value      = strippingMethodId;
-      option.innerHTML  = bp.STUFF_BY_STRIPPING_METHOD_ID[strippingMethodId].html;
+      const id          = generateRadioId(strippingMethodId);
 
-      select.appendChild(option);
+      const radio       = document.createElement('input');
+      radio.type        = 'radio';
+      radio.id          = id;
+      radio.name        = 'stripping_method';
+      radio.value       = strippingMethodId;
+      radios.appendChild(radio);
+
+      const label       = document.createElement('label');
+      label.for         = id;
+      label.innerHTML   = bp.STUFF_BY_STRIPPING_METHOD_ID[strippingMethodId].html;
+      radios.appendChild(label);
+
+      const br          = document.createElement('br');
+      radios.appendChild(br);
     }
 
     // Set the appropriate option(s) to be selected
@@ -87,14 +73,13 @@ function generateOptionElements() {
 }
 
 
-// Restores select box and checkbox state using the preferences
+// Restores radio button state using the preferences
 // stored in chrome.storage.
 function restoreOptions() {
   return getOptionsFromStorage(items => {
-    document.getElementById('stripping_method').value = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE];
-    document.getElementById('skip_redirects').checked = items[STORAGE_KEY_SKIP_KNOWN_REDIRECTS];
 
-    adjustCheckbox();
+    // Set the appropriate radio button to be selected.
+    document.getElementById(generateRadioId(items[STORAGE_KEY_STRIPPING_METHOD_TO_USE])).checked = true;
   });
 }
 
@@ -107,16 +92,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set the title
   document.getElementById('title').textContent = manifest.short_name;
 
+  // Set the homepage URL
+  document.getElementById('homepage_url').href = manifest.homepage_url + '#readme';
+
   // Generate the elements on the page
   generateOptionElements();
 
-  // Monitor for save clicks
-  document.getElementById('save').addEventListener('click', saveOptions);
-
   // Monitor for choice changes as well, even though it's redundant
   document.getElementById('stripping_method').addEventListener('change', saveOptions);
-  document.getElementById('skip_redirects').addEventListener('change', saveOptions);
-
-  // Set the homepage URL
-  document.getElementById('homepage_url').href = manifest.homepage_url + '#readme';
 });

@@ -53,18 +53,21 @@ different options provide different pros and cons around things like
 permissions, speed and privacy. Please read about the different "Stripping Methods" avaiable
 and choose which one is right for you:
 
-1) __History Change__: This approach will simply monitor for URLs that you visit which contain tracking parameters, and
-__*after the page loads*__ it will update your browser History and remove the tracking parameters from the URL for that tab.
-This is pretty slick, shouldn't slow your browsing down and requires no page re-load. However, it provides absolutely
-__*no increased privacy*__ for you, as any sites have already registered and tracked your visit by the time the change is
-made to the URL. You can think of it as a purely cosmetic fix. This method ***DOES NOT*** allow for the [Skip Known Redirects](#skip-known-redirects) feature to be enabled - see below for more info.
+1) __History Change__:
+   - This approach will simply monitor for URLs that you visit which contain tracking parameters, and __*after the page loads*__ it will update your browser History and remove the tracking parameters from the URL for that tab.
+   - This is pretty slick, shouldn't slow your browsing down and requires no page re-load. However, it provides absolutely __*no increased privacy*__ for you, as any sites have already registered and tracked your visit by the time the change is made to the URL.
+   - You can think of it as a purely cosmetic fix. I recommend one of the more privacy-focused Stripping Methods below, but it is your call.
 
-2) __Block and Re-Load__: This approach will evaluate any URLs you attempt to visit __*before*__ the request is actually executed.
-Any URLs that appear to contain tracking will be blocked and then the equivalent URL without the tracking parameters will
-be re-loaded instead.  While every effort to make the impact of this implementation minimal/unnoticeable has been made, and
-Chrome has spent a lot of time optimizing this area as well, this will still add a small amount of overhead to your
-web page requests. However, of the available methods, this one adds the most privacy due to the fact that tracking paramters
-are stripped from URLs before they are requested. This method allows for the [Skip Known Redirects](#skip-known-redirects) feature to be enabled - see below for more info.
+2) __Block and Re-Load__:
+   - This approach will evaluate any URLs you attempt to visit __*before*__ the request is actually executed. Any URLs that appear to contain tracking will be blocked and then the equivalent URL without the tracking parameters will be re-loaded instead.
+   - While every effort to make the impact of this implementation minimal/unnoticeable has been made, and Chrome has spent a lot of time optimizing this area as well, this will still add a small amount of overhead to your web page requests.
+   - Of the available methods, this one adds the more privacy over the "History Change" Stripping Method due to the fact that tracking paramters are stripped from URLs before they are requested.
+   - For even more privacy, I recommend the below "Block and Re-load + Skip Redirects" option below.
+
+3) __Block and Re-load + Skip Redirects__:
+   - This approach is nearly identicle to the above "Block And Re-load" Stripping Method.
+   - However this one adds the __*most privacy*__ due to the fact that this method [Skips Known Redirects](#skip-known-redirects) that may track you via an intermediate page load - see below for more info.
+
 
 #### Skip Known Redirects
 Some links on pages (e.g. Google Search Results) look like they take you directly to the target URL, but really they will pass you through (an) intermediate server(s), cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the redirect and unnecessary tracking. When this option is available based on your Stripping Method, a checkbox will appear. I recommend choosing the "Block and Re-load" Stripping Method with the "Skip Known Redirects" feature enabled.
@@ -92,8 +95,8 @@ recommended you take a look at something that was designed with that as its goal
 - Window History [pushState()](https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method)
 
 
-
 # Version History
+__Version history has been moved to the [CHANGELOG](https://github.com/newhouse/url-tracking-stripper/blob/master/CHANGELOG.md). Please look at that for changes.__
 - v1.4 - Added tracker: `utm_name`.
 - v1.3 - Added Hubspot trackers.
 - v1.2 - Made the Page Action popup better looking with MDL.
