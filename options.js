@@ -1,6 +1,6 @@
 'use strict';
 
-const OPTIONS_SAVED_TIMEOUT = 2000;
+const OPTIONS_SAVED_TIMEOUT = 3000;
 let   OPTIONS_SAVED_TIMER;
 
 // Called to save the selected options
