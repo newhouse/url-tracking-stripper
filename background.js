@@ -2,12 +2,7 @@
 
 // Default Stripping Method to use when in doubt.
 const DEFAULT_STRIPPING_METHOD = STRIPPING_METHOD_BLOCK_AND_RELOAD;
-// Default of whether we should Skip Known Redirects when in doubt.
-const DEFAULT_SKIP_KNOWN_REDIRECTS = true;
 
-// Should we skip any known page redirects and go straight to the target? Set to
-// the default until loaded/changed by User's preferences.
-let SKIP_KNOWN_REDIRECTS = DEFAULT_SKIP_KNOWN_REDIRECTS;
 
 // What method are we using?  Starts with the default
 let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
@@ -26,7 +21,7 @@ for (let root in TRACKERS_BY_ROOT) {
 // Store some things in various ways for centralized definitiion of what's available.
 // Must use 'var' here because it's accessed in the options.js via chrome.runtime.getBackgroundPage
 var STUFF_BY_STRIPPING_METHOD_ID = {
-  [STRIPPING_METHOD_HISTORY_CHANGE.toString()]: {
+  [STRIPPING_METHOD_HISTORY_CHANGE]: {
     html: "History Change (cosmetic only)",
     add: function() {
       // Monitor tab updates so that we may update the history/url to not contain tracking params
@@ -36,36 +31,20 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
       chrome.tabs.onUpdated.removeListener(historyChangeHandler);
     }
   },
-  [STRIPPING_METHOD_BLOCK_AND_RELOAD.toString()]: {
-    html: "Block and Re-load (most privacy)",
+  [STRIPPING_METHOD_BLOCK_AND_RELOAD]: {
+    html: "Block and Re-load (increated privacy)",
+    add: registerBlockAndReloadHandler,
+    remove: unRegisterBlockAndReloadHandler
+  },
+  [STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS]: {
+    html: "Block and Re-load + Skip Redirects (most privacy)",
     add: function() {
-
-      // Add support for Skipping Known Redirects if we should.
-      if (SKIP_KNOWN_REDIRECTS) {
-        registerRedirectHandlers();
-      }
-
-      // We are only concerned with URLs that appear to have tracking parameters in them
-      // and are in the main frame
-      const filters = {
-        urls:   generateTrackerPatternsArray(),
-        types:  ["main_frame"]
-      };
-      const extra = ["blocking"];
-
-      // Monitor WebRequests so that we may block and re-load them without tracking params
-      chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
-      // Monitor for subsequent Navigations so that we may indicate if a change
-      // was made or not.
-      chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
-
+      registerRedirectHandlers();
+      registerBlockAndReloadHandler();
     },
     remove: function() {
-      // Un-register any redirect handlers that may have been registered. Don't want those
-      // laying around
       unRegisterRedirectHandlers();
-      chrome.webRequest.onBeforeRequest.removeListener(blockAndReloadHandler);
-      chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
+      unRegisterBlockAndReloadHandler();
     }
   }
 };
@@ -100,6 +79,7 @@ function extractRedirectTarget(url, targetParam = 'url') {
 
 // Remove the listeners, if any, that we added to watch for redirect-skipping.
 function unRegisterRedirectHandlers() {
+  console.log('UN-REGISTERING REDIRECT HANDLER');
   let handler;
   while (handler = REDIRECT_HANDLERS.pop()) {
     chrome.webRequest.onBeforeRequest.removeListener(handler);
@@ -111,6 +91,8 @@ function unRegisterRedirectHandlers() {
 function registerRedirectHandlers() {
   // Remove any existing ones before we get started
   unRegisterRedirectHandlers();
+
+  console.log('REGISTERING REDIRECT HANDLER');
 
   for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
     const {
@@ -128,6 +110,8 @@ function registerRedirectHandlers() {
       types:  types
     };
     const extra = ["blocking"];
+
+    console.log({filters, extra, targetParam});
 
     const handler = details => {
       // If this is to be excepted this time, then do not block.
@@ -265,6 +249,31 @@ function historyChangeHandler(tabId, changeInfo, tab) {
     // taken place since there's no other possible hook.
     changeManager.indicateChange(tab.id, cleansedUrl);
   }
+}
+
+
+function registerBlockAndReloadHandler() {
+  console.log('REGISTERING BLOCK AND RELOAD');
+  // We are only concerned with URLs that appear to have tracking parameters in them
+  // and are in the main frame
+  const filters = {
+    urls:   generateTrackerPatternsArray(),
+    types:  ["main_frame"]
+  };
+  const extra = ["blocking"];
+
+  // Monitor WebRequests so that we may block and re-load them without tracking params
+  chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
+  // Monitor for subsequent Navigations so that we may indicate if a change
+  // was made or not.
+  chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
+}
+
+
+function unRegisterBlockAndReloadHandler() {
+  console.log('UN-REGISTERING BLOCK AND RELOAD');
+  chrome.webRequest.onBeforeRequest.removeListener(blockAndReloadHandler);
+  chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
 }
 
 
@@ -421,8 +430,6 @@ function restoreOptionsFromStorage() {
   return getOptionsFromStorage(items => {
     // Use the found method, or the default
     STRIPPING_METHOD_TO_USE = items.STRIPPING_METHOD_TO_USE || DEFAULT_STRIPPING_METHOD;
-    // Use the default value if undefined, else compare to boolean true
-    SKIP_KNOWN_REDIRECTS    = typeof items.SKIP_KNOWN_REDIRECTS === 'undefined' ? DEFAULT_SKIP_KNOWN_REDIRECTS : items.SKIP_KNOWN_REDIRECTS === true;
     // Set the handler now that we know what method we'd like to use
     setHandlers();
   });
@@ -432,10 +439,12 @@ function restoreOptionsFromStorage() {
 // Handle messages from other parts of the extension
 function messageHandler(message, sender, cb) {
 
+  console.log('MESSAGE RECEIVED:');
+  console.log({message});
+
   // User has updated their options/preferences
   if (message.action === ACTION_OPTIONS_SAVED) {
     STRIPPING_METHOD_TO_USE   = parseInt(message.options.STRIPPING_METHOD_TO_USE) || DEFAULT_STRIPPING_METHOD;
-    SKIP_KNOWN_REDIRECTS      = typeof message.options.SKIP_KNOWN_REDIRECTS === 'undefined' ? DEFAULT_SKIP_KNOWN_REDIRECTS : message.options.SKIP_KNOWN_REDIRECTS === true;
 
     // Set the handlers to do what they do
     setHandlers();
@@ -444,8 +453,7 @@ function messageHandler(message, sender, cb) {
     // the callback
     chrome.storage.sync.set(
       {
-        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  STRIPPING_METHOD_TO_USE,
-        [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:     SKIP_KNOWN_REDIRECTS
+        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  STRIPPING_METHOD_TO_USE
       },
       cb
     );
@@ -497,9 +505,7 @@ function onInstallHandler(details) {
         action: ACTION_OPTIONS_SAVED,
         options: {
           // Set the Stripping Method use, possibly changing it around
-          [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  NEW_STRIPPING_METHOD_TO_USE,
-          // Set the Skip Known Redirects to be True no matter what
-          [STORAGE_KEY_SKIP_KNOWN_REDIRECTS]:     DEFAULT_SKIP_KNOWN_REDIRECTS
+          [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  NEW_STRIPPING_METHOD_TO_USE
         }
       },
       {},
