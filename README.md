@@ -1,6 +1,6 @@
 # URL Tracking Stripper
 
-A Chrome Extension designed with one intention: Increase your speed and privacy of your web browsing by skipping tracking redirects and removing the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
+A Chrome Extension designed with one intention: Increase the speed and privacy of your web browsing by skipping tracking redirects and removing the tracking parameters from URLs to keep them short and cleaner for sharing, bookmarking, etc.
 
 You can install this Extension in the [Chrome Webstore][store]
 
