@@ -70,7 +70,7 @@ and choose which one is right for you:
 
 
 #### Skip Known Redirects
-Some links on pages (e.g. Google Search Results) look like they take you directly to the target URL, but really they will pass you through (an) intermediate server(s), cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the redirect and unnecessary tracking. When this option is available based on your Stripping Method, a checkbox will appear. I recommend choosing the "Block and Re-load" Stripping Method with the "Skip Known Redirects" feature enabled.
+Some links on pages (e.g. Google Search Results) look like they take you directly to the target URL, but really they will pass you through (an) intermediate server(s), cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the redirect and unnecessary tracking. For this reason, I recommend choosing the "Block and Re-load + Skip Redirects" Stripping Method.
 
 You can find the file with the known redirects [here](https://github.com/newhouse/url-tracking-stripper/blob/master/extension/redirects.js).
 
