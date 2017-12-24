@@ -417,33 +417,38 @@ function setHandlers() {
 // Get all the options from storage and put them into their globals
 function restoreOptionsFromStorage() {
 
-  return getOptionsFromStorage(items => {
-    // Use the found method
-    STRIPPING_METHOD_TO_USE = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE];
+  return getOptionsFromStorage(
+    // Callback
+    items => {
+      // Use the found method
+      STRIPPING_METHOD_TO_USE = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE];
 
-    // If it turns out they have no saved method to use OR they were using the deprecated Cancel & Reload Method, then we have to update some things.
-    if (!STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_TO_USE === STRIPPING_METHOD_CANCEL_AND_RELOAD) {
+      // If it turns out they have no saved method to use OR they were using the deprecated Cancel & Reload Method, then we have to update some things.
+      if (!STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_TO_USE === STRIPPING_METHOD_CANCEL_AND_RELOAD) {
 
-      // Set the Stripping Method to use in this process to be the default one.
-      STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
+        // Set the Stripping Method to use in this process to be the default one.
+        STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
 
-      // Spoof a message that says the User updated their settings.
-      return messageHandler(
-        {
-          action: ACTION_OPTIONS_SAVED,
-          options: {
-            // Set the Stripping Method to the default method
-            [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD
-          }
-        },
-        {}, // No real sender.
-        () => {} // No real callback
-      );
-    }
+        // Spoof a message that says the User updated their settings.
+        return messageHandler(
+          {
+            action: ACTION_OPTIONS_SAVED,
+            options: {
+              // Set the Stripping Method to the default method
+              [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD
+            }
+          },
+          {}, // No real sender.
+          () => {} // No real callback
+        );
+      }
 
-    // All good. Just set the handlers now that we know what method we'd like to use
-    setHandlers();
-  });
+      // All good. Just set the handlers now that we know what method we'd like to use
+      setHandlers();
+    },
+    // Options - Just get the stripping method with no default.
+    STORAGE_KEY_STRIPPING_METHOD_TO_USE
+  );
 }
 
 
