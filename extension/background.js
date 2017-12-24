@@ -416,10 +416,32 @@ function setHandlers() {
 
 // Get all the options from storage and put them into their globals
 function restoreOptionsFromStorage() {
+
   return getOptionsFromStorage(items => {
-     // Use the found method, or the default
-    STRIPPING_METHOD_TO_USE = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE] || DEFAULT_STRIPPING_METHOD;
-    // Set the handler now that we know what method we'd like to use
+    // Use the found method
+    STRIPPING_METHOD_TO_USE = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE];
+
+    // If it turns out they have no saved method to use OR they were using the deprecated Cancel & Reload Method, then we have to update some things.
+    if (!STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_TO_USE === STRIPPING_METHOD_CANCEL_AND_RELOAD) {
+
+      // Set the Stripping Method to use in this process to be the default one.
+      STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
+
+      // Spoof a message that says the User updated their settings.
+      return messageHandler(
+        {
+          action: ACTION_OPTIONS_SAVED,
+          options: {
+            // Set the Stripping Method to the default method
+            [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD
+          }
+        },
+        {}, // No real sender.
+        () => {} // No real callback
+      );
+    }
+
+    // All good. Just set the handlers now that we know what method we'd like to use
     setHandlers();
   });
 }
@@ -475,31 +497,16 @@ function onInstallHandler(details) {
   // If it's an Update or an Install
   if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
 
-    // MUST REMOVE ALL OF THIS BEFORE NEXT VERSION ONCE PEOPLE KNOW WHAT THEY ARE DOING:
-
-    // Remove the Skip Known Redirects entry from storage
-    chrome.storage.sync.remove(STORAGE_KEY_SKIP_KNOWN_REDIRECTS, () => {
-
-      // Spoof a message that says the User updated their settings.
-      messageHandler(
-        {
-          action: ACTION_OPTIONS_SAVED,
-          options: {
-            // Set the Stripping Method use, possibly changing it around
-            [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD
-          }
-        },
-        {},
-        // NOW THAT WE'VE TIDIED THINGS UP, LET'S RESTORE OPTIONS FROM STORAGE
-        restoreOptionsFromStorage
-      );
-    });
-
     // Let the User know about things
-    chrome.tabs.create({
-      url: chrome.runtime.getURL('welcome.html?reason=' + reason),
-      active: true
-    });
+    // chrome.tabs.create({
+    //   url: chrome.runtime.getURL('welcome.html?reason=' + reason),
+    //   active: true
+    // });
+  }
+
+  if (reason === REASON_UPDATE ) {
+    // Remove the Skip Known Redirects entry from storage in case it's there.
+    chrome.storage.sync.remove(STORAGE_KEY_SKIP_KNOWN_REDIRECTS);
   }
 }
 
@@ -509,7 +516,6 @@ function onInstallHandler(details) {
 // 1) Do anything we need to do when installed/updated
 chrome.runtime.onInstalled.addListener(onInstallHandler);
 // 2) Restore the options from storage
-// NOPE: For now this will be taken care of after the stuff goes down with cleaning up storage and choices
-// restoreOptionsFromStorage();
+restoreOptionsFromStorage();
 // 3) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(messageHandler);
