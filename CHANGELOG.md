@@ -1,5 +1,5 @@
 - 4.0.1:
-    + Disabled the "welcome" popup. Probably turning off users.
+    + Disabled the "welcome" popup. It was probably turning off users.
     + On Install/Update will only remove "Skip Known Redirects" boolean from storage.
     + Default Stripping Method will only be applied if the User has nothing saved or they were using a deprecated method.
 - 4.0.0:
