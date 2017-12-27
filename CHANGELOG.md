@@ -1,3 +1,5 @@
+- 4.0.2:
+    + Added `ref=` to trackers.js
 - 4.0.1:
     + Disabled the "welcome" popup. It was probably turning off users.
     + On Install/Update will only remove "Skip Known Redirects" boolean from storage.

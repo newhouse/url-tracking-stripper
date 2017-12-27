@@ -56,5 +56,10 @@ const TRACKERS_BY_ROOT = {
   "_hs": [
     "enc",
     "mi"
+  ],
+
+  // Generic-ish. Facebook, Product Hunt and others
+  "ref": [
+    ""
   ]
 };
