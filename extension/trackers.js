@@ -58,8 +58,11 @@ const TRACKERS_BY_ROOT = {
     "mi"
   ],
 
-  // Generic-ish. Facebook, Product Hunt and others
-  "ref": [
-    ""
+  // Non-prefixy and 1-offs
+  "": [
+    // Generic-ish. Facebook, Product Hunt and others
+    "ref",
+    // Google Click Identifier
+    "gclid"
   ]
 };
