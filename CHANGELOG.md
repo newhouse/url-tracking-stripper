@@ -1,3 +1,5 @@
+- 4.0.3:
+    + Added `gclid=` to trackers.js
 - 4.0.2:
     + Added `ref=` to trackers.js
 - 4.0.1:

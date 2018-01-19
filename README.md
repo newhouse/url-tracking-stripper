@@ -8,7 +8,7 @@ You can install this Extension in the [Chrome Webstore][store]
 
 
 #### The following URL parameters are removed:
-Google's Urchin Tracking Module
+Google's Urchin Tracking Module & Google Adwords
 - `utm_source`
 - `utm_medium`
 - `utm_term`
@@ -20,6 +20,7 @@ Google's Urchin Tracking Module
 - `utm_viz_id`
 - `utm_pubreferrer`
 - `utm_swu`
+- `gclid`
 
 Adobe Omniture SiteCatalyst
 - `ICID`
@@ -42,6 +43,7 @@ Vero
 Unknown
 - `nr_email_referer`
 - `ncid`
+- `ref`
 
 Please file an Issue if you would like others tracked!
 
