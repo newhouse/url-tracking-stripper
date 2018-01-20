@@ -1,3 +1,5 @@
+- 4.0.4:
+    + Added `Gmail Link Wrappers` to known redirect handlers.
 - 4.0.3:
     + Added `gclid=` to trackers.js
 - 4.0.2:

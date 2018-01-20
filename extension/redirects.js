@@ -11,6 +11,16 @@ const KNOWN_REDIRECTS = [
     types: ["main_frame", "ping"]
   },
   {
+    // Gmail wraps links in e-mails to pass you through their servers
+    name: 'Gmail Link Wrappers',
+    targetParam: 'q',
+    patterns: [
+      '*://www.google.com/url?'
+    ],
+    // I think that for Gmail, "main_frame" is enough.
+    types: ["main_frame"]
+  },
+  {
     name: 'RedirectingAt',
     targetParam: 'url',
     patterns: [
