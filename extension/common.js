@@ -14,8 +14,17 @@ function findQueryParam(targetParam, url) {
     return false;
   }
 
+  // Find the first occurrance of '?' character. I've seen URLs that have embedded
+  // URLs that are not properly encoded, e.g.:
+  // https://www.google.com/url?hl=en&q=http://t.dd.delta.org/r/?id%3Dxxxxx,yyyyyy,zzzzz&source=gmail&ust=1516647918588000&usg=AFQjCNEV1C1cwHSrU8r1kyYmaPe4IAsb-Q
+  const queryIndex = url.indexOf('?');
+
+  if (queryIndex === -1) {
+    return false;
+  }
+
   // Split the URL at the '?' to get the query string
-  const queryString = url.split('?')[1];
+  const queryString = url.substr(queryIndex + 1);
 
   // If we have a query string...
   if (queryString) {
