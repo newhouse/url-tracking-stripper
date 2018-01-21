@@ -1,3 +1,5 @@
+- 4.0.5:
+    + Improved `findQueryParam` to split query string on first occurrance of `'?'` character.
 - 4.0.4:
     + Added `Gmail Link Wrappers` to known redirect handlers.
 - 4.0.3:
