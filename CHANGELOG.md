@@ -1,3 +1,5 @@
+- 4.0.7:
+    + Updated tracking regex to matching trailing delimitters 0 or unlimited times (from 1 or unlimited).
 - 4.0.6:
     + Added support for MailChimp trackers.
     + Added linting and removed lint.
