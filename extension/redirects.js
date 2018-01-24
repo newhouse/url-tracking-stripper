@@ -70,7 +70,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 
   // Pluck out the param and the patterns
   const targetParam       = KNOWN_REDIRECT.targetParam;
-  const orginalPatterns   = KNOWN_REDIRECT.patterns
+  const orginalPatterns   = KNOWN_REDIRECT.patterns;
   const types             = KNOWN_REDIRECT.types;
 
   // Make sure everything looks good
@@ -92,7 +92,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
     if(!REDIRECT_DATA_BY_TARGET_PARAM[targetParam].types.includes(type)) {
       REDIRECT_DATA_BY_TARGET_PARAM[targetParam].types.push(type);
     }
-  })
+  });
 
   const newPatterns = [];
 

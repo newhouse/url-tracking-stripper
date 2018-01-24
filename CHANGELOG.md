@@ -1,3 +1,6 @@
+- 4.0.6:
+    + Added support for MailChimp trackers.
+    + Added linting and removed lint.
 - 4.0.5:
     + Improved `findQueryParam` to split query string on first occurrance of `'?'` character.
 - 4.0.4:
@@ -23,6 +26,6 @@
     + Added "install"/"update" welcome html tab-opening.
     + Coding style updates:
         * 2-space indentations (vs 4)
-        * `camelCase` instead of `snake_case` 
-        * `const` and `let` instead of `var` 
+        * `camelCase` instead of `snake_case`
+        * `const` and `let` instead of `var`
         * `common.js` and `consts.js` shared files
