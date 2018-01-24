@@ -1,3 +1,9 @@
+/* global
+  chrome
+  findQueryParam
+  REASON_UPDATE
+  REASON_INSTALL
+*/
 'use strict';
 
 // Once the page content is loaded:

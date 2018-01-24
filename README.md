@@ -33,6 +33,10 @@ Hubspot
 Marketo
 - `mkt_tok`
 
+MailChimp
+- `mc_cid`
+- `mc_eid`
+
 Simple Reach
 - `sr_share`
 

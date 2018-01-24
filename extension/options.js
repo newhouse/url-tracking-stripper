@@ -1,3 +1,9 @@
+/* global
+  chrome
+  getOptionsFromStorage
+  STORAGE_KEY_STRIPPING_METHOD_TO_USE
+  ACTION_OPTIONS_SAVED
+*/
 'use strict';
 
 const OPTIONS_SAVED_TIMEOUT = 3000;
@@ -33,7 +39,7 @@ function saveOptions() {
 
 
 function getSelectedStrippingMethod() {
-  return parseInt(document.querySelector('input[name="stripping_method"]:checked').value)
+  return parseInt(document.querySelector('input[name="stripping_method"]:checked').value);
 }
 
 function generateRadioId(id) {

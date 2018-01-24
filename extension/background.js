@@ -1,3 +1,31 @@
+/* global
+
+  chrome
+
+  findQueryParam
+  getOptionsFromStorage
+
+  TRACKERS_BY_ROOT
+  REDIRECT_DATA_BY_TARGET_PARAM
+
+  CHANGE_TYPE_TRACKING_STRIP
+  CHANGE_TYPE_REDIRECT_SKIP
+
+  DEFAULT_STRIPPING_METHOD
+  STRIPPING_METHOD_HISTORY_CHANGE
+  STRIPPING_METHOD_CANCEL_AND_RELOAD
+  STRIPPING_METHOD_BLOCK_AND_RELOAD
+  STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS
+
+  STORAGE_KEY_STRIPPING_METHOD_TO_USE
+  STORAGE_KEY_SKIP_KNOWN_REDIRECTS
+  ACTION_OPTIONS_SAVED
+  ACTION_RELOAD_AND_ALLOW_PARAMS
+
+  REASON_UPDATE
+  REASON_INSTALL
+
+*/
 'use strict';
 
 // What method are we using?  Starts with the default
@@ -76,6 +104,7 @@ function extractRedirectTarget(url, targetParam = 'url') {
 // Remove the listeners, if any, that we added to watch for redirect-skipping.
 function unRegisterRedirectHandlers() {
   let handler;
+  // eslint-disable-next-line no-cond-assign
   while (handler = REDIRECT_HANDLERS.pop()) {
     chrome.webRequest.onBeforeRequest.removeListener(handler);
   }
@@ -122,7 +151,7 @@ function registerRedirectHandlers() {
       changeManager.storeChanges(details.tabId, details.url, targetUrl, CHANGE_TYPE_REDIRECT_SKIP);
       // Return this redirect URL in order to actually redirect the tab
       return { redirectUrl: targetUrl };
-    }
+    };
 
     // SAVE DAT FUNCTION SO WE CAN UNREGISTER IT LATER
     REDIRECT_HANDLERS.push(handler);
@@ -304,8 +333,9 @@ const webNavigationMonitor = function(details) {
   // Let's make sure this tab exists. Have seen some issues with Chrome pre-rendering
   // but not firing the tabs.onReplaced event, so just have to be a little
   // cautious.
+  // eslint-disable-next-line no-unused-vars
   chrome.tabs.get(details.tabId, function(tab) {
-    // Problems are caught by the runtim.lastError mechanism
+    // Problems are caught by the runtime.lastError mechanism
     if (chrome.runtime.lastError) {
       changeManager.clearTab(details.tabId);
       return;
@@ -345,7 +375,7 @@ const exceptionsManager = {
     exceptionsManager.url_exceptions.splice(index,1);
     return true;
   }
-}
+};
 
 
 const changeManager = {
@@ -359,6 +389,7 @@ const changeManager = {
 
   // Check to see if it looks like we changed the URL for a tab, and update/display
   // the pageAction if so
+  // eslint-disable-next-line no-unused-vars
   indicateChange: function(tabId, cleansedUrl) {
     // Get the changes for this tabId
     const changes = changeManager.changesByTabId[tabId];

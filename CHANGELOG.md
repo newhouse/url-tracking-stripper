@@ -1,3 +1,6 @@
+- 4.0.6:
+    + Added support for MailChimp trackers.
+    + Added linting and removed lint.
 - 4.0.5:
     + Improved `findQueryParam` to split query string on first occurrance of `'?'` character.
 - 4.0.4:

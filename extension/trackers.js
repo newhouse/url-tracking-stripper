@@ -1,4 +1,5 @@
 // More detailed string pattern suffixes, stored by their common root.
+// eslint-disable-next-line no-unused-vars
 const TRACKERS_BY_ROOT = {
 
   // Google's Urchin Tracking Module
@@ -14,32 +15,6 @@ const TRACKERS_BY_ROOT = {
     "viz_id",
     "pubreferrer",
     "swu"
-  ],
-
-  // Marketo
-  "mkt_": [
-    "tok"
-  ],
-
-  // Simple Reach
-  "sr_": [
-    "share"
-  ],
-
-  // Vero
-  "vero_": [
-    "conv",
-    "id"
-  ],
-
-  // Unknown
-  "nr_": [
-    "email_referer"
-  ],
-
-  // Unknown
-  "nc": [
-    "id"
   ],
 
   // Adobe Omniture SiteCatalyst
@@ -58,8 +33,35 @@ const TRACKERS_BY_ROOT = {
     "mi"
   ],
 
+  // Marketo
+  "mkt_": [
+    "tok"
+  ],
+
+  // MailChimp
+  // https://developer.mailchimp.com/documentation/mailchimp/guides/getting-started-with-ecommerce/
+  "mc_": [
+    "cid",
+    "eid"
+  ],
+
+  // Simple Reach
+  "sr_": [
+    "share"
+  ],
+
+  // Vero
+  "vero_": [
+    "conv",
+    "id"
+  ],
+
   // Non-prefixy and 1-offs
   "": [
+    // Unknown
+    "ncid",
+    // Unknown
+    "nr_email_referer",
     // Generic-ish. Facebook, Product Hunt and others
     "ref",
     // Google Click Identifier
