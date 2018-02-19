@@ -94,7 +94,7 @@ function extractRedirectTarget(url, targetParam = 'url') {
   // See if we can find a target in the URL.
   let target = findQueryParam(targetParam, url);
 
-  if (typeof target === 'string') {
+  if (typeof target === 'string' && target.startsWith('http')) {
     target = decodeURIComponent(target);
   }
   else {
