@@ -29,6 +29,15 @@ const KNOWN_REDIRECTS = [
     types: ["main_frame"]
   },
   {
+    name: 'Facebook',
+    targetParam: 'u',
+    patterns: [
+        '*://l.facebook.com/l.php?',
+        '*://l.messenger.com/l.php?'
+    ],
+    types: ["main_frame"]
+  },
+  {
     name: 'Amazon Affiliate',
     targetParam: 'location',
     patterns: [
