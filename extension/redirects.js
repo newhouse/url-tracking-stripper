@@ -29,6 +29,15 @@ const KNOWN_REDIRECTS = [
     types: ["main_frame"]
   },
   {
+    name: 'Facebook',
+    targetParam: 'u',
+    patterns: [
+      '*://*.facebook.com/l.php',
+      '*://*.messenger.com/l.php',
+    ],
+    types: ["main_frame"]
+  },
+  {
     name: 'Amazon Affiliate',
     targetParam: 'location',
     patterns: [
@@ -102,7 +111,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 
     // We need to generate a few variations on this original pattern
     // 1) support the URL param as the first param
-    newPatterns.push(`${originalPattern}${targetParamKv}`);
+    newPatterns.push(`${originalPattern}*`);
     // 2) suppor the URL param as a non-first param
     newPatterns.push(`${originalPattern}*&${targetParamKv}`);
   });

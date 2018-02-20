@@ -17,6 +17,7 @@ const DEFAULT_STRIPPING_METHOD                          = STRIPPING_METHOD_BLOCK
 
 const ACTION_RELOAD_AND_ALLOW_PARAMS                    = 'reload_and_allow_params';
 const ACTION_OPTIONS_SAVED                              = 'options_saved';
+const ACTION_APPLY_REDIRECTS                            = 'apply_redirects';
 
 // Need to be User-friendly looking as they're used for display purposes
 const CHANGE_TYPE_TRACKING_STRIP                        = 'Tracking Stripped';
