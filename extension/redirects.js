@@ -32,8 +32,8 @@ const KNOWN_REDIRECTS = [
     name: 'Facebook',
     targetParam: 'u',
     patterns: [
-        '*://l.facebook.com/l.php?',
-        '*://l.messenger.com/l.php?'
+      '*://l.facebook.com/l.php?',
+      '*://l.messenger.com/l.php?'
     ],
     types: ["main_frame"]
   },
