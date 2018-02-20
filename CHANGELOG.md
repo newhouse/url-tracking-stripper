@@ -1,3 +1,5 @@
+- 4.0.8:
+    + Added `Facebook` to known redirect handlers. Thanks @menzow!
 - 4.0.7:
     + Updated tracking regex to matching trailing delimitters 0 or unlimited times (from 1 or unlimited).
 - 4.0.6:
