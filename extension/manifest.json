@@ -21,7 +21,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["tidy-clipboard-url.js"]
+      "js": ["resolve-copied-redirect.js"]
     }
   ],
   "permissions": [
