@@ -18,6 +18,12 @@
       "background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["resolve-copied-redirect.js"]
+    }
+  ],
   "permissions": [
     "storage",
     "tabs",

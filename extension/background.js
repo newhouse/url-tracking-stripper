@@ -3,6 +3,7 @@
   chrome
 
   findQueryParam
+  wildcardMatch
   getOptionsFromStorage
 
   TRACKERS_BY_ROOT
@@ -21,6 +22,7 @@
   STORAGE_KEY_SKIP_KNOWN_REDIRECTS
   ACTION_OPTIONS_SAVED
   ACTION_RELOAD_AND_ALLOW_PARAMS
+  ACTION_APPLY_REDIRECTS
 
   REASON_UPDATE
   REASON_INSTALL
@@ -526,8 +528,26 @@ function messageHandler(message, sender, cb) {
       url: message.url
     });
   }
+
+  //  A content script would like to apply the redirect urls to the given url.
+  if (message.action === ACTION_APPLY_REDIRECTS && typeof message.url === "string") {
+    cb(applyRedirectRules(message.url));
+  }
 }
 
+// Applies any redirect rules to the given url. Returns the redirected url or the original
+function applyRedirectRules(url) {
+  for(let param in REDIRECT_DATA_BY_TARGET_PARAM) {
+    let redirectUrl= extractRedirectTarget(url, param);
+    let patterns = REDIRECT_DATA_BY_TARGET_PARAM[param].patterns;
+
+    if(redirectUrl && patterns.find(wildcardMatch.bind(null, url)) !== false) {
+      // Return the redirect url parameter if the url patern matches
+      return redirectUrl;
+    }
+  }
+  return url;
+}
 
 // Do anything we need to do when this extension is installed/updated
 function onInstallHandler(details) {
