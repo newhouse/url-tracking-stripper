@@ -1,5 +1,9 @@
 'use strict';
 
+const SCHEMA_PLACEHOLDER = '<SCHEMA>';
+const SUBDOMAIN_PLACEHOLDER = '<SUBDOMAIN>';
+const PATH_PLACEHOLDER = '<PATH>';
+
 const KNOWN_REDIRECTS = [
   {
     name: 'Google Search Results',

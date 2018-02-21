@@ -550,6 +550,71 @@ function onInstallHandler(details) {
 }
 
 
+// An element to store text for clipboard setting.
+let clipper;
+
+
+// Create the Context Menu item for copying links.
+function createContextMenu() {
+  console.log('creating context menu');
+  chrome.contextMenus.removeAll();
+
+  clipper = document.createElement('div');
+  document.body.appendChild(clipper);
+
+  chrome.contextMenus.create({
+    type: 'normal',
+    id: 'foo',
+    title: `Copy and Clean Link`,
+    contexts: ['link'],
+    visible: true,
+    enabled: true,
+    // THIS WILL ACTUALLY MAKE ONLY MATCH 'http' OR 'https' SCHEMES:
+    // https://developer.chrome.com/extensions/match_patterns
+    documentUrlPatterns: ['*://*/*'],
+    onclick: (info, tab) => {
+      console.log({info, tab});
+
+      if (!clipper) {
+        console.log('no clipper');
+        return;
+      }
+
+
+      const linkUrl = info.linkUrl;
+
+      clipper.textContent = linkUrl;
+
+      const range = document.createRange();
+      range.selectNode(clipper);
+
+      window.getSelection().addRange(range);
+
+      try {
+        // Now that we've selected the anchor text, execute the copy command
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Copy email command was ' + msg);
+      } catch(err) {
+        console.log('Oops, unable to copy');
+      }
+
+      // Remove the selections - NOTE: Should use
+      // removeRange(range) when it is supported
+      window.getSelection().removeAllRanges();
+
+      // // EXTRACT THE TAB ID
+      // const tabId = tab && tab.id;
+      // if (tabId) {
+      //   // TOGGLE THE IFRAME IF WE HAVE AN ID
+      //   this.toggleIframe(tabId);
+      // }
+    }
+  });
+}
+
+createContextMenu();
+
 
 // OK, finally let's:
 // 1) Do anything we need to do when installed/updated

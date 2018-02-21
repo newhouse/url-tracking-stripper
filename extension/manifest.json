@@ -21,6 +21,8 @@
   "permissions": [
     "storage",
     "tabs",
+    "clipboardRead",
+    "contextMenus",
     "webRequest",
     "webRequestBlocking",
     "webNavigation",
@@ -38,5 +40,11 @@
       "38": "images/icon-38.png",
       "48": "images/icon-48.png"
     }
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["copy.js"]
+    }
+  ]
 }
