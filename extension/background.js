@@ -16,6 +16,8 @@
   STRIPPING_METHOD_CANCEL_AND_RELOAD
   STRIPPING_METHOD_BLOCK_AND_RELOAD
   STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS
+  CONTEXT_MENU_ITEM_ID
+  CONTEXT_MENU_ITEM_TEXT
 
   STORAGE_KEY_STRIPPING_METHOD_TO_USE
   STORAGE_KEY_SKIP_KNOWN_REDIRECTS
@@ -34,6 +36,9 @@ let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
 // STORE ANY REDIRECT HANDLER FUNCTIONS HERE SO THAT THEY CAN BE UNREGISTERED
 // IF NEED BE
 const REDIRECT_HANDLERS = [];
+
+// An element to store text for clipboard writing
+let clipper;
 
 // Go through all the trackers by their root and turn them into a big regex...
 const TRACKER_REGEXES_BY_ROOT = {};
@@ -550,70 +555,99 @@ function onInstallHandler(details) {
 }
 
 
-// An element to store text for clipboard setting.
-let clipper;
-
-
-// Create the Context Menu item for copying links.
+// Create the Context Menu item for copying links cleanly
 function createContextMenu() {
-  console.log('creating context menu');
+  // Remove all of our existing context menus
   chrome.contextMenus.removeAll();
 
+  // Create the clipper element to be used for selecting
   clipper = document.createElement('div');
+  // Add it to the background script's DOM
   document.body.appendChild(clipper);
 
+  // Create the contextMenu
+  // https://developer.chrome.com/extensions/contextMenus#method-create
   chrome.contextMenus.create({
     type: 'normal',
-    id: 'foo',
-    title: `Copy and Clean Link`,
+    id: CONTEXT_MENU_ITEM_ID,
+    title: CONTEXT_MENU_ITEM_TEXT,
+    // Only happen when the user right-clicks on something link-like
     contexts: ['link'],
     visible: true,
     enabled: true,
     // THIS WILL ACTUALLY MAKE ONLY MATCH 'http' OR 'https' SCHEMES:
     // https://developer.chrome.com/extensions/match_patterns
     documentUrlPatterns: ['*://*/*'],
-    onclick: (info, tab) => {
-      console.log({info, tab});
-
+    // The click handler
+    onclick: info => {
+      // If there is no clipper helper element for some reason, forget it.
       if (!clipper) {
-        console.log('no clipper');
+        // Remove this context menu since there's a problem.
+        chrome.contextMenus.removeAll();
         return;
       }
 
+      // Get the Link URL
+      let linkUrl = info.linkUrl;
 
-      const linkUrl = info.linkUrl;
+      // Label this so we can bust out.
+      outerLoop:
+      // Go through each target param
+      for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
+        // Get the regexes for this target param
+        const {
+          regexes = []
+        } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
 
+        // Go through each regex for this target param
+        for (let i=0, regex; i < regexes.length; i++) {
+          regex = regexes[i];
+          // If the URL matches this redirect pattern, then extract the redirect.
+          if (regex.test(linkUrl)) {
+            linkUrl = extractRedirectTarget(linkUrl, targetParam) || linkUrl;
+            // All done with this regex stuff.
+            break outerLoop;
+          }
+        }
+      }
+
+      // Make sure we have a link URL still
+      if (!linkUrl) {
+        return;
+      }
+
+      // Remove any trackers from the link URL
+      linkUrl = removeTrackersFromUrl(linkUrl) || linkUrl;
+
+      // Make sure we have a link URL still
+      if (!linkUrl) {
+        return;
+      }
+
+      // Do what we need to do to copy this link to the clipboard.
+      // https://developers.google.com/web/updates/2015/04/cut-and-copy-commands
       clipper.textContent = linkUrl;
-
       const range = document.createRange();
       range.selectNode(clipper);
-
       window.getSelection().addRange(range);
 
       try {
-        // Now that we've selected the anchor text, execute the copy command
-        var successful = document.execCommand('copy');
-        var msg = successful ? 'successful' : 'unsuccessful';
-        console.log('Copy email command was ' + msg);
-      } catch(err) {
-        console.log('Oops, unable to copy');
+        if (!document.execCommand('copy')) {
+          console.warn('Problem copying', linkUrl, 'to clipboard.');
+        }
+      }
+      catch(err) {
+        console.warn('Problem copying', linkUrl, 'to clipboard.');
+        console.error(err);
       }
 
       // Remove the selections - NOTE: Should use
       // removeRange(range) when it is supported
       window.getSelection().removeAllRanges();
-
-      // // EXTRACT THE TAB ID
-      // const tabId = tab && tab.id;
-      // if (tabId) {
-      //   // TOGGLE THE IFRAME IF WE HAVE AN ID
-      //   this.toggleIframe(tabId);
-      // }
     }
   });
 }
 
-createContextMenu();
 
 
 // OK, finally let's:
@@ -623,3 +657,5 @@ chrome.runtime.onInstalled.addListener(onInstallHandler);
 restoreOptionsFromStorage();
 // 3) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(messageHandler);
+// 4) Create the Context Menu
+createContextMenu();

@@ -21,3 +21,7 @@ const ACTION_OPTIONS_SAVED                              = 'options_saved';
 // Need to be User-friendly looking as they're used for display purposes
 const CHANGE_TYPE_TRACKING_STRIP                        = 'Tracking Stripped';
 const CHANGE_TYPE_REDIRECT_SKIP                         = 'Redirect Skipped';
+
+
+const CONTEXT_MENU_ITEM_ID = 'COPY_AND_CLEAN';
+const CONTEXT_MENU_ITEM_TEXT = 'Copy and Clean Link';

@@ -1,15 +1,17 @@
 'use strict';
 
-const SCHEMA_PLACEHOLDER = '<SCHEMA>';
-const SUBDOMAIN_PLACEHOLDER = '<SUBDOMAIN>';
-const PATH_PLACEHOLDER = '<PATH>';
+const SCHEMA = '<SCHEMA>';
+const SUBDOMAIN = '<SUBDOMAIN>';
+const PATH = '<PATH>';
+const QS_VALUE = '<QS_VALUE>';
+const QS_KVS = '<QSKVS>';
 
 const KNOWN_REDIRECTS = [
   {
     name: 'Google Search Results',
     targetParam: 'url',
     patterns: [
-      '*://www.google.com/url?'
+      `${SCHEMA}www.google.com/url?`
     ],
     // Google uses "ping" method sometimes.
     types: ["main_frame", "ping"]
@@ -19,7 +21,7 @@ const KNOWN_REDIRECTS = [
     name: 'Gmail Link Wrappers',
     targetParam: 'q',
     patterns: [
-      '*://www.google.com/url?'
+      `${SCHEMA}www.google.com/url?`
     ],
     // I think that for Gmail, "main_frame" is enough.
     types: ["main_frame"]
@@ -28,7 +30,7 @@ const KNOWN_REDIRECTS = [
     name: 'RedirectingAt',
     targetParam: 'url',
     patterns: [
-      '*://*.redirectingat.com/?',
+      `${SCHEMA}${SUBDOMAIN}.redirectingat.com/?`,
     ],
     types: ["main_frame"]
   },
@@ -36,8 +38,8 @@ const KNOWN_REDIRECTS = [
     name: 'Facebook',
     targetParam: 'u',
     patterns: [
-      '*://l.facebook.com/l.php?',
-      '*://l.messenger.com/l.php?'
+      `${SCHEMA}l.facebook.com/l.php?`,
+      `${SCHEMA}l.messenger.com/l.php?`
     ],
     types: ["main_frame"]
   },
@@ -45,7 +47,7 @@ const KNOWN_REDIRECTS = [
     name: 'Amazon Affiliate',
     targetParam: 'location',
     patterns: [
-      '*://*.amazon.ca/gp/redirect.html?'
+      `${SCHEMA}${SUBDOMAIN}.amazon.ca/gp/redirect.html?`
     ],
     types: ["main_frame"]
   },
@@ -53,7 +55,7 @@ const KNOWN_REDIRECTS = [
     name: 'Rakuten Marketing',
     targetParam: 'murl',
     patterns: [
-      '*://click.linksynergy.com/deeplink?'
+      `${SCHEMA}click.linksynergy.com/deeplink?`
     ],
     types: ["main_frame"]
   },
@@ -61,8 +63,8 @@ const KNOWN_REDIRECTS = [
     name: 'ValueClick',
     targetParam: 'url',
     patterns: [
-      '*://www.dpbolvw.net/*?',
-      '*://www.tkqlhce.com/*?'
+      `${SCHEMA}www.dpbolvw.net${PATH}?`,
+      `${SCHEMA}www.tkqlhce.com${PATH}?`
     ],
     types: ["main_frame"]
   }
@@ -78,6 +80,8 @@ const KNOWN_REDIRECTS = [
 // then end.
 // Use 'var' here so that it's not scoped incorrectly.
 var REDIRECT_DATA_BY_TARGET_PARAM = {};
+
+// var CLIPBOARD_DATA_BY_TARGET_PARAM = {};
 
 KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 
@@ -95,6 +99,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   if (!(REDIRECT_DATA_BY_TARGET_PARAM[targetParam])) {
     REDIRECT_DATA_BY_TARGET_PARAM[targetParam] = {
       patterns: [],
+      regexes: [],
       types: []
     };
   }
@@ -102,24 +107,67 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   // Go through every "type" for this redirect
   types.forEach(type => {
     // If we don't already have this type for this target param, add it in
-    if(!REDIRECT_DATA_BY_TARGET_PARAM[targetParam].types.includes(type)) {
+    if (!REDIRECT_DATA_BY_TARGET_PARAM[targetParam].types.includes(type)) {
       REDIRECT_DATA_BY_TARGET_PARAM[targetParam].types.push(type);
     }
   });
 
   const newPatterns = [];
+  const newClipboardRegexes = [];
 
   // Go through each of these patterns and create any combinations we need to
   orginalPatterns.forEach(originalPattern => {
-    const targetParamKv = `${targetParam}=*`;
 
-    // We need to generate a few variations on this original pattern
+    // Create the key/value placeholder for the target param
+    const targetParamKv = `${targetParam}=${QS_VALUE}`;
+
+    // We need to generate a few variations on this original pattern for URL matching
     // 1) support the URL param as the first param
-    newPatterns.push(`${originalPattern}${targetParamKv}`);
-    // 2) suppor the URL param as a non-first param
-    newPatterns.push(`${originalPattern}*&${targetParamKv}`);
+    newPatterns.push(replacePlaceholders(`${originalPattern}${targetParamKv}`));
+    // newPatterns.push(`${substitutedPattern}${targetParamKv}`);
+    // 2) support the URL param as a non-first param
+    newPatterns.push(replacePlaceholders(`${originalPattern}${QS_KVS}${targetParamKv}`));
+    // newPatterns.push(`${substitutedPattern}*&${targetParamKv}`);
+
+    // The regex only needs 1 variation which includes optional query string key/values
+    const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_KVS}${targetParamKv}`);
+    newClipboardRegexes.push(new RegExp(regexPattern));
   });
 
   // Add these patterns to the array of patterns for this target param
   REDIRECT_DATA_BY_TARGET_PARAM[targetParam].patterns.push(...newPatterns);
+
+  // Add these regexes to the array of regexes for this target param
+  REDIRECT_DATA_BY_TARGET_PARAM[targetParam].regexes.push(...newClipboardRegexes);
 });
+
+
+// Replace the placeholders for URL matching patterns
+function replacePlaceholders(pattern) {
+  pattern = pattern.replace(SCHEMA, '*://');
+  pattern = pattern.replace(SUBDOMAIN, '*');
+  pattern = pattern.replace(PATH, '/*');
+  pattern = pattern.replace(QS_KVS, '*&');
+  pattern = pattern.replace(QS_VALUE, '*');
+
+  return pattern;
+}
+
+// Replace the placeholders for regex matching patterns
+function replacePlaceholdersRegex(pattern) {
+  // Escape all the literals
+  pattern = escapeRegExp(pattern);
+
+  pattern = pattern.replace(SCHEMA, 'http(s)?\:\\/\\/');
+  pattern = pattern.replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?');
+  pattern = pattern.replace(PATH, '(\\/[\\w]+)+');
+  pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
+  pattern = pattern.replace(QS_VALUE, '\\w');
+
+  return pattern;
+}
+
+// Escape all of the literals
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
