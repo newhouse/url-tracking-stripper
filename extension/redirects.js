@@ -81,8 +81,6 @@ const KNOWN_REDIRECTS = [
 // Use 'var' here so that it's not scoped incorrectly.
 var REDIRECT_DATA_BY_TARGET_PARAM = {};
 
-// var CLIPBOARD_DATA_BY_TARGET_PARAM = {};
-
 KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 
   // Pluck out the param and the patterns
@@ -124,10 +122,8 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
     // We need to generate a few variations on this original pattern for URL matching
     // 1) support the URL param as the first param
     newPatterns.push(replacePlaceholders(`${originalPattern}${targetParamKv}`));
-    // newPatterns.push(`${substitutedPattern}${targetParamKv}`);
     // 2) support the URL param as a non-first param
     newPatterns.push(replacePlaceholders(`${originalPattern}${QS_KVS}${targetParamKv}`));
-    // newPatterns.push(`${substitutedPattern}*&${targetParamKv}`);
 
     // The regex only needs 1 variation which includes optional query string key/values
     const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_KVS}${targetParamKv}`);
