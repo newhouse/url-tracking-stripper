@@ -3,7 +3,7 @@
 const SCHEMA = '<SCHEMA>';
 const SUBDOMAIN = '<SUBDOMAIN>';
 const PATH = '<PATH>';
-const QS_VALUE = '<QS_VALUE>';
+const QS_VALUE = '<QSVALUE>';
 const QS_KVS = '<QSKVS>';
 
 const KNOWN_REDIRECTS = [
