@@ -7,8 +7,8 @@ const KNOWN_REDIRECTS = [
     patterns: [
       '*://www.google.com/url?'
     ],
-    // Google uses "ping" method sometimes.
-    types: ["main_frame", "ping"]
+    // Google uses 'ping' method sometimes.
+    types: ['main_frame', 'ping']
   },
   {
     // Gmail wraps links in e-mails to pass you through their servers
@@ -17,8 +17,8 @@ const KNOWN_REDIRECTS = [
     patterns: [
       '*://www.google.com/url?'
     ],
-    // I think that for Gmail, "main_frame" is enough.
-    types: ["main_frame"]
+    // I think that for Gmail, 'main_frame' is enough.
+    types: ['main_frame']
   },
   {
     name: 'RedirectingAt',
@@ -26,7 +26,7 @@ const KNOWN_REDIRECTS = [
     patterns: [
       '*://*.redirectingat.com/?',
     ],
-    types: ["main_frame"]
+    types: ['main_frame']
   },
   {
     name: 'Facebook',
@@ -35,7 +35,7 @@ const KNOWN_REDIRECTS = [
       '*://l.facebook.com/l.php?',
       '*://l.messenger.com/l.php?'
     ],
-    types: ["main_frame"]
+    types: ['main_frame']
   },
   {
     name: 'Amazon Affiliate',
@@ -43,7 +43,7 @@ const KNOWN_REDIRECTS = [
     patterns: [
       '*://*.amazon.ca/gp/redirect.html?'
     ],
-    types: ["main_frame"]
+    types: ['main_frame']
   },
   {
     name: 'Rakuten Marketing',
@@ -51,7 +51,7 @@ const KNOWN_REDIRECTS = [
     patterns: [
       '*://click.linksynergy.com/deeplink?'
     ],
-    types: ["main_frame"]
+    types: ['main_frame']
   },
   {
     name: 'ValueClick',
@@ -60,7 +60,7 @@ const KNOWN_REDIRECTS = [
       '*://www.dpbolvw.net/*?',
       '*://www.tkqlhce.com/*?'
     ],
-    types: ["main_frame"]
+    types: ['main_frame']
   }
 ];
 
@@ -95,7 +95,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
     };
   }
 
-  // Go through every "type" for this redirect
+  // Go through every 'type' for this redirect
   types.forEach(type => {
     // If we don't already have this type for this target param, add it in
     if(!REDIRECT_DATA_BY_TARGET_PARAM[targetParam].types.includes(type)) {
@@ -119,3 +119,9 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   // Add these patterns to the array of patterns for this target param
   REDIRECT_DATA_BY_TARGET_PARAM[targetParam].patterns.push(...newPatterns);
 });
+
+
+module.exports = {
+  KNOWN_REDIRECTS,
+  REDIRECT_DATA_BY_TARGET_PARAM
+};
