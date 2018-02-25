@@ -1,5 +1,8 @@
 'use strict';
 
+const { ACTION_RELOAD_AND_ALLOW_PARAMS } = require('./consts');
+
+
 // Once the page skeleton is loaded
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -11,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
   queries.forEach(q => {
     const kv = q.split('=');
     params[kv[0]] = decodeURIComponent(kv[1]);
-  })
+  });
 
   // JSON Parse the changes array
   if (params.changes) {
@@ -33,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
   params.changes.forEach((change, i) => {
     const {
       originalUrl,
-      cleansedUrl,
+      // cleansedUrl,
       type
     } = change;
 
@@ -67,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // to the DOM
       const description = document.createElement('span');
       const numString = `${i + 1}) `;
-      description.innerText = `${numString}${descriptionType}`
+      description.innerText = `${numString}${descriptionType}`;
       block.appendChild(description);
 
       // Add a break

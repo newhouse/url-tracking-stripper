@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "name": "url_tracking_stripper",
+  "version": "1.0.0",
+  "description": "Increase the speed & privacy of your browsing. Skip/remove tracking parameters & redirects from URLs to keep them shorter & cleaner.",
+  "author": "Christopher W Newhouse <c.newhouse@gmail.com>",
+  "license": "ISC",
+  "homepage": "https://github.com/newhouse/url-tracking-stripper",
+  "bugs": {
+    "url": "https://github.com/newhouse/url-tracking-stripper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:newhouse/url-tracking-stripper.git"
+  },
+  "scripts": {
+    "start": "gulp",
+    "start-dev": "gulp dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2 ",
+    "babel-preset-env": "^1.6.1",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.4.0",
+    "gulp-zip": "^4.1.0",
+    "lodash": "^4.17.5",
+    "run-sequence": "^2.2.1",
+    "webpack": "^3.11.0",
+    "webpack-stream": "^4.0.2"
+  }
+}

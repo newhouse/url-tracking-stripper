@@ -1,10 +1,7 @@
-/* global
-  chrome
-  findQueryParam
-  REASON_UPDATE
-  REASON_INSTALL
-*/
 'use strict';
+
+const { REASON_INSTALL, REASON_UPDATE } = require('./consts');
+const { findQueryParam }                = require('./common');
 
 // Once the page content is loaded:
 document.addEventListener('DOMContentLoaded', function() {

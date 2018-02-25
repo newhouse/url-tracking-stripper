@@ -1,3 +1,7 @@
+- 4.1.0:
+    + Added Context Menu item that will copy, skip, and strip link URLs.
+- 4.0.9:
+    + Using Webpack to build extension now.
 - 4.0.8:
     + Added `Facebook` to known redirect handlers. Thanks @menzow!
 - 4.0.7:
