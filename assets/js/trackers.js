@@ -1,70 +1,73 @@
 // More detailed string pattern suffixes, stored by their common root.
-// eslint-disable-next-line no-unused-vars
 const TRACKERS_BY_ROOT = {
 
   // Google's Urchin Tracking Module
-  "utm_": [
-    "source",
-    "medium",
-    "term",
-    "campaign",
-    "content",
-    "name",
-    "cid",
-    "reader",
-    "viz_id",
-    "pubreferrer",
-    "swu"
+  'utm_': [
+    'source',
+    'medium',
+    'term',
+    'campaign',
+    'content',
+    'name',
+    'cid',
+    'reader',
+    'viz_id',
+    'pubreferrer',
+    'swu'
   ],
 
   // Adobe Omniture SiteCatalyst
-  "IC": [
-    "ID"
+  'IC': [
+    'ID'
   ],
 
   // Adobe Omniture SiteCatalyst
-  "ic": [
-    "id"
+  'ic': [
+    'id'
   ],
 
   // Hubspot
-  "_hs": [
-    "enc",
-    "mi"
+  '_hs': [
+    'enc',
+    'mi'
   ],
 
   // Marketo
-  "mkt_": [
-    "tok"
+  'mkt_': [
+    'tok'
   ],
 
   // MailChimp
   // https://developer.mailchimp.com/documentation/mailchimp/guides/getting-started-with-ecommerce/
-  "mc_": [
-    "cid",
-    "eid"
+  'mc_': [
+    'cid',
+    'eid'
   ],
 
   // Simple Reach
-  "sr_": [
-    "share"
+  'sr_': [
+    'share'
   ],
 
   // Vero
-  "vero_": [
-    "conv",
-    "id"
+  'vero_': [
+    'conv',
+    'id'
   ],
 
   // Non-prefixy and 1-offs
-  "": [
+  '': [
     // Unknown
-    "ncid",
+    'ncid',
     // Unknown
-    "nr_email_referer",
+    'nr_email_referer',
     // Generic-ish. Facebook, Product Hunt and others
-    "ref",
+    'ref',
     // Google Click Identifier
-    "gclid"
+    'gclid'
   ]
+};
+
+module.exports = {
+  TRACKERS_BY_ROOT
 };

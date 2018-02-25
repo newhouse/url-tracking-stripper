@@ -1,32 +1,37 @@
-/* global
-
-  chrome
-
-  findQueryParam
-  getOptionsFromStorage
-
-  TRACKERS_BY_ROOT
-  REDIRECT_DATA_BY_TARGET_PARAM
-
-  CHANGE_TYPE_TRACKING_STRIP
-  CHANGE_TYPE_REDIRECT_SKIP
-
-  DEFAULT_STRIPPING_METHOD
-  STRIPPING_METHOD_HISTORY_CHANGE
-  STRIPPING_METHOD_CANCEL_AND_RELOAD
-  STRIPPING_METHOD_BLOCK_AND_RELOAD
-  STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS
-
-  STORAGE_KEY_STRIPPING_METHOD_TO_USE
-  STORAGE_KEY_SKIP_KNOWN_REDIRECTS
-  ACTION_OPTIONS_SAVED
-  ACTION_RELOAD_AND_ALLOW_PARAMS
-
-  REASON_UPDATE
-  REASON_INSTALL
-
-*/
 'use strict';
+
+const {
+  TRACKERS_BY_ROOT
+} = require('./trackers');
+
+const {
+  REDIRECT_DATA_BY_TARGET_PARAM
+} = require('./redirects');
+
+const {
+  REASON_INSTALL,
+  REASON_UPDATE,
+  STORAGE_KEY_STRIPPING_METHOD_TO_USE,
+  STORAGE_KEY_SKIP_KNOWN_REDIRECTS,
+  ACTION_OPTIONS_SAVED,
+  ACTION_RELOAD_AND_ALLOW_PARAMS,
+  ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID,
+  DEFAULT_STRIPPING_METHOD,
+  STRIPPING_METHOD_HISTORY_CHANGE,
+  STRIPPING_METHOD_CANCEL_AND_RELOAD,
+  STRIPPING_METHOD_BLOCK_AND_RELOAD,
+  STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS,
+  CHANGE_TYPE_REDIRECT_SKIP,
+  CHANGE_TYPE_TRACKING_STRIP
+} = require('./consts');
+
+const {
+  findQueryParam,
+  getOptionsFromStorage
+} = require('./common');
+
+
+
 
 // What method are we using?  Starts with the default
 let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
@@ -237,6 +242,8 @@ function checkUrlForTrackers(originalUrl) {
   // See if there is anything to strip from the URL to cleanse, else use whatever
   // we already have stored in 'cleansedUrl'
   cleansedUrl = removeTrackersFromUrl(urlToCleanse) || cleansedUrl;
+
+  console.log({urlToCleanse, cleansedUrl});
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
   return (originalUrl != cleansedUrl) ? cleansedUrl : false;
@@ -525,6 +532,15 @@ function messageHandler(message, sender, cb) {
       //tabId: DON'T NEED B/C DEFAULT IS CURRENT ACTIVE TAB
       url: message.url
     });
+  }
+
+  // Options page probably wants all the stuff
+  if (message.action === ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID) {
+    // Send it back.
+    cb(STUFF_BY_STRIPPING_METHOD_ID);
+    // Return false so we don't keep the connection open as there's nothing
+    // async happening inside here
+    return false;
   }
 }
 

@@ -1,29 +1,32 @@
 module.exports = {
   "env": {
     "browser": true,
-    "node": false,
+    "node": true,
     "commonjs": true,
     "es6": true
   },
   "extends": "eslint:recommended",
-  // "ecmaFeatures": {
-  //   "jsx": true
-  // },
-  // "parserOptions": {
-  //   "ecmaFeatures": {
-  //     "experimentalObjectRestSpread": true,
-  //     "jsx": true,
-  //     "modules": true,
-  //     "classes": true
-  //   },
-  //   "sourceType": "module"
-  // },
-  // "plugins": [
-  //   "react"
-  // ],
+  "ecmaFeatures": {
+    "jsx": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true,
+      "jsx": true,
+      "modules": true,
+      "classes": true
+    },
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react"
+  ],
+  "globals": {
+    "chrome": true
+  },
   "rules": {
     "no-console":0,
-    // "react/jsx-uses-vars": 1,
+    "react/jsx-uses-vars": 1,
     "indent": [
       "error",
       2,
@@ -35,8 +38,7 @@ module.exports = {
     ],
     // "quotes": [
     //   "error",
-    //   "single",
-    //   "double"
+    //   "single"
     // ],
     "semi": [
       "error",

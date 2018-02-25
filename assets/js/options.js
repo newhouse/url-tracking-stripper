@@ -1,10 +1,14 @@
-/* global
-  chrome
-  getOptionsFromStorage
-  STORAGE_KEY_STRIPPING_METHOD_TO_USE
-  ACTION_OPTIONS_SAVED
-*/
 'use strict';
+
+const {
+  STORAGE_KEY_STRIPPING_METHOD_TO_USE,
+  ACTION_OPTIONS_SAVED,
+  ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID,
+}                                             = require('./consts');
+const {
+  getOptionsFromStorage
+}                                             = require('./common');
+
 
 const OPTIONS_SAVED_TIMEOUT = 3000;
 let   OPTIONS_SAVED_TIMER;
@@ -50,32 +54,37 @@ function generateRadioId(id) {
 function generateOptionElements() {
 
   // Get the Background page
-  chrome.runtime.getBackgroundPage(function(bp) {
-    const radios = document.getElementById('stripping_method');
+  chrome.runtime.sendMessage(
+    // Message payload
+    {action: ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID},
+    // Callback
+    (STUFF_BY_STRIPPING_METHOD_ID) => {
+      const radios = document.getElementById('stripping_method');
 
-    for (let strippingMethodId in bp.STUFF_BY_STRIPPING_METHOD_ID) {
+      for (let strippingMethodId in STUFF_BY_STRIPPING_METHOD_ID) {
 
-      const id          = generateRadioId(strippingMethodId);
+        const id          = generateRadioId(strippingMethodId);
 
-      const radio       = document.createElement('input');
-      radio.type        = 'radio';
-      radio.id          = id;
-      radio.name        = 'stripping_method';
-      radio.value       = strippingMethodId;
-      radios.appendChild(radio);
+        const radio       = document.createElement('input');
+        radio.type        = 'radio';
+        radio.id          = id;
+        radio.name        = 'stripping_method';
+        radio.value       = strippingMethodId;
+        radios.appendChild(radio);
 
-      const label       = document.createElement('label');
-      label.for         = id;
-      label.innerHTML   = bp.STUFF_BY_STRIPPING_METHOD_ID[strippingMethodId].html;
-      radios.appendChild(label);
+        const label       = document.createElement('label');
+        label.for         = id;
+        label.innerHTML   = STUFF_BY_STRIPPING_METHOD_ID[strippingMethodId].html;
+        radios.appendChild(label);
 
-      const br          = document.createElement('br');
-      radios.appendChild(br);
+        const br          = document.createElement('br');
+        radios.appendChild(br);
+      }
+
+      // Set the appropriate option(s) to be selected
+      restoreOptions();
     }
-
-    // Set the appropriate option(s) to be selected
-    restoreOptions();
-  });
+  );
 }
 
 
@@ -83,6 +92,9 @@ function generateOptionElements() {
 // stored in chrome.storage.
 function restoreOptions() {
   return getOptionsFromStorage(items => {
+
+    console.log({items});
+    console.log({STORAGE_KEY_STRIPPING_METHOD_TO_USE});
 
     // Set the appropriate radio button to be selected.
     document.getElementById(generateRadioId(items[STORAGE_KEY_STRIPPING_METHOD_TO_USE])).checked = true;
