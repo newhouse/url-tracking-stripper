@@ -13,7 +13,8 @@ const base = {
   entry: {
     background:       './js/background.js',
     options:          './js/options.js',
-    info:             './js/info.js'
+    info:             './js/info.js',
+    welcome:          './js/welcome.js'
   },
 
   output: {
