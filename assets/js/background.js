@@ -560,10 +560,10 @@ function onInstallHandler(details) {
 }
 
 
-// Create the Context Menu item for copying links cleanly
+// Wrapper to create the context menu item. Have experienced weird permissions
+// behavior for updates (not installs), so eventually after a few versions
+// this pre-flight-check can probably be removed. v4.1.0
 function createContextMenu() {
-  // Don't do anything if we're not allowed
-
   // These are the permissions we need
   const permissions = { permissions: ['contextMenus'] };
 
@@ -585,6 +585,7 @@ function createContextMenu() {
 }
 
 
+// Create the Context Menu item for copying links cleanly
 function _createContextMenu() {
 
   // Remove all of our existing context menus
@@ -605,16 +606,15 @@ function _createContextMenu() {
     contexts: ['link'],
     visible: true,
     enabled: true,
-    // THIS WILL ACTUALLY MAKE ONLY MATCH 'http' OR 'https' SCHEMES:
+    // This will actually only match 'http' OR 'https' schemes:
     // https://developer.chrome.com/extensions/match_patterns
     documentUrlPatterns: ['*://*/*'],
     // The click handler
-    onclick: info => {
+    onclick: (info) => {
       // If there is no clipper helper element for some reason, forget it.
       if (!clipper) {
-        // Remove this context menu since there's a problem.
-        chrome.contextMenus.removeAll();
-        return;
+        // Remove this context menu since there's a problem, and get out of here.
+        return chrome.contextMenus && chrome.contextMenus.removeAll();
       }
 
       // Get the Link URL
@@ -630,7 +630,7 @@ function _createContextMenu() {
         } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
 
         // Go through each regex for this target param
-        for (let i=0, regex; i < regexes.length; i++) {
+        for (let regex, i=0; i < regexes.length; i++) {
           regex = regexes[i];
           // If the URL matches this redirect pattern, then extract the redirect.
           if (regex.test(linkUrl)) {
@@ -641,13 +641,9 @@ function _createContextMenu() {
         }
       }
 
-      // Make sure we have a link URL still
-      if (!linkUrl) {
-        return;
-      }
-
-      // Remove any trackers from the link URL
-      linkUrl = removeTrackersFromUrl(linkUrl) || linkUrl;
+      // Remove any trackers from the link URL:
+      // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]
+      linkUrl = linkUrl && (removeTrackersFromUrl(linkUrl) || linkUrl);
 
       // Make sure we have a link URL still
       if (!linkUrl) {
