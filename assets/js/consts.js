@@ -21,7 +21,7 @@ const Consts = {
   CHANGE_TYPE_REDIRECT_SKIP                         : 'Redirect Skipped',
 
   CONTEXT_MENU_ITEM_ID                              : 'COPY_AND_CLEAN',
-  CONTEXT_MENU_ITEM_TEXT                            : 'Copy, Skip, and Strip Link'
+  CONTEXT_MENU_ITEM_TEXT                            : 'Copy and Clean Link'
 };
 
 // Default Stripping Method to use when in doubt.
