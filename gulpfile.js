@@ -10,7 +10,7 @@ const runSequence     = require('run-sequence');
 
 
 const TARGET_DIR              = 'chrome';
-const TARGET_MINIFIED_DIR     = 'chrome_minified';
+const TARGET_UGLIFIED_DIR     = 'chrome_uglified';
 
 
 
@@ -20,9 +20,9 @@ gulp.task('clean', function () {
     .pipe(clean());
 });
 
-// CLEAN MINIFIED
+// CLEAN UGLIFIED
 gulp.task('clean-production', function () {
-  return gulp.src(`${TARGET_MINIFIED_DIR}/`, {read: false})
+  return gulp.src(`${TARGET_UGLIFIED_DIR}/`, {read: false})
     .pipe(clean());
 });
 
@@ -33,10 +33,10 @@ gulp.task('images', function() {
     .pipe(gulp.dest(`./${TARGET_DIR}/public/images/`));
 });
 
-// IMAGES FOR MINIFIED
+// IMAGES FOR UGLIFIED
 gulp.task('images-production', function() {
   return gulp.src('./assets/images/**/*.*')
-    .pipe(gulp.dest(`./${TARGET_MINIFIED_DIR}/public/images/`));
+    .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/images/`));
 });
 
 
@@ -48,10 +48,10 @@ gulp.task('lib', function() {
     .pipe(gulp.dest(`./${TARGET_DIR}/public/lib/`));
 });
 
-// LIB FOR MINIFIED
+// LIB FOR UGLIFIED
 gulp.task('lib-production', function() {
   return gulp.src('./assets/lib/**/*.*')
-    .pipe(gulp.dest(`./${TARGET_MINIFIED_DIR}/public/lib/`));
+    .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/lib/`));
 });
 
 
@@ -64,10 +64,10 @@ gulp.task('html', function() {
     .pipe(gulp.dest(`./${TARGET_DIR}`));
 });
 
-// HTML FOR MINIFIED
+// HTML FOR UGLIFIED
 gulp.task('html-production', function() {
   return gulp.src('./assets/*.html')
-    .pipe(gulp.dest(`./${TARGET_MINIFIED_DIR}`));
+    .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}`));
 });
 
 
@@ -78,10 +78,10 @@ gulp.task('favicon', function() {
     .pipe(gulp.dest(`./${TARGET_DIR}/public/images/favicon/`));
 });
 
-// FAVICON FOR MINIFIED
+// FAVICON FOR UGLIFIED
 gulp.task('favicon-production', function() {
   return gulp.src('./assets/images/favicon/production/**.*')
-    .pipe(gulp.dest(`./${TARGET_MINIFIED_DIR}/public/images/favicon/`));
+    .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/images/favicon/`));
 });
 
 
@@ -93,17 +93,17 @@ gulp.task('manifest', function() {
     .pipe(gulp.dest(`./${TARGET_DIR}`));
 });
 
-// MANIFEST FOR MINIFIED
+// MANIFEST FOR UGLIFIED
 gulp.task('manifest-production', function() {
   return gulp.src('./assets/manifest.json')
-    .pipe(gulp.dest(`./${TARGET_MINIFIED_DIR}`));
+    .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}`));
 });
 
 
 // MOVE FOR DEV
 gulp.task('move', ['images', 'lib', 'html', 'favicon', 'manifest']);
 
-// MOVE FOR MINIFIED
+// MOVE FOR UGLIFIED
 gulp.task('move-production', ['images-production', 'lib-production', 'html-production', 'favicon-production', 'manifest-production']);
 
 
@@ -116,18 +116,18 @@ gulp.task('webpack', function() {
 });
 
 
-// WEBPACK FOR MINIFIED
+// WEBPACK FOR UGLIFIED
 gulp.task('webpack-production', function() {
   // PACK PROD UGLIFIED
   return gulp.src('./assets')
     .pipe(webpackStream(webpackConfig.uglified, webpack))
-    .pipe(gulp.dest(`./${TARGET_MINIFIED_DIR}/public/js`));
+    .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/js`));
 });
 
 
 
 /*
-* UNMINIFIED BUILD PROCESS
+* UNUGLIFIED BUILD PROCESS
 *
 * $ gulp dev
 */
@@ -144,7 +144,7 @@ gulp.task('dev', function() {
 
 
 /*
-* MINIFIED BUILD PROCESS
+* UGLIFIED BUILD PROCESS
 *
 * $ gulp
 */
@@ -154,9 +154,9 @@ gulp.task('default', function() {
 
 
 
-// ZIP UP THE MINIFIED VERSION
+// ZIP UP THE UGLIFIED VERSION
 gulp.task('zip', function() {
-  return gulp.src(`./${TARGET_MINIFIED_DIR}/**/*`)
+  return gulp.src(`./${TARGET_UGLIFIED_DIR}/**/*`)
     .pipe(zip('chrome_extension.zip'))
     .pipe(gulp.dest('./'));
 });

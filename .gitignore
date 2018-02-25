@@ -1,4 +1,4 @@
 *.zip
 node_modules/*
 chrome/*
-chrome_minified/*
+chrome_uglified/*

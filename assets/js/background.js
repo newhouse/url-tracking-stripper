@@ -522,7 +522,7 @@ function messageHandler(message, sender, cb) {
     });
   }
 
-  // Options page probably wants all the stuff
+  // Options page probably wants all the stuff for creating the radio buttons
   if (message.action === ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID) {
     // Send it back.
     cb(STUFF_BY_STRIPPING_METHOD_ID);
