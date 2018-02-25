@@ -128,7 +128,7 @@ function registerRedirectHandlers() {
 
     // Don't do anything stupid.
     if (!(patterns && patterns.length && types && types.length)) {
-      return;
+      continue;
     }
 
     const filters = {

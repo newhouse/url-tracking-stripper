@@ -16,7 +16,7 @@
   "scripts": {
     "start": "gulp",
     "start-dev": "gulp dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test"
   },
   "dependencies": {
     "babel-core": "^6.26.0",
@@ -29,5 +29,10 @@
     "run-sequence": "^2.2.1",
     "webpack": "^3.11.0",
     "webpack-stream": "^4.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "expect.js": "^0.3.1",
+    "mocha": "^5.0.0"
   }
 }

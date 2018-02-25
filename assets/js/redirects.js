@@ -170,5 +170,6 @@ function escapeRegExp(str) {
 
 module.exports = {
   KNOWN_REDIRECTS,
-  REDIRECT_DATA_BY_TARGET_PARAM
+  REDIRECT_DATA_BY_TARGET_PARAM,
+  escapeRegExp
 };
