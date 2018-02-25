@@ -562,6 +562,31 @@ function onInstallHandler(details) {
 
 // Create the Context Menu item for copying links cleanly
 function createContextMenu() {
+  // Don't do anything if we're not allowed
+
+  // These are the permissions we need
+  const permissions = { permissions: ['contextMenus'] };
+
+  // Check to see if we already have them.
+  chrome.permissions.contains(permissions, yes => {
+    // If we have them, then create the context menu
+    if (yes) {
+      return _createContextMenu();
+    }
+
+    // Let's ask the User then
+    return chrome.permissions.request(permissions, granted => {
+      // If the User granted it, then add the Context Menu
+      if (granted) {
+        return _createContextMenu();
+      }
+    });
+  });
+}
+
+
+function _createContextMenu() {
+
   // Remove all of our existing context menus
   chrome.contextMenus.removeAll();
 
