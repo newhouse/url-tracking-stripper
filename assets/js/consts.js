@@ -19,6 +19,9 @@ const Consts = {
   // Need to be User-friendly looking as they're used for display purposes
   CHANGE_TYPE_TRACKING_STRIP                        : 'Tracking Stripped',
   CHANGE_TYPE_REDIRECT_SKIP                         : 'Redirect Skipped',
+
+  CONTEXT_MENU_ITEM_ID                              : 'COPY_AND_CLEAN',
+  CONTEXT_MENU_ITEM_TEXT                            : 'Copy and Clean Link'
 };
 
 // Default Stripping Method to use when in doubt.

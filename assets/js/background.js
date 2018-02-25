@@ -17,8 +17,11 @@ const {
   STRIPPING_METHOD_BLOCK_AND_RELOAD,
   STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS,
   CHANGE_TYPE_REDIRECT_SKIP,
-  CHANGE_TYPE_TRACKING_STRIP
+  CHANGE_TYPE_TRACKING_STRIP,
+  CONTEXT_MENU_ITEM_ID,
+  CONTEXT_MENU_ITEM_TEXT
 }                                               = require('./consts');
+
 
 
 
@@ -29,6 +32,9 @@ let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
 // STORE ANY REDIRECT HANDLER FUNCTIONS HERE SO THAT THEY CAN BE UNREGISTERED
 // IF NEED BE
 const REDIRECT_HANDLERS = [];
+
+// An element to store text for clipboard writing
+let clipper;
 
 // Go through all the trackers by their root and turn them into a big regex...
 const TRACKER_REGEXES_BY_ROOT = {};
@@ -554,6 +560,121 @@ function onInstallHandler(details) {
 }
 
 
+// Wrapper to create the context menu item. Have experienced weird permissions
+// behavior for updates (not installs), so eventually after a few versions
+// this pre-flight-check can probably be removed. v4.1.0
+function createContextMenu() {
+  // These are the permissions we need
+  const permissions = { permissions: ['contextMenus'] };
+
+  // Check to see if we already have them.
+  chrome.permissions.contains(permissions, yes => {
+    // If we have them, then create the context menu
+    if (yes) {
+      return _createContextMenu();
+    }
+
+    // Let's ask the User then
+    return chrome.permissions.request(permissions, granted => {
+      // If the User granted it, then add the Context Menu
+      if (granted) {
+        return _createContextMenu();
+      }
+    });
+  });
+}
+
+
+// Create the Context Menu item for copying links cleanly
+function _createContextMenu() {
+
+  // Remove all of our existing context menus
+  chrome.contextMenus.removeAll();
+
+  // Create the clipper element to be used for selecting
+  clipper = document.createElement('div');
+  // Add it to the background script's DOM
+  document.body.appendChild(clipper);
+
+  // Create the contextMenu
+  // https://developer.chrome.com/extensions/contextMenus#method-create
+  chrome.contextMenus.create({
+    type: 'normal',
+    id: CONTEXT_MENU_ITEM_ID,
+    title: CONTEXT_MENU_ITEM_TEXT,
+    // Only happen when the user right-clicks on something link-like
+    contexts: ['link'],
+    visible: true,
+    enabled: true,
+    // This will actually only match 'http' OR 'https' schemes:
+    // https://developer.chrome.com/extensions/match_patterns
+    documentUrlPatterns: ['*://*/*'],
+    // The click handler
+    onclick: (info) => {
+      // If there is no clipper helper element for some reason, forget it.
+      if (!clipper) {
+        // Remove this context menu since there's a problem, and get out of here.
+        return chrome.contextMenus && chrome.contextMenus.removeAll();
+      }
+
+      // Get the Link URL
+      let linkUrl = info.linkUrl;
+
+      // Label this so we can bust out.
+      outerLoop:
+      // Go through each target param
+      for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
+        // Get the regexes for this target param
+        const {
+          regexes = []
+        } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
+
+        // Go through each regex for this target param
+        for (let regex, i=0; i < regexes.length; i++) {
+          regex = regexes[i];
+          // If the URL matches this redirect pattern, then extract the redirect.
+          if (regex.test(linkUrl)) {
+            linkUrl = extractRedirectTarget(linkUrl, targetParam) || linkUrl;
+            // All done with this regex stuff.
+            break outerLoop;
+          }
+        }
+      }
+
+      // Remove any trackers from the link URL:
+      // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]
+      linkUrl = linkUrl && (removeTrackersFromUrl(linkUrl) || linkUrl);
+
+      // Make sure we have a link URL still
+      if (!linkUrl) {
+        return;
+      }
+
+      // Do what we need to do to copy this link to the clipboard.
+      // https://developers.google.com/web/updates/2015/04/cut-and-copy-commands
+      clipper.textContent = linkUrl;
+      const range = document.createRange();
+      range.selectNode(clipper);
+      window.getSelection().addRange(range);
+
+      try {
+        if (!document.execCommand('copy')) {
+          console.warn('Problem copying', linkUrl, 'to clipboard.');
+        }
+      }
+      catch(err) {
+        console.warn('Problem copying', linkUrl, 'to clipboard.');
+        console.error(err);
+      }
+
+      // Remove the selections - NOTE: Should use
+      // removeRange(range) when it is supported
+      window.getSelection().removeAllRanges();
+    }
+  });
+}
+
+
 
 // OK, finally let's:
 // 1) Do anything we need to do when installed/updated
@@ -562,3 +683,5 @@ chrome.runtime.onInstalled.addListener(onInstallHandler);
 restoreOptionsFromStorage();
 // 3) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(messageHandler);
+// 4) Create the Context Menu
+createContextMenu();
