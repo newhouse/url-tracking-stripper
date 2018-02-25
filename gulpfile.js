@@ -21,7 +21,7 @@ gulp.task('clean', function () {
 });
 
 // CLEAN UGLIFIED
-gulp.task('clean-production', function () {
+gulp.task('clean-uglified', function () {
   return gulp.src(`${TARGET_UGLIFIED_DIR}/`, {read: false})
     .pipe(clean());
 });
@@ -34,7 +34,7 @@ gulp.task('images', function() {
 });
 
 // IMAGES FOR UGLIFIED
-gulp.task('images-production', function() {
+gulp.task('images-uglified', function() {
   return gulp.src('./assets/images/**/*.*')
     .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/images/`));
 });
@@ -49,7 +49,7 @@ gulp.task('lib', function() {
 });
 
 // LIB FOR UGLIFIED
-gulp.task('lib-production', function() {
+gulp.task('lib-uglified', function() {
   return gulp.src('./assets/lib/**/*.*')
     .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/lib/`));
 });
@@ -65,7 +65,7 @@ gulp.task('html', function() {
 });
 
 // HTML FOR UGLIFIED
-gulp.task('html-production', function() {
+gulp.task('html-uglified', function() {
   return gulp.src('./assets/*.html')
     .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}`));
 });
@@ -79,7 +79,7 @@ gulp.task('favicon', function() {
 });
 
 // FAVICON FOR UGLIFIED
-gulp.task('favicon-production', function() {
+gulp.task('favicon-uglified', function() {
   return gulp.src('./assets/images/favicon/production/**.*')
     .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}/public/images/favicon/`));
 });
@@ -94,7 +94,7 @@ gulp.task('manifest', function() {
 });
 
 // MANIFEST FOR UGLIFIED
-gulp.task('manifest-production', function() {
+gulp.task('manifest-uglified', function() {
   return gulp.src('./assets/manifest.json')
     .pipe(gulp.dest(`./${TARGET_UGLIFIED_DIR}`));
 });
@@ -104,7 +104,7 @@ gulp.task('manifest-production', function() {
 gulp.task('move', ['images', 'lib', 'html', 'favicon', 'manifest']);
 
 // MOVE FOR UGLIFIED
-gulp.task('move-production', ['images-production', 'lib-production', 'html-production', 'favicon-production', 'manifest-production']);
+gulp.task('move-uglified', ['images-uglified', 'lib-uglified', 'html-uglified', 'favicon-uglified', 'manifest-uglified']);
 
 
 // WEBPACK
@@ -117,7 +117,7 @@ gulp.task('webpack', function() {
 
 
 // WEBPACK FOR UGLIFIED
-gulp.task('webpack-production', function() {
+gulp.task('webpack-uglified', function() {
   // PACK PROD UGLIFIED
   return gulp.src('./assets')
     .pipe(webpackStream(webpackConfig.uglified, webpack))
@@ -127,10 +127,11 @@ gulp.task('webpack-production', function() {
 
 
 /*
-* UNUGLIFIED BUILD PROCESS
+* NON-UGLIFIED BUILD PROCESS
 *
 * $ gulp dev
 */
+// BUILD AND WATCH NON-UGLIFIED
 gulp.task('dev', function() {
   runSequence('clean', 'move', 'webpack');
 
@@ -141,6 +142,10 @@ gulp.task('dev', function() {
   console.log('Watching...');
 });
 
+// BUILD AND ZIP NON-UGLIFIED
+gulp.task('build', function() {
+  runSequence('clean', 'move', 'webpack', 'zip');
+});
 
 
 /*
@@ -148,16 +153,24 @@ gulp.task('dev', function() {
 *
 * $ gulp
 */
+// BUILD AND ZIP UGLIFIED
 gulp.task('default', function() {
-  runSequence('clean-production', 'move-production', 'webpack-production', 'zip');
+  runSequence('clean-uglified', 'move-uglified', 'webpack-uglified', 'zip-uglified');
 });
 
 
 
-// ZIP UP THE UGLIFIED VERSION
+// ZIP
 gulp.task('zip', function() {
-  return gulp.src(`./${TARGET_UGLIFIED_DIR}/**/*`)
+  return gulp.src(`./${TARGET_DIR}/**/*`)
     .pipe(zip('chrome_extension.zip'))
+    .pipe(gulp.dest('./'));
+});
+
+// ZIP UP THE UGLIFIED VERSION
+gulp.task('zip-uglified', function() {
+  return gulp.src(`./${TARGET_UGLIFIED_DIR}/**/*`)
+    .pipe(zip('chrome_extension-uglified.zip'))
     .pipe(gulp.dest('./'));
 });
 
