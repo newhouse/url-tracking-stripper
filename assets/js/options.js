@@ -1,17 +1,16 @@
 'use strict';
 
+const { getOptionsFromStorage }               = require('./common');
 const {
   STORAGE_KEY_STRIPPING_METHOD_TO_USE,
   ACTION_OPTIONS_SAVED,
-  ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID,
+  ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID
 }                                             = require('./consts');
-const {
-  getOptionsFromStorage
-}                                             = require('./common');
 
 
 const OPTIONS_SAVED_TIMEOUT = 3000;
 let   OPTIONS_SAVED_TIMER;
+
 
 // Called to save the selected options
 function saveOptions() {
@@ -92,10 +91,6 @@ function generateOptionElements() {
 // stored in chrome.storage.
 function restoreOptions() {
   return getOptionsFromStorage(items => {
-
-    console.log({items});
-    console.log({STORAGE_KEY_STRIPPING_METHOD_TO_USE});
-
     // Set the appropriate radio button to be selected.
     document.getElementById(generateRadioId(items[STORAGE_KEY_STRIPPING_METHOD_TO_USE])).checked = true;
   });

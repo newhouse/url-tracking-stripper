@@ -1,3 +1,5 @@
+'use strict';
+
 // More detailed string pattern suffixes, stored by their common root.
 const TRACKERS_BY_ROOT = {
 

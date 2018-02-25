@@ -1,8 +1,6 @@
 'use strict';
 
-const {
-  ACTION_RELOAD_AND_ALLOW_PARAMS
-} = require('./consts');
+const { ACTION_RELOAD_AND_ALLOW_PARAMS } = require('./consts');
 
 
 // Once the page skeleton is loaded

@@ -1,13 +1,8 @@
 'use strict';
 
-const {
-  TRACKERS_BY_ROOT
-} = require('./trackers');
-
-const {
-  REDIRECT_DATA_BY_TARGET_PARAM
-} = require('./redirects');
-
+const { findQueryParam, getOptionsFromStorage } = require('./common');
+const { TRACKERS_BY_ROOT }                      = require('./trackers');
+const { REDIRECT_DATA_BY_TARGET_PARAM }         = require('./redirects');
 const {
   REASON_INSTALL,
   REASON_UPDATE,
@@ -23,12 +18,7 @@ const {
   STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS,
   CHANGE_TYPE_REDIRECT_SKIP,
   CHANGE_TYPE_TRACKING_STRIP
-} = require('./consts');
-
-const {
-  findQueryParam,
-  getOptionsFromStorage
-} = require('./common');
+}                                               = require('./consts');
 
 
 
@@ -242,8 +232,6 @@ function checkUrlForTrackers(originalUrl) {
   // See if there is anything to strip from the URL to cleanse, else use whatever
   // we already have stored in 'cleansedUrl'
   cleansedUrl = removeTrackersFromUrl(urlToCleanse) || cleansedUrl;
-
-  console.log({urlToCleanse, cleansedUrl});
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
   return (originalUrl != cleansedUrl) ? cleansedUrl : false;
