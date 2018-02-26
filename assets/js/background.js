@@ -1,8 +1,20 @@
 'use strict';
 
-const { findQueryParam, getOptionsFromStorage } = require('./common');
-const { TRACKERS_BY_ROOT }                      = require('./trackers');
-const { REDIRECT_DATA_BY_TARGET_PARAM }         = require('./redirects');
+const {
+  getOptionsFromStorage
+}                                               = require('./common');
+
+const {
+  removeTrackersFromUrl,
+  generateTrackerPatternsArray,
+}                                               = require('./trackers');
+
+const {
+  REDIRECT_DATA_BY_TARGET_PARAM,
+  extractRedirectTarget,
+  findRedirect
+}                                               = require('./redirects');
+
 const {
   REASON_INSTALL,
   REASON_UPDATE,
@@ -36,19 +48,8 @@ const REDIRECT_HANDLERS = [];
 // An element to store text for clipboard writing
 let clipper;
 
-// Go through all the trackers by their root and turn them into a big regex...
-const TRACKER_REGEXES_BY_ROOT = {};
-for (let root in TRACKERS_BY_ROOT) {
-  // Old way, matching at the end 1 or unlimited times.
-  // TRACKER_REGEXES_BY_ROOT[root] = new RegExp("((^|&)" + root + "(" + TRACKERS_BY_ROOT[root].join('|') + ")=[^&#]+)", "ig");
-  // New way, matching at the end 0 or unlimited times. Hope this doesn't come back to be a problem.
-  TRACKER_REGEXES_BY_ROOT[root] = new RegExp("((^|&)" + root + "(" + TRACKERS_BY_ROOT[root].join('|') + ")=[^&#]*)", "ig");
-}
-
-
 // Store some things in various ways for centralized definitiion of what's available.
-// Must use 'var' here because it's accessed in the options.js via chrome.runtime.getBackgroundPage
-var STUFF_BY_STRIPPING_METHOD_ID = {
+const STUFF_BY_STRIPPING_METHOD_ID = {
   [STRIPPING_METHOD_HISTORY_CHANGE]: {
     html: "History Change (cosmetic only)",
     add: function() {
@@ -78,6 +79,7 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
 };
 
 
+
 /*******************************************************
 *      ___        _ _            _
 *     | _ \___ __| (_)_ _ ___ __| |_ ___
@@ -88,22 +90,6 @@ var STUFF_BY_STRIPPING_METHOD_ID = {
 *     |___/\__|\_,_|_| |_|
 *
 */
-
-// Let's see if this URL is a Google Search Results Page URL, and if so try to
-// extract the target URL from it.
-function extractRedirectTarget(url, targetParam = 'url') {
-  // See if we can find a target in the URL.
-  let target = findQueryParam(targetParam, url);
-
-  if (typeof target === 'string' && target.startsWith('http')) {
-    target = decodeURIComponent(target);
-  }
-  else {
-    target = false;
-  }
-
-  return target;
-}
 
 // Remove the listeners, if any, that we added to watch for redirect-skipping.
 function unRegisterRedirectHandlers() {
@@ -181,47 +167,6 @@ function registerRedirectHandlers() {
 *
 */
 
-// Generate the URL patterns used for webRequest filtering
-// https://developer.chrome.com/extensions/match_patterns
-function generateTrackerPatternsArray() {
-  const array = [];
-  for (let root in TRACKERS_BY_ROOT) {
-    for (let i=0; i < TRACKERS_BY_ROOT[root].length; i++) {
-      array.push( "*://*/*?*" + root + TRACKERS_BY_ROOT[root][i] + "=*" );
-    }
-  }
-
-  return array;
-}
-
-
-// Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
-function removeTrackersFromUrl(url) {
-  const urlPieces = url.split('?');
-
-  // If no params, nothing to modify
-  if (urlPieces.length === 1) {
-    return url;
-  }
-
-  // Go through all the pattern roots
-  for (let root in TRACKER_REGEXES_BY_ROOT) {
-    // If we see the root in the params part, then we should probably try to do some replacements
-    if (urlPieces[1].indexOf(root) !== -1) {
-      urlPieces[1] = urlPieces[1].replace(TRACKER_REGEXES_BY_ROOT[root], '');
-    }
-  }
-
-  // If we've collapsed the URL to the point where there's an '&' against the '?'
-  // then we need to get rid of that.
-  while (urlPieces[1].charAt(0) === '&') {
-    urlPieces[1] = urlPieces[1].substr(1);
-  }
-
-  return urlPieces[1] ? urlPieces.join('?') : urlPieces[0];
-}
-
-
 // Let's check a URL to see if there's anything to strip from it. Will return
 // false if there was nothing to strip out
 function checkUrlForTrackers(originalUrl) {
@@ -248,6 +193,15 @@ function checkUrlForTrackers(originalUrl) {
 //*******************************************************
 
 
+
+
+/*******************************************************
+*      _  _              _ _
+*     | || |__ _ _ _  __| | |___ _ _ ___
+*     | __ / _` | ' \/ _` | / -_) '_(_-<
+*     |_||_\__,_|_||_\__,_|_\___|_| /__/
+*
+*/
 // Handler for doing History Change approach
 function historyChangeHandler(tabId, changeInfo, tab) {
   // If the change was not to the URL, we're done.
@@ -324,6 +278,101 @@ function blockAndReloadHandler(details) {
   // Redirect the browser to the cleansed URL and be done here
   return { redirectUrl: cleansedUrl };
 }
+
+
+// Function to set/unset handlers for our stripping methods
+function setHandlers() {
+  // Remove any other listeners
+  for (let method in STUFF_BY_STRIPPING_METHOD_ID) {
+    STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
+  }
+  // Add the listener the user wants
+  STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
+
+  // Let Chrome know that things may be different this time around.
+  // Actually, it says: "You don't need to call handlerBehaviorChanged() after registering or unregistering an event listener."
+  // https://developer.chrome.com/extensions/webRequest#method-handlerBehaviorChanged
+  // chrome.webRequest.handlerBehaviorChanged();
+}
+
+
+// Handle messages from other parts of the extension
+function messageHandler(message, sender, cb) {
+
+  // User has updated their options/preferences
+  if (message.action === ACTION_OPTIONS_SAVED) {
+    STRIPPING_METHOD_TO_USE   = parseInt(message.options[STORAGE_KEY_STRIPPING_METHOD_TO_USE]) || DEFAULT_STRIPPING_METHOD;
+
+    // Set the handlers to do what they do
+    setHandlers();
+
+    // Save these new options to storage in case of restart or update, then call
+    // the callback
+    chrome.storage.sync.set(
+      {
+        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  STRIPPING_METHOD_TO_USE
+      },
+      cb
+    );
+
+    // Return true to make the callback callable asynchronously. A bit unnecssary
+    // at the moment, but may be useful some day.
+    // https://developer.chrome.com/extensions/runtime#event-onMessage
+    return true;
+  }
+
+  // User would like to re-load with params allowed
+  if (message.action === ACTION_RELOAD_AND_ALLOW_PARAMS) {
+    if (!message.url) {
+      return;
+    }
+
+    // Add this URL to the list of exceptions.
+    exceptionsManager.addUrlException(message.url);
+
+    // Re-load this full URL in the tab
+    chrome.tabs.update({
+      //tabId: DON'T NEED B/C DEFAULT IS CURRENT ACTIVE TAB
+      url: message.url
+    });
+  }
+
+  // Options page probably wants all the stuff for creating the radio buttons
+  if (message.action === ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID) {
+    // Send it back.
+    cb(STUFF_BY_STRIPPING_METHOD_ID);
+    // Return false so we don't keep the connection open as there's nothing
+    // async happening inside here
+    return false;
+  }
+}
+
+
+// Do anything we need to do when this extension is installed/updated
+function onInstallHandler(details) {
+  const reason = details.reason;
+
+  // If it's an Update or an Install
+  if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
+
+    // Let the User know about things
+    // chrome.tabs.create({
+    //   url: chrome.runtime.getURL('welcome.html?reason=' + reason),
+    //   active: true
+    // });
+  }
+
+  if (reason === REASON_UPDATE ) {
+    // Remove the Skip Known Redirects entry from storage in case it's there.
+    chrome.storage.sync.remove(STORAGE_KEY_SKIP_KNOWN_REDIRECTS);
+  }
+}
+
+//
+//
+//*******************************************************
+
+
 
 
 // We may need to monitor navigation so that we can let the user know when we've
@@ -433,22 +482,6 @@ const changeManager = {
 };
 
 
-// Function to set/unset handlers for our stripping methods
-function setHandlers() {
-  // Remove any other listeners
-  for (let method in STUFF_BY_STRIPPING_METHOD_ID) {
-    STUFF_BY_STRIPPING_METHOD_ID[method]['remove']();
-  }
-  // Add the listener the user wants
-  STUFF_BY_STRIPPING_METHOD_ID[STRIPPING_METHOD_TO_USE]['add']();
-
-  // Let Chrome know that things may be different this time around.
-  // Actually, it says: "You don't need to call handlerBehaviorChanged() after registering or unregistering an event listener."
-  // https://developer.chrome.com/extensions/webRequest#method-handlerBehaviorChanged
-  // chrome.webRequest.handlerBehaviorChanged();
-}
-
-
 // Get all the options from storage and put them into their globals
 function restoreOptionsFromStorage() {
 
@@ -487,77 +520,7 @@ function restoreOptionsFromStorage() {
 }
 
 
-// Handle messages from other parts of the extension
-function messageHandler(message, sender, cb) {
 
-  // User has updated their options/preferences
-  if (message.action === ACTION_OPTIONS_SAVED) {
-    STRIPPING_METHOD_TO_USE   = parseInt(message.options[STORAGE_KEY_STRIPPING_METHOD_TO_USE]) || DEFAULT_STRIPPING_METHOD;
-
-    // Set the handlers to do what they do
-    setHandlers();
-
-    // Save these new options to storage in case of restart or update, then call
-    // the callback
-    chrome.storage.sync.set(
-      {
-        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  STRIPPING_METHOD_TO_USE
-      },
-      cb
-    );
-
-    // Return true to make the callback callable asynchronously. A bit unnecssary
-    // at the moment, but may be useful some day.
-    // https://developer.chrome.com/extensions/runtime#event-onMessage
-    return true;
-  }
-
-  // User would like to re-load with params allowed
-  if (message.action === ACTION_RELOAD_AND_ALLOW_PARAMS) {
-    if (!message.url) {
-      return;
-    }
-
-    // Add this URL to the list of exceptions.
-    exceptionsManager.addUrlException(message.url);
-
-    // Re-load this full URL in the tab
-    chrome.tabs.update({
-      //tabId: DON'T NEED B/C DEFAULT IS CURRENT ACTIVE TAB
-      url: message.url
-    });
-  }
-
-  // Options page probably wants all the stuff for creating the radio buttons
-  if (message.action === ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID) {
-    // Send it back.
-    cb(STUFF_BY_STRIPPING_METHOD_ID);
-    // Return false so we don't keep the connection open as there's nothing
-    // async happening inside here
-    return false;
-  }
-}
-
-
-// Do anything we need to do when this extension is installed/updated
-function onInstallHandler(details) {
-  const reason = details.reason;
-
-  // If it's an Update or an Install
-  if (reason === REASON_UPDATE || reason === REASON_INSTALL) {
-
-    // Let the User know about things
-    // chrome.tabs.create({
-    //   url: chrome.runtime.getURL('welcome.html?reason=' + reason),
-    //   active: true
-    // });
-  }
-
-  if (reason === REASON_UPDATE ) {
-    // Remove the Skip Known Redirects entry from storage in case it's there.
-    chrome.storage.sync.remove(STORAGE_KEY_SKIP_KNOWN_REDIRECTS);
-  }
-}
 
 
 // Wrapper to create the context menu item. Have experienced weird permissions
@@ -617,29 +580,8 @@ function _createContextMenu() {
         return chrome.contextMenus && chrome.contextMenus.removeAll();
       }
 
-      // Get the Link URL
-      let linkUrl = info.linkUrl;
-
-      // Label this so we can bust out.
-      outerLoop:
-      // Go through each target param
-      for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
-        // Get the regexes for this target param
-        const {
-          regexes = []
-        } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
-
-        // Go through each regex for this target param
-        for (let regex, i=0; i < regexes.length; i++) {
-          regex = regexes[i];
-          // If the URL matches this redirect pattern, then extract the redirect.
-          if (regex.test(linkUrl)) {
-            linkUrl = extractRedirectTarget(linkUrl, targetParam) || linkUrl;
-            // All done with this regex stuff.
-            break outerLoop;
-          }
-        }
-      }
+      // Extract any redirects in the linkUrl
+      let linkUrl = findRedirect(info.linkUrl);
 
       // Remove any trackers from the link URL:
       // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]

@@ -1,22 +1,22 @@
 'use strict';
 
 const {
-  REDIRECT_DATA_BY_TARGET_PARAM
-} = require('../assets/js/redirects');
+  removeTrackersFromUrl
+} = require('../assets/js/trackers');
 
 const {
-  escapeRegExp
+  KNOWN_REDIRECTS,
+  replacePlaceholdersCreateExample,
+  findRedirect
 } = require('../assets/js/redirects');
 
 
-const {
-  findQueryParam
-} = require('../assets/js/common');
 
 
 function escapePattern(pattern) {
   return pattern.replace(/[\?]/g, "\\$&");
 }
+
 
 function patternToRegExp(pattern) {
 
@@ -62,49 +62,37 @@ function patternToRegExp(pattern) {
 }
 
 
-// should put this somewhere common
-function extractRedirectTarget(url, targetParam = 'url') {
-  // See if we can find a target in the URL.
-  let target = findQueryParam(targetParam, url);
+function skipRedirectAndRemoveTrackers(url) {
+  url = findRedirect(url);
 
-  if (typeof target === 'string' && target.startsWith('http')) {
-    target = decodeURIComponent(target);
-  }
-  else {
-    target = false;
-  }
-
-  return target;
-}
-
-
-function findRedirect(url) {
-  outerLoop:
-  // Go through each target param
-  for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
-    // Get the regexes for this target param
-    const {
-      regexes = []
-    } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
-
-    // Go through each regex for this target param
-    for (let regex, i=0; i < regexes.length; i++) {
-      regex = regexes[i];
-      // If the URL matches this redirect pattern, then extract the redirect.
-      if (regex.test(url)) {
-        url = extractRedirectTarget(url, targetParam) || url;
-        // All done with this regex stuff.
-        break outerLoop;
-      }
-    }
-  }
+  url = removeTrackersFromUrl(url);
 
   return url;
 }
 
 
+const REDIRECTS_BY_TARGET_PARAM = {};
+
+KNOWN_REDIRECTS.forEach(redirect => {
+  const {
+    targetParam,
+    patterns
+  } = redirect;
+
+  if(!REDIRECTS_BY_TARGET_PARAM[targetParam]) {
+    REDIRECTS_BY_TARGET_PARAM[targetParam] = [];
+  }
+
+  patterns.forEach(pattern => {
+    const example = replacePlaceholdersCreateExample(pattern);
+    REDIRECTS_BY_TARGET_PARAM[targetParam].push(example);
+  });
+});
+
+
 module.exports = {
   patternToRegExp,
-  extractRedirectTarget,
-  findRedirect
+  skipRedirectAndRemoveTrackers,
+  REDIRECTS_BY_TARGET_PARAM
 };
+

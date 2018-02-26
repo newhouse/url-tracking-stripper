@@ -1,10 +1,15 @@
 'use strict';
 
+const {
+  findQueryParam
+}                               = require('./common');
+
 const SCHEMA = '<SCHEMA>';
 const SUBDOMAIN = '<SUBDOMAIN>';
 const PATH = '<PATH>';
 const QS_VALUE = '<QSVALUE>';
 const QS_KVS = '<QSKVS>';
+
 
 const KNOWN_REDIRECTS = [
   {
@@ -163,13 +168,78 @@ function replacePlaceholdersRegex(pattern) {
   return pattern;
 }
 
+
+function replacePlaceholdersCreateExample(pattern) {
+  pattern = pattern.replace(SCHEMA, 'https://');
+  pattern = pattern.replace(SUBDOMAIN, 'foo');
+  pattern = pattern.replace(PATH, '/path/to/whatever');
+  pattern = pattern.replace(QS_KVS, '&');
+  pattern = pattern.replace(QS_VALUE, 'foo');
+
+  return pattern;
+}
+
 // Escape all of the literals
 function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
 
+
+// Extract the redirect target from a URL given the target parameter
+function extractRedirectTarget(url, targetParam = 'url') {
+  console.log('extractRedirectTarget...');
+  // See if we can find a target in the URL.
+  let target = findQueryParam(targetParam, url);
+
+  console.log('target 1:', target);
+
+  if (typeof target === 'string' && target.startsWith('http')) {
+    target = decodeURIComponent(target);
+  }
+  else {
+    target = false;
+  }
+
+  console.log('target 2:', target);
+
+  return target;
+}
+
+
+// Find a known redirect in a url
+function findRedirect(url) {
+  if (!url) return url;
+
+  // Go through each target param
+  outerLoop:
+  for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
+    // Get the regexes for this target param
+    const {
+      regexes = []
+    } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
+
+    // Go through each regex for this target param
+    for (let regex, i=0; i < regexes.length; i++) {
+      regex = regexes[i];
+      // If the URL matches this redirect pattern, then extract the redirect.
+      if (regex.test(url)) {
+        url = extractRedirectTarget(url, targetParam) || url;
+        // All done with this regex stuff.
+        break outerLoop;
+      }
+    }
+  }
+
+  return url;
+}
+
+
+
 module.exports = {
   KNOWN_REDIRECTS,
   REDIRECT_DATA_BY_TARGET_PARAM,
-  escapeRegExp
+  escapeRegExp,
+  replacePlaceholdersCreateExample,
+  extractRedirectTarget,
+  findRedirect
 };
