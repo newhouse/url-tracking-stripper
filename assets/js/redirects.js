@@ -143,6 +143,11 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 });
 
 
+// Escape all of the literals
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
 // Replace the placeholders for URL matching patterns
 function replacePlaceholders(pattern) {
   pattern = pattern.replace(SCHEMA, '*://');
@@ -179,11 +184,6 @@ function replacePlaceholdersCreateExample(pattern) {
   return pattern;
 }
 
-// Escape all of the literals
-function escapeRegExp(str) {
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-}
-
 
 // Extract the redirect target from a URL given the target parameter
 function extractRedirectTarget(url, targetParam = 'url') {
@@ -201,7 +201,7 @@ function extractRedirectTarget(url, targetParam = 'url') {
 }
 
 
-// Find a known redirect in a url
+// Find a known redirect in a url and return it, else return the original URL
 function followRedirect(url) {
   if (!url) return url;
 

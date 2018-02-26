@@ -6,7 +6,7 @@ const {
 
 
 const {
-  REDIRECTS_BY_TARGET_PARAM
+  REDIRECT_EXAMPLES_BY_TARGET_PARAM
 } = require('./test/helpers');
 
 
@@ -25,11 +25,12 @@ const redirectExamples = [
 ];
 
 // STORE REDIRECT WITH TRACKERS EXAMPLES
-const redirectWithTrackerExamples = [];
+const redirectWithTrackerExamples = [
+];
 
 
 // ALL THE ACTUAL TRACKER PARAMS WE'VE PROCESSED SO FAR
-const allSoFar = [];
+const allTrackersSoFar = [];
 
 
 // ADD IN ALL THE COMBINATIONS OF TRACKERS:
@@ -41,10 +42,10 @@ for (let root in TRACKERS_BY_ROOT) {
     const thisTracker = `${root}${suffix}=foo`;
 
     // ADD IT TO ALL THE ONES WE'VE DONE SO FAR
-    allSoFar.push(thisTracker);
+    allTrackersSoFar.push(thisTracker);
 
     // COMBINE ALL THE ONES WE'VE DONE SO FAR
-    const allSoFarCombined = allSoFar.join('&');
+    const allTrackersSoFarCombined = allTrackersSoFar.join('&');
 
     // ADD THIS TRACKER ALONE
     trackerExamples.push(
@@ -73,7 +74,7 @@ for (let root in TRACKERS_BY_ROOT) {
     // CREATE A SUPER MEGA TRACKER URL CONTAINING ALL THE TRACKERS THUS FAR
     trackerExamples.push(
       {
-        fromm: `${hostEtc}?${allSoFarCombined}`,
+        fromm: `${hostEtc}?${allTrackersSoFarCombined}`,
         too: `${hostEtc}`
       }
     );
@@ -82,7 +83,7 @@ for (let root in TRACKERS_BY_ROOT) {
     // WITH AN EXTRA ONE AT THE END
     trackerExamples.push(
       {
-        fromm: `${hostEtc}?${allSoFarCombined}&foo=bar`,
+        fromm: `${hostEtc}?${allTrackersSoFarCombined}&foo=bar`,
         too: `${hostEtc}?foo=bar`
       }
     );
@@ -91,7 +92,7 @@ for (let root in TRACKERS_BY_ROOT) {
     // WITH AN EXTRA ONE AT THE BEGINNING
     trackerExamples.push(
       {
-        fromm: `${hostEtc}?foo=bar&${allSoFarCombined}`,
+        fromm: `${hostEtc}?foo=bar&${allTrackersSoFarCombined}`,
         too: `${hostEtc}?foo=bar`
       }
     );
@@ -100,8 +101,8 @@ for (let root in TRACKERS_BY_ROOT) {
 
 
 // ADD IN ALL THE COMBINATIONS OF REDIRECTS:
-for (let targetParam in REDIRECTS_BY_TARGET_PARAM) {
-  REDIRECTS_BY_TARGET_PARAM[targetParam].forEach(root => {
+for (let targetParam in REDIRECT_EXAMPLES_BY_TARGET_PARAM) {
+  REDIRECT_EXAMPLES_BY_TARGET_PARAM[targetParam].forEach(root => {
 
     // CAN'T HANDLE NON-URI-ENCODED RIGHT NOW
     // ADD A BASIC REDIRECT EXAMPLE THAT IS NOT PROPERLY ENCODED
@@ -119,6 +120,7 @@ for (let targetParam in REDIRECTS_BY_TARGET_PARAM) {
         too: hostEtc
       }
     );
+
 
     // GO THROUGH EACH TRACKER EXAMPLE
     trackerExamples.forEach(({fromm, too}) => {
@@ -140,6 +142,8 @@ for (let targetParam in REDIRECTS_BY_TARGET_PARAM) {
         }
       );
     });
+
+
   });
 }
 

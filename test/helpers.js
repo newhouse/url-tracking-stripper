@@ -7,7 +7,7 @@ const {
 const {
   KNOWN_REDIRECTS,
   replacePlaceholdersCreateExample,
-  findRedirect
+  followRedirect
 } = require('../assets/js/redirects');
 
 
@@ -61,30 +61,34 @@ function patternToRegExp(pattern) {
 }
 
 
+// Do all the things that the extension would do
 function skipRedirectAndRemoveTrackers(url) {
-  url = findRedirect(url);
-
+  url = followRedirect(url);
   url = removeTrackersFromUrl(url);
-
   return url;
 }
 
 
-const REDIRECTS_BY_TARGET_PARAM = {};
+// Let's create some example redirect bases to be used for testing.
+const REDIRECT_EXAMPLES_BY_TARGET_PARAM = {};
 
+// Go through every known redirect...
 KNOWN_REDIRECTS.forEach(redirect => {
   const {
     targetParam,
     patterns
   } = redirect;
 
-  if(!REDIRECTS_BY_TARGET_PARAM[targetParam]) {
-    REDIRECTS_BY_TARGET_PARAM[targetParam] = [];
+  // Prepare the object
+  if (!REDIRECT_EXAMPLES_BY_TARGET_PARAM[targetParam]) {
+    REDIRECT_EXAMPLES_BY_TARGET_PARAM[targetParam] = [];
   }
 
+  // For each pattern, convert it to an example and add it to the
+  // array for that target param.
   patterns.forEach(pattern => {
-    const example = replacePlaceholdersCreateExample(pattern);
-    REDIRECTS_BY_TARGET_PARAM[targetParam].push(example);
+    const exampleBase = replacePlaceholdersCreateExample(pattern);
+    REDIRECT_EXAMPLES_BY_TARGET_PARAM[targetParam].push(exampleBase);
   });
 });
 
@@ -92,6 +96,6 @@ KNOWN_REDIRECTS.forEach(redirect => {
 module.exports = {
   patternToRegExp,
   skipRedirectAndRemoveTrackers,
-  REDIRECTS_BY_TARGET_PARAM
+  REDIRECT_EXAMPLES_BY_TARGET_PARAM
 };
 

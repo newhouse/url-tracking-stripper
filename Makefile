@@ -1,6 +1,6 @@
 test:
 	@./node_modules/.bin/mocha \
-	--reporter spec \
+	--reporter nyan \
 	--check-leaks \
 	--bail
 

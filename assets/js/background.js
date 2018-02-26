@@ -36,8 +36,6 @@ const {
 
 
 
-
-
 // What method are we using?  Starts with the default
 let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
 
