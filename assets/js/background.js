@@ -12,7 +12,7 @@ const {
 const {
   REDIRECT_DATA_BY_TARGET_PARAM,
   extractRedirectTarget,
-  findRedirect
+  followRedirect
 }                                               = require('./redirects');
 
 const {
@@ -581,7 +581,7 @@ function _createContextMenu() {
       }
 
       // Extract any redirects in the linkUrl
-      let linkUrl = findRedirect(info.linkUrl);
+      let linkUrl = followRedirect(info.linkUrl);
 
       // Remove any trackers from the link URL:
       // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]

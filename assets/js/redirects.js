@@ -168,7 +168,7 @@ function replacePlaceholdersRegex(pattern) {
   return pattern;
 }
 
-
+// Replace the placeholders to create an example URL
 function replacePlaceholdersCreateExample(pattern) {
   pattern = pattern.replace(SCHEMA, 'https://');
   pattern = pattern.replace(SUBDOMAIN, 'foo');
@@ -187,11 +187,8 @@ function escapeRegExp(str) {
 
 // Extract the redirect target from a URL given the target parameter
 function extractRedirectTarget(url, targetParam = 'url') {
-  console.log('extractRedirectTarget...');
   // See if we can find a target in the URL.
   let target = findQueryParam(targetParam, url);
-
-  console.log('target 1:', target);
 
   if (typeof target === 'string' && target.startsWith('http')) {
     target = decodeURIComponent(target);
@@ -200,14 +197,12 @@ function extractRedirectTarget(url, targetParam = 'url') {
     target = false;
   }
 
-  console.log('target 2:', target);
-
   return target;
 }
 
 
 // Find a known redirect in a url
-function findRedirect(url) {
+function followRedirect(url) {
   if (!url) return url;
 
   // Go through each target param
@@ -241,5 +236,5 @@ module.exports = {
   escapeRegExp,
   replacePlaceholdersCreateExample,
   extractRedirectTarget,
-  findRedirect
+  followRedirect
 };

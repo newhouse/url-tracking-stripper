@@ -18,11 +18,10 @@ function escapePattern(pattern) {
 }
 
 
+// https://stackoverflow.com/questions/26420269/call-googles-match-patterns-api
 function patternToRegExp(pattern) {
 
   pattern = escapePattern(pattern);
-  console.log(pattern);
-
 
   if (pattern == "<all_urls>") return /^(?:http|https|file|ftp):\/\/.*/;
 
