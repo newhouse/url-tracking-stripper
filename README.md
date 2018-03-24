@@ -114,6 +114,11 @@ recommended you take a look at something that was designed with that as its goal
 - Chrome Extensions [webRequest & webRequestBlocking](https://developer.chrome.com/extensions/webRequest) (`chrome.webRequest.onBeforeRequest`)
 - Window History [pushState()](https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method)
 
+# Thanks!
+Thanks to the following:
+- [jenntn](http://www.jenntn.com/) for donating the work on the logos and design.
+- [Pablo Massa](http://pablomassa.com/) for some great UI suggestions that I ended up implementing.
+- [Menzo Wijmenga](https://github.com/menzow) for contributing code and ideas for new features/enhancements.
 
 # Version History
 __Version history has been moved to the [CHANGELOG](https://github.com/newhouse/url-tracking-stripper/blob/master/CHANGELOG.md). Please look at that for changes.__
