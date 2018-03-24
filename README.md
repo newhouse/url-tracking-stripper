@@ -8,16 +8,18 @@ If you are just a normal end-user looking to use this extension, you can install
 [![Chrome Webstore](webstore_badge.png)][store]
 
 ## Developer Instructions
-If you are a developer and would like to fork, modify and/or contribute to this extesion, then this section is for you. Development of this extension requires that you have [Node](https://nodejs.org/en/) installed on your system. This is because it uses [Gulp](https://gulpjs.com/) and [Webpack](https://webpack.js.org/) to build the extension, minify it, and compress it for the Chrome Webstore. Here are instructions to get going:
+If you are a developer and would like to fork, modify and/or contribute to this extesion, then this section is for you. Development of this extension requires that you have [Node](https://nodejs.org/) installed on your system. This is because it uses [Gulp](https://gulpjs.com/) and [Webpack](https://webpack.js.org/) to build the extension, minify it, and compress it for the Chrome Webstore. Here are instructions to get going:
 
 1. Clone this repository and `cd` into it.
 2. Install all dependencies via `npm install`
 3. During development, you can run `gulp dev`, which will build the extension without compressing it then will "watch" the input assets, triggering a rebuild automatically.
-4. To build an compressed and zipped version when you're all done, you can run just plain `gulp`.
+4. When you're all done, to build an compressed and zipped version you can run just plain `gulp`.
 5. Add (or refresh) the local `chrome` (dev build) or `chrome_uglified` (production build) folder in the [Chrome Extensions page](chrome://extensions/).
 
 ## Testing
 Simply run: `npm test`
+
+## Documentation
 
 #### The following URL parameters are removed:
 Google's Urchin Tracking Module & Google Adwords
