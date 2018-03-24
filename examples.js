@@ -17,6 +17,10 @@ const trackerExamples = [
   {
     fromm: 'https://stripe.com/blog/ending-bitcoin-support?utm_source=newsletter&utm_medium=email&utm_campaign=&stream=top-stories',
     too: 'https://stripe.com/blog/ending-bitcoin-support?stream=top-stories'
+  },
+  {
+    fromm: 'https://activity.alibaba.com/sale/march-expo/beauty-personal-care.html?spm=a2700.8293689.procates.6.46ce65aaHNdagx&tracelog=20180305_ICBU_HOME_CATEGORY_PROMOTION_26103',
+    too: 'https://activity.alibaba.com/sale/march-expo/beauty-personal-care.html?tracelog=20180305_ICBU_HOME_CATEGORY_PROMOTION_26103'
   }
 ];
 
