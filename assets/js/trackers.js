@@ -60,14 +60,17 @@ const TRACKERS_BY_ROOT = {
 
   // Non-prefixy and 1-offs
   '': [
+    // Google Click Identifier
+    'gclid',
     // Unknown
     'ncid',
     // Unknown
     'nr_email_referer',
     // Generic-ish. Facebook, Product Hunt and others
     'ref',
-    // Google Click Identifier
-    'gclid'
+    // Alibaba-family 'super position model' tracker:
+    // https://github.com/newhouse/url-tracking-stripper/issues/38
+    'spm'
   ]
 };
 

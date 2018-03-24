@@ -1,3 +1,6 @@
+- 4.1.1:
+    + Added Alibaba's `spm` tracker.
+    + Added Developer and Testing instructions to README.
 - 4.1.0:
     + Added Context Menu item that will copy, skip, and strip link URLs.
 - 4.0.9:
