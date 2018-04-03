@@ -15,9 +15,12 @@ If you are a developer and would like to fork, modify and/or contribute to this 
 3. During development, you can run `gulp dev`, which will build the extension without compressing it then will "watch" the input assets, triggering a rebuild automatically.
 4. When you're all done, to build an compressed and zipped version you can run just plain `gulp`.
 5. Add (or refresh) the local `chrome` (dev build) or `chrome_uglified` (production build) folder in the [Chrome Extensions page](chrome://extensions/).
+6. Be sure to see the `Testing` area below for testing requirements.
 
 ## Testing
-Simply run: `npm test`
+The test suite is just getting started, but I'm going to try and insist on tests (where appropriate) for all PRs. For sure, if you add a tracker you must add at least one test example to the `trackerExamples` array located in `examples.js`. The same is true for redirects: please add at least one test example to the `redirectExamples` array in `examples.js`.
+
+To run the tests, simply execute: `npm test`
 
 ## Documentation
 
