@@ -72,6 +72,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}www.tkqlhce.com${PATH}?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Tradedoubler',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.tradedoubler.com/click?`
+    ],
+    types: ['main_frame']
   }
 ];
 
