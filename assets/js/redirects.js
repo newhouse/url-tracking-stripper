@@ -74,6 +74,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Reddit',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}out.reddit.com${PATH}?`,
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'Tradedoubler',
     targetParam: 'url',
     patterns: [
@@ -175,7 +183,7 @@ function replacePlaceholdersRegex(pattern) {
   pattern = pattern.replace(SCHEMA, 'http(s)?\:\\/\\/');
   pattern = pattern.replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?');
   pattern = pattern.replace(PATH, '(\\/[\\w]+)+');
-  pattern = pattern.replace(QS_KVS, '([\\w]*\\=?[\\w]*\\&)*');
+  pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
   pattern = pattern.replace(QS_VALUE, '\\w');
 
   return pattern;
