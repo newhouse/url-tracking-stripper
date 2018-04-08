@@ -26,6 +26,14 @@ const trackerExamples = [
 
 // STORE REDIRECT EXAMPLES
 const redirectExamples = [
+  {
+    fromm: 'https://out.reddit.com/t3_7jwyol?url=https%3A%2F%2Fexample.com%2Fexamplepath&token=some-UUID-like-token&app_name=reddit.com',
+    too: 'https://example.com/examplepath'
+  },
+  {
+    fromm: 'https://out.reddit.com/t3_8an64b?url=https%3A%2F%2Fexample.com%2Fanotherexamplepath&token=some-different-UUID-like-token&app_name=reddit.com',
+    too: 'https://example.com/anotherexamplepath',
+  }
 ];
 
 // STORE REDIRECT WITH TRACKERS EXAMPLES
