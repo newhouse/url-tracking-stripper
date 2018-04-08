@@ -1,3 +1,5 @@
+- 4.1.2:
+    + Added `Reddit` to known redirect handlers.
 - 4.1.1:
     + Added Alibaba's `spm` tracker.
     + Added Developer and Testing instructions to README.

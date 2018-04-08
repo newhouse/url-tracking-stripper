@@ -72,9 +72,9 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}www.tkqlhce.com${PATH}?`
     ],
     types: ['main_frame']
-   },
-{
-    name: 'reddit',
+  },
+  {
+    name: 'Reddit',
     targetParam: 'url',
     patterns: [
       `${SCHEMA}out.reddit.com${PATH}?`,
