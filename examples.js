@@ -26,6 +26,10 @@ const trackerExamples = [
 
 // STORE REDIRECT EXAMPLES
 const redirectExamples = [
+  {
+    fromm: 'http://clkde.tradedoubler.com/click?=&p=259740&a=2821835&g=0&url=https%3a%2f%2fwww.microsoft.com%2fen-us%2fstore%2fp%2fthe-witness%2fbx1wpt5rjsb2',
+    too: 'https://www.microsoft.com/en-us/store/p/the-witness/bx1wpt5rjsb2'
+  }
 ];
 
 // STORE REDIRECT WITH TRACKERS EXAMPLES

@@ -175,7 +175,7 @@ function replacePlaceholdersRegex(pattern) {
   pattern = pattern.replace(SCHEMA, 'http(s)?\:\\/\\/');
   pattern = pattern.replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?');
   pattern = pattern.replace(PATH, '(\\/[\\w]+)+');
-  pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
+  pattern = pattern.replace(QS_KVS, '([\\w]*\\=?[\\w]*\\&)*');
   pattern = pattern.replace(QS_VALUE, '\\w');
 
   return pattern;
