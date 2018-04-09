@@ -33,6 +33,10 @@ const redirectExamples = [
   {
     fromm: 'https://out.reddit.com/t3_8an64b?url=https%3A%2F%2Fexample.com%2Fanotherexamplepath&token=some-different-UUID-like-token&app_name=reddit.com',
     too: 'https://example.com/anotherexamplepath',
+  },
+  {
+    fromm: 'http://clkde.tradedoubler.com/click?=&p=259740&a=2821835&g=0&url=https%3a%2f%2fwww.microsoft.com%2fen-us%2fstore%2fp%2fthe-witness%2fbx1wpt5rjsb2',
+    too: 'https://www.microsoft.com/en-us/store/p/the-witness/bx1wpt5rjsb2'
   }
 ];
 
