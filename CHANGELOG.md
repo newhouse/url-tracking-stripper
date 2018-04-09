@@ -1,3 +1,6 @@
+- 4.1.3:
+    + Added `Tradedoubler` to known redirect handlers.
+    + Changed `QS_KVS` regex to handle empty key or values on either side of `=` in query params.
 - 4.1.2:
     + Added `Reddit` to known redirect handlers.
 - 4.1.1:
