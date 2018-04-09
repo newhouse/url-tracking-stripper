@@ -189,7 +189,9 @@ function replacePlaceholdersRegex(pattern) {
   // pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
   // This would be the "fix" for the above. It allows blanks on either side of the
   // '=' sign.
-  pattern = pattern.replace(QS_KVS, '([\\w*+\\=[\\w]*\\&)*');
+  // pattern = pattern.replace(QS_KVS, '([\\w*+\\=[\\w]*\\&)*');
+  // OK, this one handles even more scenarios that are acceptable
+  pattern = pattern.replace(QS_KVS, '([\\w*+\\=?[\\w]*\\&)*');
   pattern = pattern.replace(QS_VALUE, '\\w');
 
   return pattern;
