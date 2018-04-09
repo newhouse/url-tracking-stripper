@@ -183,7 +183,13 @@ function replacePlaceholdersRegex(pattern) {
   pattern = pattern.replace(SCHEMA, 'http(s)?\:\\/\\/');
   pattern = pattern.replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?');
   pattern = pattern.replace(PATH, '(\\/[\\w]+)+');
-  pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
+  // This one required text on either side of the '=' sign, when I've seen
+  // some places build junk that would not match. Not sure if this is a good idea
+  // to "fix" or not.
+  // pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
+  // This would be the "fix" for the above. It allows blanks on either side of the
+  // '=' sign.
+  pattern = pattern.replace(QS_KVS, '([\\w*+\\=[\\w]*\\&)*');
   pattern = pattern.replace(QS_VALUE, '\\w');
 
   return pattern;
