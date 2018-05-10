@@ -27,6 +27,9 @@ const trackerExamples = [
 // STORE REDIRECT EXAMPLES
 const redirectExamples = [
   {
+    fromm: 'https://go.redirectingat.com/?id=66960X1514734&xs=1&url=https%3A%2F%2Fwww.target.com%2Fp%2Fgoogle-vision-kit-aiy%2F-%2FA-53417081',
+    too: 'https://www.target.com/p/google-vision-kit-aiy/-/A-53417081'
+  },{
     fromm: 'https://out.reddit.com/t3_7jwyol?url=https%3A%2F%2Fexample.com%2Fexamplepath&token=some-UUID-like-token&app_name=reddit.com',
     too: 'https://example.com/examplepath'
   },
