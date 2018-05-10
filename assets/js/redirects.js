@@ -88,6 +88,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}${SUBDOMAIN}.tradedoubler.com/click?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'ojrq.net',
+    targetParam: 'return',
+    patterns: [
+      `${SCHEMA}www.ojrq.net/p/?`
+    ],
+    types: ['main_frame']
   }
 ];
 

@@ -37,6 +37,10 @@ const redirectExamples = [
   {
     fromm: 'http://clkde.tradedoubler.com/click?=&p=259740&a=2821835&g=0&url=https%3a%2f%2fwww.microsoft.com%2fen-us%2fstore%2fp%2fthe-witness%2fbx1wpt5rjsb2',
     too: 'https://www.microsoft.com/en-us/store/p/the-witness/bx1wpt5rjsb2'
+  },
+  {
+    fromm: 'https://www.ojrq.net/p/?return=http%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dhi&cid=2092&tpsync=yes',
+    too: 'http://www.google.com/search?q=hi'
   }
 ];
 
