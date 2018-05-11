@@ -69,7 +69,8 @@ const KNOWN_REDIRECTS = [
     targetParam: 'url',
     patterns: [
       `${SCHEMA}www.dpbolvw.net${PATH}?`,
-      `${SCHEMA}www.tkqlhce.com${PATH}?`
+      `${SCHEMA}www.tkqlhce.com${PATH}?`,
+      `${SCHEMA}www.anrdoezrs.net${PATH}?`
     ],
     types: ['main_frame']
   },
@@ -90,18 +91,10 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'ojrq.net',
+    name: 'Impact Radius',
     targetParam: 'return',
     patterns: [
       `${SCHEMA}www.ojrq.net/p/?`
-    ],
-    types: ['main_frame']
-  },
-  {
-    name: 'anrdoezrs.net',
-    targetParam: 'url',
-    patterns: [
-      `${SCHEMA}www.anrdoezrs.net${PATH}?`
     ],
     types: ['main_frame']
   }

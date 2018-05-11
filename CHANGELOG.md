@@ -1,3 +1,6 @@
+- 4.1.5:
+    + Added another redirect for `ValueClick` and one for `Impact Radius`.
+    + Updated regex replacement pattern for `PATH` [here](https://github.com/newhouse/url-tracking-stripper/pull/46/files).
 - 4.1.4:
     + Changed `QS_KVS` regex to handle more scenarios.
 - 4.1.3:
