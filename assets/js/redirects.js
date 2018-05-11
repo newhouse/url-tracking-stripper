@@ -96,6 +96,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}www.ojrq.net/p/?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'anrdoezrs.net',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.anrdoezrs.net${PATH}?`
+    ],
+    types: ['main_frame']
   }
 ];
 
