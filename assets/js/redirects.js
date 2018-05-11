@@ -190,7 +190,7 @@ function replacePlaceholdersRegex(pattern) {
 
   pattern = pattern.replace(SCHEMA, 'http(s)?\:\\/\\/');
   pattern = pattern.replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?');
-  pattern = pattern.replace(PATH, '(\\/[\\w]+)+');
+  pattern = pattern.replace(PATH, '(\\/[\\w\\-]+)+');
   // This one required text on either side of the '=' sign, when I've seen
   // some places build junk that would not match. Not sure if this is a good idea
   // to "fix" or not.
