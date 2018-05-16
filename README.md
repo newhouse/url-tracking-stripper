@@ -68,7 +68,7 @@ Unknown
 
 Please file an Issue if you would like others tracked!
 
-You can find the file with the trackers [here](https://github.com/newhouse/url-tracking-stripper/blob/master/extension/trackers.js).
+You can find the file with the trackers [here](https://github.com/newhouse/url-tracking-stripper/blob/master/assets/js/trackers.js).
 
 # Stripping Methods
 This Extension is free and open source, and in no way is trying to keep tabs on you. However,
@@ -95,7 +95,7 @@ and choose which one is right for you:
 #### Skip Known Redirects
 Some links on pages (e.g. Google Search Results) look like they take you directly to the target URL, but really they will pass you through (an) intermediate server(s), cookie/track you, and then finally redirect you to the target URL. Some Stripping Methods make it possible for this extension to recognize when these links are clicked, and then extract the target URL and take you straight there, skipping the redirect and unnecessary tracking. For this reason, I recommend choosing the "Block and Re-load + Skip Redirects" Stripping Method.
 
-You can find the file with the known redirects [here](https://github.com/newhouse/url-tracking-stripper/blob/master/extension/redirects.js).
+You can find the file with the known redirects [here](https://github.com/newhouse/url-tracking-stripper/blob/master/assets/js/redirects.js).
 
 Additional thoughts: This extension was not intended to be a catch-all for removing tracking and increasing your privacy.
 Its main purpose was simply to get a bunch of noise out of your address bar, with additional privacy (depending on your
