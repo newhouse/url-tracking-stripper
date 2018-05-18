@@ -101,13 +101,23 @@ function generateTrackerPatternsArray() {
 
 
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
-function removeTrackersFromUrl(url) {
-  const urlPieces = url.split('?');
+function removeTrackersFromUrl(urlString) {
+
+  const url = new URL(urlString);
+
+  const {
+    search: searchString = '',
+    searchParams
+  } = url;
+
+
 
   // If no params, nothing to modify
-  if (urlPieces.length === 1) {
-    return url;
+  if (searchString === '') {
+    return urlString;
   }
+
+  const hostname = cleanHostname(url.hostname);
 
   // Go through all the pattern roots
   for (let root in TRACKER_REGEXES_BY_ROOT) {
@@ -124,6 +134,22 @@ function removeTrackersFromUrl(url) {
   }
 
   return urlPieces[1] ? urlPieces.join('?') : urlPieces[0];
+}
+
+// Clean up the hostname
+function cleanHostname(hostname) {
+  if (hostname.startsWith('www.')) {
+    return hostname.replace('www.', '');
+  }
+  return hostname;
+}
+
+function isWhitelistedDomain(host) {
+  for (whiteListedHost of whiteListedHosts) {
+    if ()
+  }
+
+  return false;
 }
 
 
