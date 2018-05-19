@@ -30,8 +30,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('title').textContent = params.title;
 
   // Store how many changes are in the array
-  const numChanges = params.changes.length;
+  const numChanges = params && params.changes && params.changes.length || 0;
 
+  if (!numChanges) {
+    params.changes = [];
+  }
   // Go through each of the changes and do some work.
   params.changes.forEach((change, i) => {
     const {

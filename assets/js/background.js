@@ -445,22 +445,35 @@ const changeManager = {
     // Get the changes for this tabId
     const changes = changeManager.changesByTabId[tabId];
 
+    let title = 'URL THINGY';
+    let text = '';
+    let url = 'info.html';
+
+    let clearAfter = false;
+
     // If we have change data for a tab and the URLs appear to match, let's update the pageAction
     if (changes && changes.length) {
-      const title = 'URL Changed!';
-      // Show the pageAction for this tab
-      chrome.pageAction.show(tabId);
-      // Set the title for it
-      chrome.pageAction.setTitle({
-        tabId,
-        title
-      });
-
+      title = 'URL Changed!';
+      text = changes.length.toString();
       // Pass a bunch of stuff in the URL
-      const url = `info.html?title=${encodeURIComponent(title)}&changes=${encodeURIComponent(JSON.stringify(changes))}`;
-      // We can pass params into the URL like any other webpage, which is useful for dynamically generating the content:
-      chrome.pageAction.setPopup({tabId: tabId, popup: url});
+      url = `info.html?title=${encodeURIComponent(title)}&changes=${encodeURIComponent(JSON.stringify(changes))}`;
+      clearAfter = true;
+    }
 
+    // Show the pageAction for this tab
+    // chrome.pageAction.show(tabId);
+    // Set the title for it
+    chrome.browserAction.setTitle({
+      tabId,
+      title
+    });
+
+    chrome.browserAction.setBadgeText({tabId: tabId, text: text});
+
+    // We can pass params into the URL like any other webpage, which is useful for dynamically generating the content:
+    chrome.browserAction.setPopup({tabId: tabId, popup: url});
+
+    if (clearAfter) {
       // Once we've updated the pageAction, we should clear out the change for that tab
       // so that it does not show for any subsequent navigation (re-load, etc)
       changeManager.clearTab(tabId);
