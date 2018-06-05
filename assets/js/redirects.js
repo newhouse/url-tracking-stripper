@@ -97,6 +97,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}www.ojrq.net/p/?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Connexity',
+    targetParam: 't',
+    patterns: [
+      `${SCHEMA}rd.connexity.net/rd?`
+    ],
+    types: ['main_frame']
   }
 ];
 

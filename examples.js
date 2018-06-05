@@ -48,6 +48,10 @@ const redirectExamples = [
   {
     fromm: 'https://www.anrdoezrs.net/click-7516178-12533333-1501183926000?SID=2051691FOF71282629031314812&url=http%3a%2f%2fwww.google.com%2fsearch%3fq%3dhi',
     too: 'http://www.google.com/search?q=hi'
+  },
+  {
+    fromm: 'http://rd.connexity.net/rd?t=http%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dhi',
+    too: 'http://www.google.com/search?q=hi'
   }
 ];
 
