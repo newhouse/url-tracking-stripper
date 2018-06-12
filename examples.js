@@ -48,6 +48,10 @@ const redirectExamples = [
   {
     fromm: 'https://www.anrdoezrs.net/click-7516178-12533333-1501183926000?SID=2051691FOF71282629031314812&url=http%3a%2f%2fwww.google.com%2fsearch%3fq%3dhi',
     too: 'http://www.google.com/search?q=hi'
+  },
+  {
+    fromm: 'https://t.cfjump.com/6421/t/42872?Url=http%3a%2f%2fwww.google.com%2fsearch%3fq%3dhi',
+    too: 'http://www.google.com/search?q=hi'
   }
 ];
 

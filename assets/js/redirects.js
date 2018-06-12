@@ -97,6 +97,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}www.ojrq.net/p/?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Commission Factory',
+    targetParam: 'Url',
+    patterns: [
+      `${SCHEMA}t.cfjump.com${PATH}?`
+    ],
+    types: ['main_frame']
   }
 ];
 
