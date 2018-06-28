@@ -3,6 +3,8 @@
 const { getOptionsFromStorage }               = require('./common');
 const {
   STORAGE_KEY_STRIPPING_METHOD_TO_USE,
+  CONTEXT_MENU_COPY_CLEAN_ID,
+  CONTEXT_MENU_CLEAN_AND_GO_ID,
   ACTION_OPTIONS_SAVED,
   ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID
 }                                             = require('./consts');
@@ -16,7 +18,9 @@ let   OPTIONS_SAVED_TIMER;
 function saveOptions() {
 
   const options = {
-    [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  getSelectedStrippingMethod()
+    [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  getSelectedStrippingMethod(),
+    [CONTEXT_MENU_COPY_CLEAN_ID]: isChecked('#context_menu_copy_clean'),
+    [CONTEXT_MENU_CLEAN_AND_GO_ID]: isChecked('#context_menu_clean_go')
   };
 
   // Send the new options values to the background script so it can handle accordingly
@@ -45,6 +49,10 @@ function getSelectedStrippingMethod() {
   return parseInt(document.querySelector('input[name="stripping_method"]:checked').value);
 }
 
+function isChecked(selector) {
+  return document.querySelector(selector).checked;
+}
+
 function generateRadioId(id) {
   return `radio_${id}`;
 }
@@ -55,7 +63,7 @@ function generateOptionElements() {
   // Get the Background page
   chrome.runtime.sendMessage(
     // Message payload
-    {action: ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID},
+    { action: ACTION_GET_STUFF_BY_STRIPPING_METHOD_ID },
     // Callback
     (STUFF_BY_STRIPPING_METHOD_ID) => {
       const radios = document.getElementById('stripping_method');
@@ -93,6 +101,9 @@ function restoreOptions() {
   return getOptionsFromStorage(items => {
     // Set the appropriate radio button to be selected.
     document.getElementById(generateRadioId(items[STORAGE_KEY_STRIPPING_METHOD_TO_USE])).checked = true;
+    // Set the value for the Context Menu checkboxes
+    document.getElementById('context_menu_copy_clean').checked = items[CONTEXT_MENU_COPY_CLEAN_ID] == true;
+    document.getElementById('context_menu_clean_go').checked = items[CONTEXT_MENU_CLEAN_AND_GO_ID] == true;
   });
 }
 
@@ -111,6 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Generate the elements on the page
   generateOptionElements();
 
-  // Monitor for choice changes as well, even though it's redundant
+  // Listen to changes on them
   document.getElementById('stripping_method').addEventListener('change', saveOptions);
+  document.getElementById('context_menu_copy_clean').addEventListener('change', saveOptions);
+  document.getElementById('context_menu_clean_go').addEventListener('change', saveOptions);
 });
