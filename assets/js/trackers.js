@@ -102,6 +102,8 @@ function generateTrackerPatternsArray() {
 
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
 function removeTrackersFromUrl(url) {
+  if (!url) return url;
+
   const urlPieces = url.split('?');
 
   // If no params, nothing to modify
