@@ -188,11 +188,8 @@ function checkUrlForTrackers(originalUrl) {
   return (originalUrl != cleansedUrl) ? cleansedUrl : false;
 }
 
-//
-//
-//*******************************************************
-
-
+// Helper to do both redirect following and tracker removal
+// in certain situations.
 function followRedirectAndRemoveTrackers(url) {
   // Extract any redirect in the linkUrl
   let linkUrl = followRedirect(url);
@@ -203,6 +200,11 @@ function followRedirectAndRemoveTrackers(url) {
 
   return linkUrl;
 }
+
+//
+//
+//*******************************************************
+
 
 /*******************************************************
 *      _  _              _ _
@@ -620,6 +622,7 @@ function _createContextMenu() {
     }
   });
 
+
   // Create the Clean & Go contextMenu
   // https://developer.chrome.com/extensions/contextMenus#method-create
   chrome.contextMenus.create({
@@ -635,11 +638,6 @@ function _createContextMenu() {
     documentUrlPatterns: ['*://*/*'],
     // The click handler
     onclick: (info) => {
-      // If there is no clipper helper element for some reason, forget it.
-      if (!clipper) {
-        // Remove this context menu since there's a problem, and get out of here.
-        return chrome.contextMenus && chrome.contextMenus.removeAll();
-      }
 
       // Extract any redirects in the linkUrl
       const linkUrl = followRedirectAndRemoveTrackers(info.linkUrl);
@@ -649,6 +647,7 @@ function _createContextMenu() {
         return;
       }
 
+      // Open that link in a new tab
       chrome.tabs.create({
         url: linkUrl,
         active: true
