@@ -1,3 +1,6 @@
+- 4.2.0:
+    + Added another Context Menu for "Clean and Open in New Tab" option.
+    + Added ability to disable Context Menus
 - 4.1.5:
     + Added another redirect for `ValueClick` and one for `Impact Radius`.
     + Updated regex replacement pattern for `PATH` [here](https://github.com/newhouse/url-tracking-stripper/pull/46/files).

@@ -2,12 +2,19 @@
 
 const {
   STORAGE_KEY_STRIPPING_METHOD_TO_USE,
+  CONTEXT_MENU_COPY_CLEAN_ID,
+  CONTEXT_MENU_CLEAN_AND_GO_ID,
   DEFAULT_STRIPPING_METHOD
 }                                       = require('./consts');
 
 
 function getOptionsFromStorage(cb, options) {
-  options = options || { [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD };
+  options = options || {
+    [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD,
+    [CONTEXT_MENU_COPY_CLEAN_ID]: true,
+    [CONTEXT_MENU_CLEAN_AND_GO_ID]: true
+  };
+
   return chrome.storage.sync.get(options, cb);
 }
 
