@@ -180,28 +180,16 @@ function checkUrlForTrackers(originalUrl) {
   }
 
   // The URL to cleanse starts out as the original URL
-  let urlToCleanse  = originalUrl;
-  // The cleansed URL starts out as false
-  let cleansedUrl   = false;
-  // See if there is anything to strip from the URL to cleanse, else use whatever
-  // we already have stored in 'cleansedUrl'
-  cleansedUrl = removeTrackersFromUrl(urlToCleanse) || cleansedUrl;
+  const cleansedUrl = removeTrackersFromUrl(originalUrl);
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
-  return (originalUrl != cleansedUrl) ? cleansedUrl : false;
+  return (cleansedUrl && cleansedUrl != originalUrl) ? cleansedUrl : false;
 }
 
 // Helper to do both redirect following and tracker removal
 // in certain situations.
 function followRedirectAndRemoveTrackers(url) {
-  // Extract any redirect in the linkUrl
-  let linkUrl = followRedirect(url);
-
-  // Remove any trackers from the link URL:
-  // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]
-  linkUrl = linkUrl && (removeTrackersFromUrl(linkUrl) || linkUrl);
-
-  return linkUrl;
+  return removeTrackersFromUrl(followRedirect(url));
 }
 
 //
