@@ -183,7 +183,7 @@ function checkUrlForTrackers(originalUrl) {
   const cleansedUrl = removeTrackersFromUrl(originalUrl);
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
-  return (cleansedUrl && originalUrl != cleansedUrl) ? cleansedUrl : false;
+  return (cleansedUrl && cleansedUrl != originalUrl) ? cleansedUrl : false;
 }
 
 // Helper to do both redirect following and tracker removal
