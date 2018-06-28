@@ -30,8 +30,10 @@ const {
   STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS,
   CHANGE_TYPE_REDIRECT_SKIP,
   CHANGE_TYPE_TRACKING_STRIP,
-  CONTEXT_MENU_ITEM_ID,
-  CONTEXT_MENU_ITEM_TEXT
+  CONTEXT_MENU_COPY_CLEAN_ID,
+  CONTEXT_MENU_COPY_CLEAN_TEXT,
+  CONTEXT_MENU_CLEAN_AND_GO_ID,
+  CONTEXT_MENU_CLEAN_AND_GO_TEXT
 }                                               = require('./consts');
 
 
@@ -191,7 +193,16 @@ function checkUrlForTrackers(originalUrl) {
 //*******************************************************
 
 
+function followRedirectAndRemoveTrackers(url) {
+  // Extract any redirect in the linkUrl
+  let linkUrl = followRedirect(url);
 
+  // Remove any trackers from the link URL:
+  // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]
+  linkUrl = linkUrl && (removeTrackersFromUrl(linkUrl) || linkUrl);
+
+  return linkUrl;
+}
 
 /*******************************************************
 *      _  _              _ _
@@ -557,12 +568,12 @@ function _createContextMenu() {
   // Add it to the background script's DOM
   document.body.appendChild(clipper);
 
-  // Create the contextMenu
+  // Create the Copy & Clean contextMenu
   // https://developer.chrome.com/extensions/contextMenus#method-create
   chrome.contextMenus.create({
     type: 'normal',
-    id: CONTEXT_MENU_ITEM_ID,
-    title: CONTEXT_MENU_ITEM_TEXT,
+    id: CONTEXT_MENU_COPY_CLEAN_ID,
+    title: CONTEXT_MENU_COPY_CLEAN_TEXT,
     // Only happen when the user right-clicks on something link-like
     contexts: ['link'],
     visible: true,
@@ -578,12 +589,8 @@ function _createContextMenu() {
         return chrome.contextMenus && chrome.contextMenus.removeAll();
       }
 
-      // Extract any redirects in the linkUrl
-      let linkUrl = followRedirect(info.linkUrl);
-
-      // Remove any trackers from the link URL:
-      // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]
-      linkUrl = linkUrl && (removeTrackersFromUrl(linkUrl) || linkUrl);
+      // Extract any redirect in and remove trackers from the URL
+      const linkUrl = followRedirectAndRemoveTrackers(info.linkUrl);
 
       // Make sure we have a link URL still
       if (!linkUrl) {
@@ -610,6 +617,42 @@ function _createContextMenu() {
       // Remove the selections - NOTE: Should use
       // removeRange(range) when it is supported
       window.getSelection().removeAllRanges();
+    }
+  });
+
+  // Create the Clean & Go contextMenu
+  // https://developer.chrome.com/extensions/contextMenus#method-create
+  chrome.contextMenus.create({
+    type: 'normal',
+    id: CONTEXT_MENU_CLEAN_AND_GO_ID,
+    title: CONTEXT_MENU_CLEAN_AND_GO_TEXT,
+    // Only happen when the user right-clicks on something link-like
+    contexts: ['link'],
+    visible: true,
+    enabled: true,
+    // This will actually only match 'http' OR 'https' schemes:
+    // https://developer.chrome.com/extensions/match_patterns
+    documentUrlPatterns: ['*://*/*'],
+    // The click handler
+    onclick: (info) => {
+      // If there is no clipper helper element for some reason, forget it.
+      if (!clipper) {
+        // Remove this context menu since there's a problem, and get out of here.
+        return chrome.contextMenus && chrome.contextMenus.removeAll();
+      }
+
+      // Extract any redirects in the linkUrl
+      const linkUrl = followRedirectAndRemoveTrackers(info.linkUrl);
+
+      // Make sure we have a link URL still
+      if (!linkUrl) {
+        return;
+      }
+
+      chrome.tabs.create({
+        url: linkUrl,
+        active: true
+      });
     }
   });
 }
