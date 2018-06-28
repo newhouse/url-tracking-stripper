@@ -40,6 +40,7 @@ const {
 
 // What method are we using?  Starts with the default
 let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
+// Are these context menu items enabled? Start out true.
 let CONTEXT_MENU_COPY_CLEAN_ENABLED = true;
 let CONTEXT_MENU_CLEAN_AND_GO_ENABLED = true;
 
@@ -573,7 +574,7 @@ function restoreOptionsFromStorage() {
 
     },
 
-    // Get these entries from storage
+    // Get these entries from storage with no defaults so we know if they're there or not
     [STORAGE_KEY_STRIPPING_METHOD_TO_USE, CONTEXT_MENU_COPY_CLEAN_ID, CONTEXT_MENU_CLEAN_AND_GO_ID]
   );
 }
@@ -613,6 +614,7 @@ function _createContextMenus() {
   // Remove all of our existing context menus
   chrome.contextMenus.removeAll();
 
+  // Make this menu item if we should
   if (CONTEXT_MENU_COPY_CLEAN_ENABLED) {
 
     // Create the clipper element to be used for selecting
@@ -673,6 +675,7 @@ function _createContextMenus() {
     });
   }
 
+  // Make this menu item if we should
   if (CONTEXT_MENU_CLEAN_AND_GO_ENABLED) {
 
     // Create the Clean & Go contextMenu
@@ -718,5 +721,3 @@ chrome.runtime.onInstalled.addListener(onInstallHandler);
 restoreOptionsFromStorage();
 // 3) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(messageHandler);
-// 4) Create the Context Menu
-// createContextMenus();
