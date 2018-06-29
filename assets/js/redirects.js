@@ -105,6 +105,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}rd.connexity.net/rd?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Commission Factory',
+    targetParam: 'Url',
+    patterns: [
+      `${SCHEMA}t.cfjump.com${PATH}?`
+    ],
+    types: ['main_frame']
   }
 ];
 
