@@ -1,3 +1,5 @@
+- 4.2.1:
+    + Added tracker for `Commission Factory`.
 - 4.2.0:
     + Added another Context Menu for "Clean and Open in New Tab" option.
     + Added ability to disable Context Menus
