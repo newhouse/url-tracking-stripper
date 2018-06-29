@@ -4,11 +4,11 @@ const {
   findQueryParam
 }                               = require('./common');
 
-const SCHEMA = '<SCHEMA>';
-const SUBDOMAIN = '<SUBDOMAIN>';
-const PATH = '<PATH>';
-const QS_VALUE = '<QSVALUE>';
-const QS_KVS = '<QSKVS>';
+const SCHEMA          = '<SCHEMA>';
+const SUBDOMAIN       = '<SUBDOMAIN>';
+const PATH            = '<PATH>';
+const QS_VALUE        = '<QSVALUE>';
+const QS_KVS          = '<QSKVS>';
 
 
 const KNOWN_REDIRECTS = [
@@ -99,6 +99,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Connexity',
+    targetParam: 't',
+    patterns: [
+      `${SCHEMA}rd.connexity.net/rd?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'Commission Factory',
     targetParam: 'Url',
     patterns: [
@@ -183,46 +191,41 @@ function escapeRegExp(str) {
 
 // Replace the placeholders for URL matching patterns
 function replacePlaceholders(pattern) {
-  pattern = pattern.replace(SCHEMA, '*://');
-  pattern = pattern.replace(SUBDOMAIN, '*');
-  pattern = pattern.replace(PATH, '/*');
-  pattern = pattern.replace(QS_KVS, '*&');
-  pattern = pattern.replace(QS_VALUE, '*');
-
-  return pattern;
+  return pattern
+    .replace(SCHEMA, '*://')
+    .replace(SUBDOMAIN, '*')
+    .replace(PATH, '/*')
+    .replace(QS_KVS, '*&')
+    .replace(QS_VALUE, '*');
 }
 
 // Replace the placeholders for regex matching patterns
 function replacePlaceholdersRegex(pattern) {
   // Escape all the literals
-  pattern = escapeRegExp(pattern);
-
-  pattern = pattern.replace(SCHEMA, 'http(s)?\:\\/\\/');
-  pattern = pattern.replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?');
-  pattern = pattern.replace(PATH, '(\\/[\\w\\-]+)+');
-  // This one required text on either side of the '=' sign, when I've seen
-  // some places build junk that would not match. Not sure if this is a good idea
-  // to "fix" or not.
-  // pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
-  // This would be the "fix" for the above. It allows blanks on either side of the
-  // '=' sign.
-  // pattern = pattern.replace(QS_KVS, '([\\w*+\\=[\\w]*\\&)*');
-  // OK, this one handles even more scenarios that are acceptable
-  pattern = pattern.replace(QS_KVS, '([\\w*+\\=?[\\w]*\\&)*');
-  pattern = pattern.replace(QS_VALUE, '\\w');
-
-  return pattern;
+  return escapeRegExp(pattern)
+    .replace(SCHEMA, 'http(s)?\:\\/\\/')
+    .replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?')
+    .replace(PATH, '(\\/[\\w\\-]+)+')
+    // This one required text on either side of the '=' sign, when I've seen
+    // some places build junk that would not match. Not sure if this is a good idea
+    // to "fix" or not.
+    // pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
+    // This would be the "fix" for the above. It allows blanks on either side of the
+    // '=' sign.
+    // pattern = pattern.replace(QS_KVS, '([\\w*+\\=[\\w]*\\&)*');
+    // OK, this one handles even more scenarios that are acceptable
+    .replace(QS_KVS, '([\\w*+\\=?[\\w]*\\&)*')
+    .replace(QS_VALUE, '\\w');
 }
 
 // Replace the placeholders to create an example URL
 function replacePlaceholdersCreateExample(pattern) {
-  pattern = pattern.replace(SCHEMA, 'https://');
-  pattern = pattern.replace(SUBDOMAIN, 'foo');
-  pattern = pattern.replace(PATH, '/path/to/whatever');
-  pattern = pattern.replace(QS_KVS, '&');
-  pattern = pattern.replace(QS_VALUE, 'foo');
-
-  return pattern;
+  return pattern
+    .replace(SCHEMA, 'https://')
+    .replace(SUBDOMAIN, 'foo')
+    .replace(PATH, '/path/to/whatever')
+    .replace(QS_KVS, '&')
+    .replace(QS_VALUE, 'foo');
 }
 
 
@@ -232,13 +235,10 @@ function extractRedirectTarget(url, targetParam = 'url') {
   let target = findQueryParam(targetParam, url);
 
   if (typeof target === 'string' && target.startsWith('http')) {
-    target = decodeURIComponent(target);
-  }
-  else {
-    target = false;
+    return decodeURIComponent(target);
   }
 
-  return target;
+  return false;
 }
 
 

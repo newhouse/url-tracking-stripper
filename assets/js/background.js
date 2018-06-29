@@ -30,14 +30,19 @@ const {
   STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS,
   CHANGE_TYPE_REDIRECT_SKIP,
   CHANGE_TYPE_TRACKING_STRIP,
-  CONTEXT_MENU_ITEM_ID,
-  CONTEXT_MENU_ITEM_TEXT
+  CONTEXT_MENU_COPY_CLEAN_ID,
+  CONTEXT_MENU_COPY_CLEAN_TEXT,
+  CONTEXT_MENU_CLEAN_AND_GO_ID,
+  CONTEXT_MENU_CLEAN_AND_GO_TEXT
 }                                               = require('./consts');
 
 
 
 // What method are we using?  Starts with the default
 let STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
+// Are these context menu items enabled? Start out true.
+let CONTEXT_MENU_COPY_CLEAN_ENABLED = true;
+let CONTEXT_MENU_CLEAN_AND_GO_ENABLED = true;
 
 // STORE ANY REDIRECT HANDLER FUNCTIONS HERE SO THAT THEY CAN BE UNREGISTERED
 // IF NEED BE
@@ -175,22 +180,21 @@ function checkUrlForTrackers(originalUrl) {
   }
 
   // The URL to cleanse starts out as the original URL
-  let urlToCleanse  = originalUrl;
-  // The cleansed URL starts out as false
-  let cleansedUrl   = false;
-  // See if there is anything to strip from the URL to cleanse, else use whatever
-  // we already have stored in 'cleansedUrl'
-  cleansedUrl = removeTrackersFromUrl(urlToCleanse) || cleansedUrl;
+  const cleansedUrl = removeTrackersFromUrl(originalUrl);
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
-  return (originalUrl != cleansedUrl) ? cleansedUrl : false;
+  return (cleansedUrl && cleansedUrl != originalUrl) ? cleansedUrl : false;
+}
+
+// Helper to do both redirect following and tracker removal
+// in certain situations.
+function followRedirectAndRemoveTrackers(url) {
+  return removeTrackersFromUrl(followRedirect(url));
 }
 
 //
 //
 //*******************************************************
-
-
 
 
 /*******************************************************
@@ -299,16 +303,25 @@ function messageHandler(message, sender, cb) {
 
   // User has updated their options/preferences
   if (message.action === ACTION_OPTIONS_SAVED) {
-    STRIPPING_METHOD_TO_USE   = parseInt(message.options[STORAGE_KEY_STRIPPING_METHOD_TO_USE]) || DEFAULT_STRIPPING_METHOD;
+
+    STRIPPING_METHOD_TO_USE = parseInt(message.options[STORAGE_KEY_STRIPPING_METHOD_TO_USE]) || DEFAULT_STRIPPING_METHOD;
+    // If either of these are undefined, use a default. Otherwise use the values themselves.
+    CONTEXT_MENU_COPY_CLEAN_ENABLED = typeof message.options[CONTEXT_MENU_COPY_CLEAN_ID] == 'undefined' ? true : message.options[CONTEXT_MENU_COPY_CLEAN_ID];
+    CONTEXT_MENU_CLEAN_AND_GO_ENABLED = typeof message.options[CONTEXT_MENU_CLEAN_AND_GO_ID] == 'undefined' ? true : message.options[CONTEXT_MENU_CLEAN_AND_GO_ID];
 
     // Set the handlers to do what they do
     setHandlers();
+
+    // (Re-)Create the context menus
+    createContextMenus();
 
     // Save these new options to storage in case of restart or update, then call
     // the callback
     chrome.storage.sync.set(
       {
-        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]:  STRIPPING_METHOD_TO_USE
+        [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: STRIPPING_METHOD_TO_USE,
+        [CONTEXT_MENU_COPY_CLEAN_ID]: CONTEXT_MENU_COPY_CLEAN_ENABLED,
+        [CONTEXT_MENU_CLEAN_AND_GO_ID]: CONTEXT_MENU_CLEAN_AND_GO_ENABLED
       },
       cb
     );
@@ -486,34 +499,71 @@ function restoreOptionsFromStorage() {
   return getOptionsFromStorage(
     // Callback
     items => {
+
+      // Do we need to perform a storage update?
+      let performUpdate = false;
+      const updateOptions = {};
+
       // Use the found method
       STRIPPING_METHOD_TO_USE = items[STORAGE_KEY_STRIPPING_METHOD_TO_USE];
 
       // If it turns out they have no saved method to use OR they were using the deprecated Cancel & Reload Method, then we have to update some things.
       if (!STRIPPING_METHOD_TO_USE || STRIPPING_METHOD_TO_USE === STRIPPING_METHOD_CANCEL_AND_RELOAD) {
+        // We need to perform an update
+        performUpdate = true;
 
         // Set the Stripping Method to use in this process to be the default one.
         STRIPPING_METHOD_TO_USE = DEFAULT_STRIPPING_METHOD;
 
-        // Spoof a message that says the User updated their settings.
+        updateOptions[STORAGE_KEY_STRIPPING_METHOD_TO_USE] = DEFAULT_STRIPPING_METHOD;
+      }
+
+      // If there's nothing stored for this context menu item, let's fix that
+      if (typeof items[CONTEXT_MENU_COPY_CLEAN_ID] === 'undefined') {
+        // We need to perform an update
+        performUpdate = true;
+        updateOptions[CONTEXT_MENU_COPY_CLEAN_ID] = true;
+        CONTEXT_MENU_COPY_CLEAN_ENABLED = true;
+      }
+      else {
+        CONTEXT_MENU_COPY_CLEAN_ENABLED = items[CONTEXT_MENU_COPY_CLEAN_ID];
+      }
+
+      // If there's nothing stored for this context menu item, let's fix that
+      if (typeof items[CONTEXT_MENU_CLEAN_AND_GO_ID] === 'undefined') {
+        // We need to perform an update
+        performUpdate = true;
+        updateOptions[CONTEXT_MENU_CLEAN_AND_GO_ID] = true;
+        CONTEXT_MENU_CLEAN_AND_GO_ENABLED = true;
+      }
+      else {
+        CONTEXT_MENU_CLEAN_AND_GO_ENABLED = items[CONTEXT_MENU_CLEAN_AND_GO_ID];
+      }
+
+      // Do we need to perform an update?
+      if (performUpdate) {
+        // Spoof a message that says the User updated their settings. This will call
+        // 'setHandlers' inside it, so we don't need/want to do that twice.
         return messageHandler(
           {
             action: ACTION_OPTIONS_SAVED,
-            options: {
-              // Set the Stripping Method to the default method
-              [STORAGE_KEY_STRIPPING_METHOD_TO_USE]: DEFAULT_STRIPPING_METHOD
-            }
+            options: updateOptions
           },
           {}, // No real sender.
           () => {} // No real callback
         );
       }
 
-      // All good. Just set the handlers now that we know what method we'd like to use
-      setHandlers();
+      // No update necessary - let's just call the handlers etc here and now
+      else {
+        setHandlers();
+        createContextMenus();
+      }
+
     },
-    // Options - Just get the stripping method with no default.
-    STORAGE_KEY_STRIPPING_METHOD_TO_USE
+
+    // Get these entries from storage with no defaults so we know if they're there or not
+    [STORAGE_KEY_STRIPPING_METHOD_TO_USE, CONTEXT_MENU_COPY_CLEAN_ID, CONTEXT_MENU_CLEAN_AND_GO_ID]
   );
 }
 
@@ -521,10 +571,10 @@ function restoreOptionsFromStorage() {
 
 
 
-// Wrapper to create the context menu item. Have experienced weird permissions
+// Wrapper to create the context menu items. Have experienced weird permissions
 // behavior for updates (not installs), so eventually after a few versions
 // this pre-flight-check can probably be removed. v4.1.0
-function createContextMenu() {
+function createContextMenus() {
   // These are the permissions we need
   const permissions = { permissions: ['contextMenus'] };
 
@@ -532,14 +582,14 @@ function createContextMenu() {
   chrome.permissions.contains(permissions, yes => {
     // If we have them, then create the context menu
     if (yes) {
-      return _createContextMenu();
+      return _createContextMenus();
     }
 
     // Let's ask the User then
     return chrome.permissions.request(permissions, granted => {
       // If the User granted it, then add the Context Menu
       if (granted) {
-        return _createContextMenu();
+        return _createContextMenus();
       }
     });
   });
@@ -547,71 +597,107 @@ function createContextMenu() {
 
 
 // Create the Context Menu item for copying links cleanly
-function _createContextMenu() {
+function _createContextMenus() {
 
   // Remove all of our existing context menus
   chrome.contextMenus.removeAll();
 
-  // Create the clipper element to be used for selecting
-  clipper = document.createElement('div');
-  // Add it to the background script's DOM
-  document.body.appendChild(clipper);
+  // Make this menu item if we should
+  if (CONTEXT_MENU_COPY_CLEAN_ENABLED) {
 
-  // Create the contextMenu
-  // https://developer.chrome.com/extensions/contextMenus#method-create
-  chrome.contextMenus.create({
-    type: 'normal',
-    id: CONTEXT_MENU_ITEM_ID,
-    title: CONTEXT_MENU_ITEM_TEXT,
-    // Only happen when the user right-clicks on something link-like
-    contexts: ['link'],
-    visible: true,
-    enabled: true,
-    // This will actually only match 'http' OR 'https' schemes:
-    // https://developer.chrome.com/extensions/match_patterns
-    documentUrlPatterns: ['*://*/*'],
-    // The click handler
-    onclick: (info) => {
-      // If there is no clipper helper element for some reason, forget it.
-      if (!clipper) {
-        // Remove this context menu since there's a problem, and get out of here.
-        return chrome.contextMenus && chrome.contextMenus.removeAll();
-      }
+    // Create the clipper element to be used for selecting
+    clipper = document.createElement('div');
+    // Add it to the background script's DOM
+    document.body.appendChild(clipper);
 
-      // Extract any redirects in the linkUrl
-      let linkUrl = followRedirect(info.linkUrl);
-
-      // Remove any trackers from the link URL:
-      // [If we have a linkUrl] then [whatever removeTrackersFromUrl() returns OR the unaltered linkuUrl]
-      linkUrl = linkUrl && (removeTrackersFromUrl(linkUrl) || linkUrl);
-
-      // Make sure we have a link URL still
-      if (!linkUrl) {
-        return;
-      }
-
-      // Do what we need to do to copy this link to the clipboard.
-      // https://developers.google.com/web/updates/2015/04/cut-and-copy-commands
-      clipper.textContent = linkUrl;
-      const range = document.createRange();
-      range.selectNode(clipper);
-      window.getSelection().addRange(range);
-
-      try {
-        if (!document.execCommand('copy')) {
-          console.warn('Problem copying', linkUrl, 'to clipboard.');
+    // Create the Copy & Clean contextMenu
+    // https://developer.chrome.com/extensions/contextMenus#method-create
+    chrome.contextMenus.create({
+      type: 'normal',
+      id: CONTEXT_MENU_COPY_CLEAN_ID,
+      title: CONTEXT_MENU_COPY_CLEAN_TEXT,
+      // Only happen when the user right-clicks on something link-like
+      contexts: ['link'],
+      visible: true,
+      enabled: true,
+      // This will actually only match 'http' OR 'https' schemes:
+      // https://developer.chrome.com/extensions/match_patterns
+      documentUrlPatterns: ['*://*/*'],
+      // The click handler
+      onclick: (info) => {
+        // If there is no clipper helper element for some reason, forget it.
+        if (!clipper) {
+          // Remove this context menu since there's a problem, and get out of here.
+          return chrome.contextMenus && chrome.contextMenus.removeAll();
         }
-      }
-      catch(err) {
-        console.warn('Problem copying', linkUrl, 'to clipboard.');
-        console.error(err);
-      }
 
-      // Remove the selections - NOTE: Should use
-      // removeRange(range) when it is supported
-      window.getSelection().removeAllRanges();
-    }
-  });
+        // Extract any redirect in and remove trackers from the URL
+        const linkUrl = followRedirectAndRemoveTrackers(info.linkUrl);
+
+        // Make sure we have a link URL still
+        if (!linkUrl) {
+          return;
+        }
+
+        // Do what we need to do to copy this link to the clipboard.
+        // https://developers.google.com/web/updates/2015/04/cut-and-copy-commands
+        clipper.textContent = linkUrl;
+        const range = document.createRange();
+        range.selectNode(clipper);
+        window.getSelection().addRange(range);
+
+        try {
+          if (!document.execCommand('copy')) {
+            console.warn('Problem copying', linkUrl, 'to clipboard.');
+          }
+        }
+        catch(err) {
+          console.warn('Problem copying', linkUrl, 'to clipboard.');
+          console.error(err);
+        }
+
+        // Remove the selections - NOTE: Should use
+        // removeRange(range) when it is supported
+        window.getSelection().removeAllRanges();
+      }
+    });
+  }
+
+  // Make this menu item if we should
+  if (CONTEXT_MENU_CLEAN_AND_GO_ENABLED) {
+
+    // Create the Clean & Go contextMenu
+    // https://developer.chrome.com/extensions/contextMenus#method-create
+    chrome.contextMenus.create({
+      type: 'normal',
+      id: CONTEXT_MENU_CLEAN_AND_GO_ID,
+      title: CONTEXT_MENU_CLEAN_AND_GO_TEXT,
+      // Only happen when the user right-clicks on something link-like
+      contexts: ['link'],
+      visible: true,
+      enabled: true,
+      // This will actually only match 'http' OR 'https' schemes:
+      // https://developer.chrome.com/extensions/match_patterns
+      documentUrlPatterns: ['*://*/*'],
+      // The click handler
+      onclick: (info) => {
+
+        // Extract any redirects in the linkUrl
+        const linkUrl = followRedirectAndRemoveTrackers(info.linkUrl);
+
+        // Make sure we have a link URL still
+        if (!linkUrl) {
+          return;
+        }
+
+        // Open that link in a new tab
+        chrome.tabs.create({
+          url: linkUrl,
+          active: true
+        });
+      }
+    });
+  }
 }
 
 
@@ -623,5 +709,3 @@ chrome.runtime.onInstalled.addListener(onInstallHandler);
 restoreOptionsFromStorage();
 // 3) Listen for messages: from the Options page or from the PageAction
 chrome.runtime.onMessage.addListener(messageHandler);
-// 4) Create the Context Menu
-createContextMenu();
