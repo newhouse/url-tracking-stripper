@@ -4,11 +4,12 @@ const {
   findQueryParam
 }                               = require('./common');
 
-const SCHEMA          = '<SCHEMA>';
-const SUBDOMAIN       = '<SUBDOMAIN>';
-const PATH            = '<PATH>';
-const QS_VALUE        = '<QSVALUE>';
-const QS_KVS          = '<QSKVS>';
+const SCHEMA              = '<SCHEMA>';
+const SUBDOMAIN           = '<SUBDOMAIN>';
+const PATH                = '<PATH>';
+const QS_VALUE            = '<QSVALUE>';
+const QS_KVS              = '<QSKVS>';
+const TARGET_PARAM_IS_QS  = '<TARGET_IS_QS>';
 
 
 const KNOWN_REDIRECTS = [
@@ -113,6 +114,23 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}t.cfjump.com${PATH}?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Instapage',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}app.instapage.com/route${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Doubleclick',
+    targetParam: TARGET_PARAM_IS_QS,
+    patterns: [
+      `${SCHEMA}ad.doubleclick.net${PATH}?`
+    ],
+    types: ['main_frame']
+
   }
 ];
 
@@ -130,9 +148,10 @@ var REDIRECT_DATA_BY_TARGET_PARAM = {};
 KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 
   // Pluck out the param and the patterns
-  const targetParam       = KNOWN_REDIRECT.targetParam;
-  const orginalPatterns   = KNOWN_REDIRECT.patterns;
-  const types             = KNOWN_REDIRECT.types;
+  const originalTargetParam   = KNOWN_REDIRECT.targetParam;
+  const targetParam           = originalTargetParam === TARGET_PARAM_IS_QS ? '*' : originalTargetParam;
+  const orginalPatterns       = KNOWN_REDIRECT.patterns;
+  const types                 = KNOWN_REDIRECT.types;
 
   // Make sure everything looks good
   if (!(targetParam && orginalPatterns && orginalPatterns.length && types && types.length)) {
@@ -162,18 +181,28 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   // Go through each of these patterns and create any combinations we need to
   orginalPatterns.forEach(originalPattern => {
 
-    // Create the key/value placeholder for the target param
-    const targetParamKv = `${targetParam}=${QS_VALUE}`;
+    // If it's the entire query string...
+    if (originalTargetParam === TARGET_PARAM_IS_QS) {
+      newPatterns.push(replacePlaceholders(`${originalPattern}${QS_VALUE}`));
+      // The regex only needs 1 variation which includes optional query string key/values
+      const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_VALUE}`);
+      newClipboardRegexes.push(new RegExp(regexPattern));
+    }
+    else {
 
-    // We need to generate a few variations on this original pattern for URL matching
-    // 1) support the URL param as the first param
-    newPatterns.push(replacePlaceholders(`${originalPattern}${targetParamKv}`));
-    // 2) support the URL param as a non-first param
-    newPatterns.push(replacePlaceholders(`${originalPattern}${QS_KVS}${targetParamKv}`));
+      // Create the key/value placeholder for the target param
+      const targetParamKv = `${targetParam}=${QS_VALUE}`;
 
-    // The regex only needs 1 variation which includes optional query string key/values
-    const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_KVS}${targetParamKv}`);
-    newClipboardRegexes.push(new RegExp(regexPattern));
+      // We need to generate a few variations on this original pattern for URL matching
+      // 1) support the URL param as the first param
+      newPatterns.push(replacePlaceholders(`${originalPattern}${targetParamKv}`));
+      // 2) support the URL param as a non-first param
+      newPatterns.push(replacePlaceholders(`${originalPattern}${QS_KVS}${targetParamKv}`));
+
+      // The regex only needs 1 variation which includes optional query string key/values
+      const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_KVS}${targetParamKv}`);
+      newClipboardRegexes.push(new RegExp(regexPattern));
+    }
   });
 
   // Add these patterns to the array of patterns for this target param
@@ -205,7 +234,7 @@ function replacePlaceholdersRegex(pattern) {
   return escapeRegExp(pattern)
     .replace(SCHEMA, 'http(s)?\:\\/\\/')
     .replace(SUBDOMAIN, '([a-zA-z\-0-9]*\.)?')
-    .replace(PATH, '(\\/[\\w\\-]+)+')
+    .replace(PATH, '(\\/[\\w;\\-]+)+')
     // This one required text on either side of the '=' sign, when I've seen
     // some places build junk that would not match. Not sure if this is a good idea
     // to "fix" or not.
@@ -272,6 +301,7 @@ function followRedirect(url) {
 
 
 module.exports = {
+  TARGET_PARAM_IS_QS,
   KNOWN_REDIRECTS,
   REDIRECT_DATA_BY_TARGET_PARAM,
   escapeRegExp,

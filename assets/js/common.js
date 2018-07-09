@@ -41,6 +41,11 @@ function findQueryParam(targetParam, url) {
   // If we have a query string...
   if (queryString) {
 
+    // If the target param was the whole query string, then just return it
+    if (targetParam == '*') {
+      return queryString;
+    }
+
     // Get the key/value pairs from the query string
     const keyVals = queryString.split('&');
     // Figure out how many pairs we have

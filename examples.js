@@ -4,6 +4,9 @@ const {
   TRACKERS_BY_ROOT
 } = require('./assets/js/trackers');
 
+const {
+  TARGET_PARAM_IS_QS
+} = require('./assets/js/redirects');
 
 const {
   REDIRECT_EXAMPLES_BY_TARGET_PARAM
@@ -56,6 +59,10 @@ const redirectExamples = [
   {
     fromm: 'https://t.cfjump.com/6421/t/42872?Url=http%3a%2f%2fwww.google.com%2fsearch%3fq%3dhi',
     too: 'http://www.google.com/search?q=hi'
+  },
+  {
+    fromm: 'http://ad.doubleclick.net/clk;274204538;98873843;y?http://www.food.com/recipe/cuban-pork-adobo-salad-501729',
+    too: 'http://www.food.com/recipe/cuban-pork-adobo-salad-501729'
   }
 ];
 
@@ -139,6 +146,8 @@ for (let root in TRACKERS_BY_ROOT) {
 for (let targetParam in REDIRECT_EXAMPLES_BY_TARGET_PARAM) {
   REDIRECT_EXAMPLES_BY_TARGET_PARAM[targetParam].forEach(root => {
 
+    const queryArea = targetParam === TARGET_PARAM_IS_QS ? '' : targetParam + '=';
+
     // CAN'T HANDLE NON-URI-ENCODED RIGHT NOW
     // ADD A BASIC REDIRECT EXAMPLE THAT IS NOT PROPERLY ENCODED
     // redirectExamples.push(
@@ -151,7 +160,7 @@ for (let targetParam in REDIRECT_EXAMPLES_BY_TARGET_PARAM) {
     // ADD A BASIC REDIRECT EXAMPLE THAT IS PROPERLY ENCODED
     redirectExamples.push(
       {
-        fromm: `${root}${targetParam}=${encodeURIComponent(hostEtc)}`,
+        fromm: `${root}${queryArea}${encodeURIComponent(hostEtc)}`,
         too: hostEtc
       }
     );
@@ -172,7 +181,7 @@ for (let targetParam in REDIRECT_EXAMPLES_BY_TARGET_PARAM) {
       // ADD A REDIRECT THAT HAS TRACKERS EXAMPLE THAT IS PROPERLY ENCODED
       redirectWithTrackerExamples.push(
         {
-          fromm: `${root}${targetParam}=${encodeURIComponent(fromm)}`,
+          fromm: `${root}${queryArea}${encodeURIComponent(fromm)}`,
           too: too
         }
       );
