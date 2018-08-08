@@ -7,10 +7,12 @@ const TRACKERS_BY_ROOT = {
   // Google's Urchin Tracking Module
   'utm_': [
     'campaign',
+    'campaignid',
     'channel',
     'cid',
     'content',
     'expid',
+    'item',
     'medium',
     'name',
     'pubreferrer',
@@ -156,6 +158,52 @@ const TRACKERS_BY_ROOT = {
     // 'ip'
   ],
 
+  // Groupon Deal API
+  '': [
+    'sid',
+    'wid',
+    'tsToken'
+  ],
+
+  // ZiffDavis via Tech Bargains
+  '': [
+    'ascsubtag',
+    'click_attribution',
+    'clickGuid',
+    'device',
+    'item_type',
+    'link_type',
+    'link_text',
+    'original_name',
+    'page',
+    'page_location',
+    'pf_rd_p',
+    'smid',
+    'source',
+    'tag',
+    'tracker',
+    'vendor',
+    'zd_ptax'
+  ],
+
+  // ZiffDavis Related
+  'pf_rd_': [
+    'i',
+    'm',
+    'p',
+    'r',
+    's',
+    't'
+  ],
+
+  // BizRate Related
+  '': [
+    'affcmpid',
+    'tmode',
+    'veh',
+    'cmlspartner'
+  ],
+
   // unsure
   'c3': [
     'ch',
@@ -172,7 +220,8 @@ const TRACKERS_BY_ROOT = {
   // unsure
   'cvo': [
     'src',
-    '_campaign'
+    '_campaign',
+    '_cid'
   ],
 
   // unsure
@@ -220,9 +269,7 @@ const TRACKERS_BY_ROOT = {
     'nid',
     'oid',
     'sdtid', // slickdeals
-    'sid',
     'siteid',
-    'smid',
     'source_id',
     'sourceid',
     'src_bizid',
@@ -250,7 +297,6 @@ const TRACKERS_BY_ROOT = {
     'nm_mc',
     'loc',
     'tag',
-    'ascsubtag',
     'referrer',
     'srcref',
     // iTunes
@@ -260,15 +306,13 @@ const TRACKERS_BY_ROOT = {
     // Fanatical
     'aff_track',
     'afftrack',
-    'CJEVENT',
     // Walmart
     'u1',
     'wmlspartner',
     'affillinktype',
     'veh',
-    // Groupon
+    // Misc
     'lnm',
-    'tsToken',
     'campaign',
     'CMP',
     'linkCode',
@@ -292,7 +336,21 @@ const TRACKERS_BY_ROOT = {
     'clickref',
     'psc', // amazon
     // yelp
-    'website_link_type'
+    'website_link_type',
+    'ak_t',
+    'wtExtndSource',
+    // ValueClick
+    'CI',
+    'RI',
+    'RD',
+    'CJEVENT',
+    'cjevent',
+    // misc
+    'ci_mcc',
+    'pvid',
+    'CELL',
+    'CAWELAID',
+    'omid'
   ]
 };
 

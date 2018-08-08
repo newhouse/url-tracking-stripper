@@ -66,7 +66,7 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'Rakuten Marketing 3',
+    name: 'Rakuten Marketing Walmart',
     targetParam: 'RD_PARM1',
     patterns: [
       // BUG: Does not work
@@ -76,8 +76,16 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Rakuten Marketing Walmart 2',
+    targetParam: 'murl',
+    patterns: [
+      `${SCHEMA}linksynergy.walmart.com/deeplink?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'ValueClick',
-    targetParam: 'url',
+    targetParam: 'URL',
     patterns: [
       `${SCHEMA}www.dpbolvw.net${PATH}?`,
       `${SCHEMA}www.tkqlhce.com${PATH}?`,
@@ -110,10 +118,20 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    // bizrate
     name: 'Connexity',
     targetParam: 't',
     patterns: [
       `${SCHEMA}rd.connexity.net/rd?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    // bizrate
+    name: 'Pricegrabber',
+    targetParam: 't',
+    patterns: [
+      `${SCHEMA}rd.shop.pricegrabber.com/rd2?`
     ],
     types: ['main_frame']
   },
@@ -158,8 +176,16 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'Rover',
+    name: 'Rover - Internal Site',
     targetParam: 'mpre',
+    patterns: [
+      `${SCHEMA}rover.ebay.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Rover - External Site',
+    targetParam: 'url',
     patterns: [
       `${SCHEMA}rover.ebay.com${PATH}?`
     ],
@@ -222,8 +248,24 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Target 2',
+    targetParam: 'URL',
+    patterns: [
+      `${SCHEMA}goto.target.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'SJV',
     targetParam: 'u',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.sjv.io${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'SJV 2',
+    targetParam: 'URL',
     patterns: [
       `${SCHEMA}${SUBDOMAIN}.sjv.io${PATH}?`
     ],
@@ -263,9 +305,10 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'Shareasale',
+    name: 'Share A Sale',
     targetParam: 'urllink',
     patterns: [
+      // not working for some reason
       `${SCHEMA}www.shareasale.com/r.cfm?`
     ],
     types: ['main_frame']
@@ -287,10 +330,10 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'pntrac',
-    targetParam: 'url',
+    name: 'kqzyfj 2',
+    targetParam: 'URL',
     patterns: [
-      `${SCHEMA}www.pntrac.com${PATH}?`
+      `${SCHEMA}www.kqzyfj.com${PATH}?`
     ],
     types: ['main_frame']
   },
@@ -379,6 +422,65 @@ const KNOWN_REDIRECTS = [
     targetParam: 'url',
     patterns: [
       `${SCHEMA}tracking.groupon.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'zdbb',
+    targetParam: TARGET_PARAM_IS_QS,
+    patterns: [
+      `${SCHEMA}zdbb.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'zdcommerce',
+    targetParam: 'destination',
+    patterns: [
+      `${SCHEMA}pixel.zdcommerce.io${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'PepperJam',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.pjatr.com${PATH}?`,
+      `${SCHEMA}www.pjtra.com${PATH}?`,
+      `${SCHEMA}www.pntrac.com${PATH}?`,
+      `${SCHEMA}www.pntra.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'DealNews',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}c1.dealnews.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Princess',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}princess.com/linkshare.do?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Dartsearch',
+    targetParam: 'ds_dest_url',
+    patterns: [
+      `${SCHEMA}clickserve.dartsearch.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Mercent',
+    targetParam: 'mr:targetUrl',
+    patterns: [
+      `${SCHEMA}link.mercent.com/redirect.ashx?`
     ],
     types: ['main_frame']
   }
