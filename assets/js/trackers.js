@@ -6,17 +6,20 @@ const TRACKERS_BY_ROOT = {
 
   // Google's Urchin Tracking Module
   'utm_': [
-    'source',
-    'medium',
-    'term',
     'campaign',
-    'content',
-    'name',
+    'channel',
     'cid',
-    'reader',
-    'viz_id',
+    'content',
+    'expid',
+    'medium',
+    'name',
     'pubreferrer',
-    'swu'
+    'reader',
+    'referrer',
+    'source',
+    'swu',
+    'term',
+    'viz_id'
   ],
 
   // Adobe Coldfusion
@@ -91,18 +94,147 @@ const TRACKERS_BY_ROOT = {
     'pn_sku'
   ],
 
-  // Similar-looking
+  // AppNexus: Impression Tracker Service
   '': [
+    'advertiser_id',
+    'ancost',
+    'cachebuster'
+  ],
+
+  // matomo Tracking HTTP API
+  '': [
+    '_cvar',
+    '_id',
+    '_idts',
+    '_idvc',
+    '_rck',
+    '_rcn',
+    '_viewts',
+    'action_name',
+    'apiv',
+    'c_i',
+    'c_n',
+    'c_p',
+    'c_t',
+    'cid',
+    'e_a',
+    'e_c',
+    'e_n',
+    'e_v',
+    'idsite',
+    'ma_fs',
+    'ma_h',
+    'ma_id',
+    'ma_le',
+    'ma_mt',
+    'ma_pn',
+    'ma_ps',
+    'ma_re',
+    'ma_st',
+    'ma_ti',
+    'ma_ttp',
+    'ma_w',
+    'rand',
+    'rec',
+    'res',
+    'uid',
+    'urlref'
+  ],
+
+  // ListHub Query String API
+  '': [
+    'clid',
+    'eo',
+    'et',
+    'ev',
+    'lkey',
+    'mp',
+    'pr',
+    'ua',
+    'up',
+    'v'
+    // 'ip'
+  ],
+
+  // unsure
+  'c3': [
+    'ch',
+    'nid'
+  ],
+
+  // unsure
+  'cm_': [
+    'mmc',
+    're',
+    'sp'
+  ],
+
+  // unsure
+  'cvo': [
+    'src',
+    '_campaign'
+  ],
+
+  // unsure
+  'mi_': [
+    'u',
+    'xml_params',
+    'url',
+    'eaddr'
+  ],
+
+  // unsure
+  'sp_': [
+    'source',
+    'campaign'
+  ],
+
+  // unsure
+  'ran': [
+    'MID',
+    'EAID',
+    'SiteID'
+  ],
+
+  // id
+  '': [
+    'AFFID',
     '_cmp',
     '_ebid',
     '_mid',
-    'ehid'
+    'acampID',
+    'affID',
+    'afid',
+    'aid',
+    'clickid',
+    'clkid',
+    'dclid',
+    'ehid',
+    'eid',
+    'et_rid',
+    'flyer_run_id',
+    'jid',
+    'lkid',
+    'mid',
+    'mktID',
+    'nid',
+    'oid',
+    'sdtid', // slickdeals
+    'sid',
+    'siteid',
+    'smid',
+    'source_id',
+    'sourceid',
+    'src_bizid',
+    'tmcampid',
+    'trkid'
   ],
 
   // Non-prefixy and 1-offs
   '': [
     // Google Click Identifier
     'gclid',
+    'gclsrc',
     // Unknown
     'ncid',
     // Unknown
@@ -116,25 +248,11 @@ const TRACKERS_BY_ROOT = {
     'a',
     'avad',
     'nm_mc',
-    'cm_mmc',
-    'cm_re',
     'loc',
-    'acampID',
     'tag',
     'ascsubtag',
-    'clickid',
-    'trkid',
     'referrer',
-    'tmcampid',
-    'source_id',
-    'mi_u',
-    'et_rid',
-    'mi_xml_params',
-    'mi_url',
-    'mi_eaddr',
     'srcref',
-    'flyer_run_id',
-    'lkid',
     // iTunes
     'pt',
     'ct',
@@ -145,34 +263,18 @@ const TRACKERS_BY_ROOT = {
     'CJEVENT',
     // Walmart
     'u1',
-    'oid',
     'wmlspartner',
-    'sourceid',
     'affillinktype',
     'veh',
     // Groupon
-    'clkid',
     'lnm',
-    'afid',
     'tsToken',
-    'sid',
-    'siteid',
-    'utm_channel',
-    'sp_source',
-    'sp_campaign',
     'campaign',
-    'cid',
-    'cm_re',
-    'cm_sp',
-    'jid',
     'CMP',
     'linkCode',
     'linkId',
     'camp',
     // Linkshare
-    'ranMID',
-    'ranEAID',
-    'ranSiteID',
     'LinkshareID',
     'PartnerID',
     'banner_type',
@@ -182,37 +284,15 @@ const TRACKERS_BY_ROOT = {
     'm',
     's',
     'th',
-    // Newegg
-    'sdtid',
-    'aid', // not sure
     // Dotomi
-    'c3ch',
-    'c3nid',
-    'cvosrc',
-    'cvo_campaign',
     'CJPIXEL',
     // Misc
-    'mid',
-    'eid',
-    'uid', // not sure
-    'nid',
     'AFS',
     'cj_pub_sid',
     'clickref',
     'psc', // amazon
-    'smid',
-    'affID',
-    'AFFID',
-    'mktID',
-    // utm_
-    'utm_expid',
-    'utm_referrer',
-    'gclsrc',
-    'dclid',
     // yelp
-    ' src_bizid',
-    'website_link_type',
-    'cachebuster'
+    'website_link_type'
   ]
 };
 
