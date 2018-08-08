@@ -19,6 +19,12 @@ const TRACKERS_BY_ROOT = {
     'swu'
   ],
 
+  // Adobe Coldfusion
+  '': [
+    'CFID',
+    'CFTOKEN'
+  ],
+
   // Adobe Omniture SiteCatalyst
   'IC': [
     'ID'
@@ -27,6 +33,15 @@ const TRACKERS_BY_ROOT = {
   // Adobe Omniture SiteCatalyst
   'ic': [
     'id'
+  ],
+
+  // comScore Digital Analytix
+  'ns_': [
+    'campaign',
+    'mchannel',
+    'source',
+    'linkname',
+    'fee'
   ],
 
   // Hubspot
@@ -47,6 +62,15 @@ const TRACKERS_BY_ROOT = {
     'eid'
   ],
 
+  // Oracle Eloqua
+  'elq': [
+    'TrackID',
+    'aid',
+    'at',
+    'CampaignId',
+    ''
+  ],
+
   // Simple Reach
   'sr_': [
     'share'
@@ -56,6 +80,23 @@ const TRACKERS_BY_ROOT = {
   'vero_': [
     'conv',
     'id'
+  ],
+
+  // Web Trends
+  'WT.': [
+    'mc_id',
+    'srch',
+    'ac',
+    'qs_osrc',
+    'pn_sku'
+  ],
+
+  // Similar-looking
+  '': [
+    '_cmp',
+    '_ebid',
+    '_mid',
+    'ehid'
   ],
 
   // Non-prefixy and 1-offs
@@ -70,11 +111,113 @@ const TRACKERS_BY_ROOT = {
     'ref',
     // Alibaba-family 'super position model' tracker:
     // https://github.com/newhouse/url-tracking-stripper/issues/38
-    'spm'
+    'spm',
+    // Slickdeals Related
+    'a',
+    'avad',
+    'nm_mc',
+    'cm_mmc',
+    'cm_re',
+    'loc',
+    'acampID',
+    'tag',
+    'ascsubtag',
+    'clickid',
+    'trkid',
+    'referrer',
+    'tmcampid',
+    'source_id',
+    'mi_u',
+    'et_rid',
+    'mi_xml_params',
+    'mi_url',
+    'mi_eaddr',
+    'srcref',
+    'flyer_run_id',
+    'lkid',
+    // iTunes
+    'pt',
+    'ct',
+    'at',
+    // Fanatical
+    'aff_track',
+    'afftrack',
+    'CJEVENT',
+    // Walmart
+    'u1',
+    'oid',
+    'wmlspartner',
+    'sourceid',
+    'affillinktype',
+    'veh',
+    // Groupon
+    'clkid',
+    'lnm',
+    'afid',
+    'tsToken',
+    'sid',
+    'siteid',
+    'utm_channel',
+    'sp_source',
+    'sp_campaign',
+    'campaign',
+    'cid',
+    'cm_re',
+    'cm_sp',
+    'jid',
+    'CMP',
+    'linkCode',
+    'linkId',
+    'camp',
+    // Linkshare
+    'ranMID',
+    'ranEAID',
+    'ranSiteID',
+    'LinkshareID',
+    'PartnerID',
+    'banner_type',
+    // Coupon Cabin
+    'irgwc',
+    // Amazon
+    'm',
+    's',
+    'th',
+    // Newegg
+    'sdtid',
+    'aid', // not sure
+    // Dotomi
+    'c3ch',
+    'c3nid',
+    'cvosrc',
+    'cvo_campaign',
+    'CJPIXEL',
+    // Misc
+    'mid',
+    'eid',
+    'uid', // not sure
+    'nid',
+    'AFS',
+    'cj_pub_sid',
+    'clickref',
+    'psc', // amazon
+    'smid',
+    'affID',
+    'AFFID',
+    'mktID',
+    // utm_
+    'utm_expid',
+    'utm_referrer',
+    'gclsrc',
+    'dclid',
+    // yelp
+    ' src_bizid',
+    'website_link_type',
+    'cachebuster'
   ]
 };
 
-
+// TODO: Some sites, level QS must = 0 otherwise cookie error
+// TODO: Site specific QS removal
 
 // Go through all the trackers by their root and turn them into a big regex...
 const TRACKER_REGEXES_BY_ROOT = {};
