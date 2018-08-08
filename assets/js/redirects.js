@@ -247,14 +247,6 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'Commission Factory',
-    targetParam: 'Url',
-    patterns: [
-      `${SCHEMA}t.cfjump.com${PATH}?`
-    ],
-    types: ['main_frame']
-  },
-  {
     name: 'YouTube',
     targetParam: 'q',
     patterns: [
