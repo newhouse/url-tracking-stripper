@@ -23,6 +23,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame', 'ping']
   },
   {
+    name: 'Google Ad Services',
+    targetParam: 'adurl',
+    patterns: [
+      `${SCHEMA}www.googleadservices.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
     // Gmail wraps links in e-mails to pass you through their servers
     name: 'Gmail Link Wrappers',
     targetParam: 'q',
@@ -50,15 +58,15 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'Amazon Affiliate',
-    targetParam: 'location',
+    name: 'Rakuten Marketing',
+    targetParam: 'RD_PARM1',
     patterns: [
-      `${SCHEMA}${SUBDOMAIN}.amazon.ca/gp/redirect.html?`
+      `${SCHEMA}click.linksynergy.com/fs-bin/click?`
     ],
     types: ['main_frame']
   },
   {
-    name: 'Rakuten Marketing',
+    name: 'Rakuten Marketing 2',
     targetParam: 'murl',
     patterns: [
       `${SCHEMA}click.linksynergy.com/deeplink?`
@@ -66,8 +74,26 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Rakuten Marketing Walmart',
+    targetParam: 'RD_PARM1',
+    patterns: [
+      // BUG: Does not work
+      // ${SCHEMA}linksynergy.${SUBDOMAIN}.com${PATH}?
+      `${SCHEMA}linksynergy.walmart.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Rakuten Marketing Walmart 2',
+    targetParam: 'murl',
+    patterns: [
+      `${SCHEMA}linksynergy.walmart.com/deeplink?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'ValueClick',
-    targetParam: 'url',
+    targetParam: 'URL',
     patterns: [
       `${SCHEMA}www.dpbolvw.net${PATH}?`,
       `${SCHEMA}www.tkqlhce.com${PATH}?`,
@@ -100,10 +126,20 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    // bizrate
     name: 'Connexity',
     targetParam: 't',
     patterns: [
       `${SCHEMA}rd.connexity.net/rd?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    // bizrate
+    name: 'Pricegrabber',
+    targetParam: 't',
+    patterns: [
+      `${SCHEMA}rd.shop.pricegrabber.com/rd2?`
     ],
     types: ['main_frame']
   },
@@ -130,18 +166,379 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}ad.doubleclick.net${PATH}?`
     ],
     types: ['main_frame']
-
+  },
+  {
+    name: 'TrafficRouter',
+    targetParam: 'original',
+    patterns: [
+      `${SCHEMA}go.trafficrouter.io/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'evyy',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.evyy.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Rover - Internal Site',
+    targetParam: 'mpre',
+    patterns: [
+      `${SCHEMA}rover.ebay.com${PATH}?`
+    ],
+    types: ['main_frame', 'ping']
+  },
+  {
+    name: 'Rover - External Site',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}rover.ebay.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'PepperJamNetwork',
+    targetParam: 'tarurl',
+    patterns: [
+      `${SCHEMA}www.pepperjamnetwork.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Amazon',
+    targetParam: 'location',
+    patterns: [
+      `${SCHEMA}www.amazon.com/gp/redirect.html?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Amazon CA',
+    targetParam: 'location',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.amazon.ca/gp/redirect.html?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Mediaplex',
+    targetParam: 'MPRE',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.mediaplex.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Skimresources',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}go.skimresources.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Walmart',
+    targetParam: 'l',
+    patterns: [
+      `${SCHEMA}c.affil.walmart.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Target',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}goto.target.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Target 2',
+    targetParam: 'URL',
+    patterns: [
+      `${SCHEMA}goto.target.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'SJV',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.sjv.io${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'SJV 2',
+    targetParam: 'URL',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.sjv.io${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Jdoqocy',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.jdoqocy.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Linkshare',
+    targetParam: 'url',
+    patterns: [
+      // This pattern works, but does not remove trackers at end
+      `${SCHEMA}${SUBDOMAIN}.com/Linkshare?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'YouTube',
+    targetParam: 'q',
+    patterns: [
+      `${SCHEMA}www.youtube.com/redirect?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Yelp',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.yelp.com/biz_redir?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Share A Sale',
+    targetParam: 'urllink',
+    patterns: [
+      // not working for some reason
+      `${SCHEMA}www.shareasale.com/r.cfm?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'awin1',
+    targetParam: 'p',
+    patterns: [
+      `${SCHEMA}www.awin1.com/cread.php?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'kqzyfj',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.kqzyfj.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'kqzyfj 2',
+    targetParam: 'URL',
+    patterns: [
+      `${SCHEMA}www.kqzyfj.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'vudu',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.vudu.com/linkShare?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Slickdeals',
+    targetParam: 'u2',
+    patterns: [
+      `${SCHEMA}clicks.slickdeals.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Bizrate',
+    targetParam: 't',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.bizrate.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'sylikes',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.sylikes.com/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'pxf.io',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.pxf.io${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'pvxt',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.pvxt.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: '7eer',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.7eer.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'avantlink',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.avantlink.com/click.php?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'flexlinkspro',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}track.flexlinkspro.com/a.ashx?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'shopspring',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}goto.shopspring.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Groupon',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}tracking.groupon.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'zdbb',
+    targetParam: TARGET_PARAM_IS_QS,
+    patterns: [
+      `${SCHEMA}zdbb.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'zdcommerce',
+    targetParam: 'destination',
+    patterns: [
+      `${SCHEMA}pixel.zdcommerce.io${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'PepperJam',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.pjatr.com${PATH}?`,
+      `${SCHEMA}www.pjtra.com${PATH}?`,
+      `${SCHEMA}www.pntrac.com${PATH}?`,
+      `${SCHEMA}www.pntra.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'DealNews',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}c1.dealnews.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Princess',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}princess.com/linkshare.do?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Dartsearch',
+    targetParam: 'ds_dest_url',
+    patterns: [
+      `${SCHEMA}clickserve.dartsearch.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Mercent',
+    targetParam: 'mr:targetUrl',
+    patterns: [
+      `${SCHEMA}link.mercent.com/redirect.ashx?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'EverestTech',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}pixel.everesttech.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'AdLucent',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}tracking.deepsearch.adlucent.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'krxd',
+    targetParam: 'clk',
+    patterns: [
+      `${SCHEMA}apiservices.krxd.net/click_tracker/track?`
+    ],
+    types: ['main_frame']
   }
 ];
 
+// TODO: BUG: if the target destination URL exists within a link where
+// there are two of the same target parameters that are not properly
+// encoded, then the website will not be redirected correctly.
+// Possible Fix: scan for the first target param, execute, then
+// follow up on the second URL.
 
+// example URL:
+// http://clickserve.dartsearch.net/link/click?lid=99999999999999999&ds_dest_url=
+// http://clickserve.dartsearch.net/link/click?lid=00000000000000000&ds_dest_url=
+// https://www.bestbuy.com/site/amazon-fire-tv-stick-with-alexa-voice-remote-black/5477500.p%3FskuId%3D5477500
+
+// TODO: cj.dotomi, emjcd, cannot parse from URL
+// TODO: Prioritize over other extensions, cannot bypass blocked url
+// TODO: Make sure tracking QS are removed in final domain after multiple redirects
 
 // Flip everything around a bit and store patterns that are looking for
 // the same target all together. This way we can register these patterns
 // using a closure-like approach to prevent having to scan the URL again
 // to figure out which pattern it matched, and then finally extract the
 // target for that pattern. Should result in things being much faster in
-// then end.
+// the end.
 // Use 'var' here so that it's not scoped incorrectly.
 var REDIRECT_DATA_BY_TARGET_PARAM = {};
 

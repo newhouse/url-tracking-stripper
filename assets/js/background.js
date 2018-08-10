@@ -100,6 +100,7 @@ function unRegisterRedirectHandlers() {
   // eslint-disable-next-line no-cond-assign
   while (handler = REDIRECT_HANDLERS.pop()) {
     chrome.webRequest.onBeforeRequest.removeListener(handler);
+    chrome.webRequest.onErrorOccurred.removeListener(handler);
   }
 }
 
@@ -150,6 +151,7 @@ function registerRedirectHandlers() {
     REDIRECT_HANDLERS.push(handler);
     // REGISTER IT AS A LISTENER
     chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
+    chrome.webRequest.onErrorOccurred.addListener(handler, filters);
   }
 }
 
@@ -232,6 +234,7 @@ function historyChangeHandler(tabId, changeInfo, tab) {
 // Unregiser the Block and Reload Handler
 function unRegisterBlockAndReloadHandler() {
   chrome.webRequest.onBeforeRequest.removeListener(blockAndReloadHandler);
+  chrome.webRequest.onErrorOccurred.removeListener(blockAndReloadHandler);
   chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
 }
 
@@ -251,6 +254,9 @@ function registerBlockAndReloadHandler() {
 
   // Monitor WebRequests so that we may block and re-load them without tracking params
   chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
+  // Handle webRequest where the URL is blocked by an external source but there exist
+  // tracking params in the URL which can be redirected.
+  chrome.webRequest.onErrorOccurred.addListener(blockAndReloadHandler, filters);
   // Monitor for subsequent Navigations so that we may indicate if a change
   // was made or not.
   chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
