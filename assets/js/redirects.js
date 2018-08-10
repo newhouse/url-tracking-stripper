@@ -23,6 +23,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame', 'ping']
   },
   {
+    name: 'Google Ad Services',
+    targetParam: 'adurl',
+    patterns: [
+      `${SCHEMA}www.googleadservices.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
     // Gmail wraps links in e-mails to pass you through their servers
     name: 'Gmail Link Wrappers',
     targetParam: 'q',
@@ -181,7 +189,7 @@ const KNOWN_REDIRECTS = [
     patterns: [
       `${SCHEMA}rover.ebay.com${PATH}?`
     ],
-    types: ['main_frame']
+    types: ['main_frame', 'ping']
   },
   {
     name: 'Rover - External Site',
@@ -483,10 +491,43 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}link.mercent.com/redirect.ashx?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'EverestTech',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}pixel.everesttech.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'AdLucent',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}tracking.deepsearch.adlucent.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'krxd',
+    targetParam: 'clk',
+    patterns: [
+      `${SCHEMA}apiservices.krxd.net/click_tracker/track?`
+    ],
+    types: ['main_frame']
   }
 ];
 
-// http://cj.dotomi.com/links-t/7278242/type/dlg/sid/WWcd7ef446f3d9615ea4b69c16/https://www.forever21.com/us/shop/catalog/category/f21/promo-acc-deals
+// TODO: BUG: if the target destination URL exists within a link where
+// there are two of the same target parameters that are not properly
+// encoded, then the website will not be redirected correctly.
+// Possible Fix: scan for the first target param, execute, then
+// follow up on the second URL.
+
+// example URL:
+// http://clickserve.dartsearch.net/link/click?lid=99999999999999999&ds_dest_url=
+// http://clickserve.dartsearch.net/link/click?lid=00000000000000000&ds_dest_url=
+// https://www.bestbuy.com/site/amazon-fire-tv-stick-with-alexa-voice-remote-black/5477500.p%3FskuId%3D5477500
 
 // TODO: cj.dotomi, emjcd, cannot parse from URL
 // TODO: Prioritize over other extensions, cannot bypass blocked url

@@ -96,13 +96,6 @@ const TRACKERS_BY_ROOT = {
     'pn_sku'
   ],
 
-  // AppNexus: Impression Tracker Service
-  '': [
-    'advertiser_id',
-    'ancost',
-    'cachebuster'
-  ],
-
   // matomo Tracking HTTP API
   '': [
     '_cvar',
@@ -143,49 +136,6 @@ const TRACKERS_BY_ROOT = {
     'urlref'
   ],
 
-  // ListHub Query String API
-  '': [
-    'clid',
-    'eo',
-    'et',
-    'ev',
-    'lkey',
-    'mp',
-    'pr',
-    'ua',
-    'up',
-    'v'
-    // 'ip'
-  ],
-
-  // Groupon Deal API
-  '': [
-    'sid',
-    'wid',
-    'tsToken'
-  ],
-
-  // ZiffDavis via Tech Bargains
-  '': [
-    'ascsubtag',
-    'click_attribution',
-    'clickGuid',
-    'device',
-    'item_type',
-    'link_type',
-    'link_text',
-    'original_name',
-    'page',
-    'page_location',
-    'pf_rd_p',
-    'smid',
-    'source',
-    'tag',
-    'tracker',
-    'vendor',
-    'zd_ptax'
-  ],
-
   // ZiffDavis Related
   'pf_rd_': [
     'i',
@@ -194,14 +144,6 @@ const TRACKERS_BY_ROOT = {
     'r',
     's',
     't'
-  ],
-
-  // BizRate Related
-  '': [
-    'affcmpid',
-    'tmode',
-    'veh',
-    'cmlspartner'
   ],
 
   // unsure
@@ -214,7 +156,11 @@ const TRACKERS_BY_ROOT = {
   'cm_': [
     'mmc',
     're',
-    'sp'
+    'sp',
+    'cat',
+    'ite',
+    'pla',
+    'ven'
   ],
 
   // unsure
@@ -245,8 +191,102 @@ const TRACKERS_BY_ROOT = {
     'SiteID'
   ],
 
-  // id
+  // unsure
+  'kbr_': [
+    'source',
+    'medium',
+    'content',
+    'campaign'
+  ],
+
+  // unsure
+  'mr:': [
+    'trackingCode',
+    'referralID',
+    'device',
+    'adType',
+    'ad',
+    'keyword',
+    'match',
+    'tid',
+    'ploc',
+    'iloc',
+    'store',
+    'filter'
+  ],
+
+  // Non-prefixy and 1-offs
   '': [
+    // Google Click Identifier
+    'gclid',
+    'gclsrc',
+    // Google Search Query Tracking
+    'ei',
+    'gs_l',
+    'oq',
+    'aqs',
+    'sourceid',
+    // Google Shopping Tracking 'sa', 'ved' break redirects
+    'biw',
+    'bih',
+    'dpr',
+    // Google Related
+    'hvadid',
+    'hvpos',
+    'hvnetw',
+    'hvrand',
+    'hvpone',
+    'hvptwo',
+    'hvqmt',
+    'hvdev',
+    'hvdvcmdl',
+    'hvlocint',
+    'hvlocphy',
+    'hvtargid',
+    'pla_country',
+    'CAGPSPN',
+    'CAAGID',
+    'CATCI',
+    'cadevice',
+    'catargetid',
+    'trackingid',
+    'tp',
+    'awkw',
+    'awat',
+    'awnw',
+    'awcr',
+    'awdv',
+    'awug',
+    'mrkgcl',
+    'mrkgadid',
+    'adpos',
+    'creative',
+    'camptype',
+    'pt_source',
+    'pt_medium',
+    'pt_campaign',
+    'pt_adgroup',
+    'pt_keyword',
+    'scid',
+    'sc_intid',
+    // Unknown
+    'ncid',
+    // Unknown
+    'nr_email_referer',
+    // Generic-ish. Facebook, Product Hunt and others
+    'ref',
+    // Alibaba-family 'super position model' tracker:
+    // https://github.com/newhouse/url-tracking-stripper/issues/38
+    'spm',
+    // Slickdeals Related
+    'a',
+    'avad',
+    'nm_mc',
+    'loc',
+    'tag',
+    'referrer',
+    'srcref',
+    // id
     'AFFID',
     '_cmp',
     '_ebid',
@@ -270,35 +310,12 @@ const TRACKERS_BY_ROOT = {
     'oid',
     'sdtid', // slickdeals
     'siteid',
+    'siteID',
     'source_id',
     'sourceid',
     'src_bizid',
     'tmcampid',
-    'trkid'
-  ],
-
-  // Non-prefixy and 1-offs
-  '': [
-    // Google Click Identifier
-    'gclid',
-    'gclsrc',
-    // Unknown
-    'ncid',
-    // Unknown
-    'nr_email_referer',
-    // Generic-ish. Facebook, Product Hunt and others
-    'ref',
-    // Alibaba-family 'super position model' tracker:
-    // https://github.com/newhouse/url-tracking-stripper/issues/38
-    'spm',
-    // Slickdeals Related
-    'a',
-    'avad',
-    'nm_mc',
-    'loc',
-    'tag',
-    'referrer',
-    'srcref',
+    'trkid',
     // iTunes
     'pt',
     'ct',
@@ -308,9 +325,7 @@ const TRACKERS_BY_ROOT = {
     'afftrack',
     // Walmart
     'u1',
-    'wmlspartner',
     'affillinktype',
-    'veh',
     // Misc
     'lnm',
     'campaign',
@@ -324,9 +339,7 @@ const TRACKERS_BY_ROOT = {
     'banner_type',
     // Coupon Cabin
     'irgwc',
-    // Amazon
-    'm',
-    's',
+    // Amazon - 's', 'm' break other sites
     'th',
     // Dotomi
     'CJPIXEL',
@@ -338,7 +351,7 @@ const TRACKERS_BY_ROOT = {
     // yelp
     'website_link_type',
     'ak_t',
-    'wtExtndSource',
+    'wtExtendSource',
     // ValueClick
     'CI',
     'RI',
@@ -350,12 +363,80 @@ const TRACKERS_BY_ROOT = {
     'pvid',
     'CELL',
     'CAWELAID',
-    'omid'
+    'omid',
+    'partner',
+    'subid',
+    'dsi',
+    'CID',
+    'mkwid',
+    'source',
+    's_kwcid',
+    'iid',
+    'chn',
+    'kclid',
+    // Bizrate Related
+    'affcmpid',
+    'tmode',
+    'veh',
+    'wmlspartner',
+    'selectedSellerId',
+    'adid',
+    'w10',
+    'w11',
+    'w12',
+    'w13',
+    'w14',
+    'w15',
+    'w16',
+    'w17',
+    'w18',
+    'w19',
+    'w110',
+    'w111',
+    'w112',
+    'w113',
+    // ZiffDavis via Techbargains
+    'ascsubtag',
+    'click_attribution',
+    'clickGuid',
+    'device',
+    'item_type',
+    'link_type',
+    'link_text',
+    'original_name',
+    'page',
+    'page_location',
+    'pf_rd_p',
+    'smid',
+    'source',
+    'tag',
+    'tracker',
+    'vendor',
+    'zd_ptax',
+    // Groupon Deal API
+    'sid',
+    'wid',
+    'tsToken',
+    // ListHub Query String API - 'ip', not included
+    'clid',
+    'eo',
+    'et',
+    'ev',
+    'lkey',
+    'mp',
+    'pr',
+    'ua',
+    'up',
+    // AppNexus: Impression Tracker Service
+    'advertiser_id',
+    'ancost',
+    'cachebuster'
   ]
 };
 
 // TODO: Some sites, level QS must = 0 otherwise cookie error
 // TODO: Site specific QS removal
+// TODO: Tracking + Statistics
 
 // Go through all the trackers by their root and turn them into a big regex...
 const TRACKER_REGEXES_BY_ROOT = {};
