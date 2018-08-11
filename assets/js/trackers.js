@@ -24,12 +24,6 @@ const TRACKERS_BY_ROOT = {
     'viz_id'
   ],
 
-  // Adobe Coldfusion
-  '': [
-    'CFID',
-    'CFTOKEN'
-  ],
-
   // Adobe Omniture SiteCatalyst
   'IC': [
     'ID'
@@ -94,46 +88,6 @@ const TRACKERS_BY_ROOT = {
     'ac',
     'qs_osrc',
     'pn_sku'
-  ],
-
-  // matomo Tracking HTTP API
-  '': [
-    '_cvar',
-    '_id',
-    '_idts',
-    '_idvc',
-    '_rck',
-    '_rcn',
-    '_viewts',
-    'action_name',
-    'apiv',
-    'c_i',
-    'c_n',
-    'c_p',
-    'c_t',
-    'cid',
-    'e_a',
-    'e_c',
-    'e_n',
-    'e_v',
-    'idsite',
-    'ma_fs',
-    'ma_h',
-    'ma_id',
-    'ma_le',
-    'ma_mt',
-    'ma_pn',
-    'ma_ps',
-    'ma_re',
-    'ma_st',
-    'ma_ti',
-    'ma_ttp',
-    'ma_w',
-    'rand',
-    'rec',
-    'res',
-    'uid',
-    'urlref'
   ],
 
   // ZiffDavis Related
@@ -215,6 +169,46 @@ const TRACKERS_BY_ROOT = {
     'filter'
   ],
 
+  // matomo Tracking HTTP API
+  '': [
+    '_cvar',
+    '_id',
+    '_idts',
+    '_idvc',
+    '_rck',
+    '_rcn',
+    '_viewts',
+    'action_name',
+    'apiv',
+    'c_i',
+    'c_n',
+    'c_p',
+    'c_t',
+    'cid',
+    'e_a',
+    'e_c',
+    'e_n',
+    'e_v',
+    'idsite',
+    'ma_fs',
+    'ma_h',
+    'ma_id',
+    'ma_le',
+    'ma_mt',
+    'ma_pn',
+    'ma_ps',
+    'ma_re',
+    'ma_st',
+    'ma_ti',
+    'ma_ttp',
+    'ma_w',
+    'rand',
+    'rec',
+    'res',
+    'uid',
+    'urlref'
+  ],
+
   // Non-prefixy and 1-offs
   '': [
     // Google Click Identifier
@@ -230,6 +224,7 @@ const TRACKERS_BY_ROOT = {
     'biw',
     'bih',
     'dpr',
+    'vet',
     // Google Related
     'hvadid',
     'hvpos',
@@ -283,6 +278,7 @@ const TRACKERS_BY_ROOT = {
     'avad',
     'nm_mc',
     'loc',
+    'location',
     'tag',
     'referrer',
     'srcref',
@@ -360,6 +356,9 @@ const TRACKERS_BY_ROOT = {
     'cjevent',
     // misc
     'ci_mcc',
+    'ci_src',
+    'ci_sku',
+    'cnc',
     'pvid',
     'CELL',
     'CAWELAID',
@@ -372,8 +371,15 @@ const TRACKERS_BY_ROOT = {
     'source',
     's_kwcid',
     'iid',
+    'kid',
     'chn',
     'kclid',
+    'adgroup',
+    'CPNG',
+    'LID',
+    'track',
+    'jcmp',
+    'is_retargeting',
     // Bizrate Related
     'affcmpid',
     'tmode',
@@ -381,20 +387,20 @@ const TRACKERS_BY_ROOT = {
     'wmlspartner',
     'selectedSellerId',
     'adid',
-    'w10',
-    'w11',
-    'w12',
-    'w13',
-    'w14',
-    'w15',
-    'w16',
-    'w17',
-    'w18',
-    'w19',
-    'w110',
-    'w111',
-    'w112',
-    'w113',
+    'wl0',
+    'wl1',
+    'wl2',
+    'wl3',
+    'wl4',
+    'wl5',
+    'wl6',
+    'wl7',
+    'wl8',
+    'wl9',
+    'wl10',
+    'wl11',
+    'wl12',
+    'wl13',
     // ZiffDavis via Techbargains
     'ascsubtag',
     'click_attribution',
@@ -430,7 +436,10 @@ const TRACKERS_BY_ROOT = {
     // AppNexus: Impression Tracker Service
     'advertiser_id',
     'ancost',
-    'cachebuster'
+    'cachebuster',
+    // Adobe Coldfusion
+    'CFID',
+    'CFTOKEN'
   ]
 };
 
