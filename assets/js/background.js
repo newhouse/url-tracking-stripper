@@ -146,7 +146,9 @@ function registerRedirectHandlers() {
       // Return this redirect URL in order to actually redirect the tab
 
       const finalUrl = removeTrackersFromUrl(targetUrl);
-      changeManager.storeChanges(details.tabId, targetUrl, finalUrl, CHANGE_TYPE_TRACKING_STRIP);
+      if (targetUrl !== finalUrl) {
+        changeManager.storeChanges(details.tabId, targetUrl, finalUrl, CHANGE_TYPE_TRACKING_STRIP);
+      }
       unRegisterBlockAndReloadHandler();
 
       return { redirectUrl: finalUrl };

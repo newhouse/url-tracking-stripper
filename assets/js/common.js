@@ -29,14 +29,14 @@ function findQueryParam(targetParam, url) {
   // Find the first occurrance of '?' character. I've seen URLs that have embedded
   // URLs that are not properly encoded, e.g.:
   // https://www.google.com/url?hl=en&q=http://t.dd.delta.org/r/?id%3Dxxxxx,yyyyyy,zzzzz&source=gmail&ust=1516647918588000&usg=AFQjCNEV1C1cwHSrU8r1kyYmaPe4IAsb-Q
-  var queryIndex = url.indexOf('?');
+  const queryIndex = url.indexOf('?');
 
   if (queryIndex === -1) {
     return false;
   }
 
   // Split the URL at the '?' to get the query string
-  var queryString = url.substr(queryIndex + 1);
+  const queryString = url.substr(queryIndex + 1);
 
   // If we have a query string...
   if (queryString) {
@@ -47,14 +47,14 @@ function findQueryParam(targetParam, url) {
     }
 
     // Get the key/value pairs from the query string
-    var keyVals = queryString.split('&');
+    const keyVals = queryString.split('&');
     // Figure out how many pairs we have
-    var kvsLength = keyVals.length;
+    const kvsLength = keyVals.length;
     // For each iteration fo the loop
-    var kv = void 0;
+    let kv;
 
-    for (var i = 0; i < kvsLength; i++) {
-      
+    for (let i = 0; i < kvsLength; i++) {
+
       // Get this key/value pair and split it up into its pieces
       kv = keyVals[i].split('=');
       // We are looking for "url=blahblahblah", so see if this is the one
@@ -63,10 +63,17 @@ function findQueryParam(targetParam, url) {
         // Find last occurrance of '=' character before the targetParam. Some URLs do not have proper
         // encoding of this character. The full URL after the first targetParam is discovered will be used.
         // http://clickserve.dartsearch.net/link/click?lid=000000&ds_dest_url=http://clickserve.dartsearch.net/link/click?lid=000000&ds_dest_url=https://www.bestbuy.com/site/nintendo-switch-32gb-console-neon-red-neon-blue-joy-con
-        var queryValueIndex = url.indexOf(targetParam);
+
+        // if i = 0, then '?' is the target, otherwise search for '&'
+        let queryValueIndex = -1;
+        if (i = 0) { 
+          queryValueIndex = url.indexOf('?' + targetParam) + 1;
+        } else {
+          queryValueIndex = url.indexOf('&' + targetParam) + 1;
+        }
 
         // Split the URL at the targetParam
-        var targetUrl = url.substr(queryValueIndex + kv[0].length + 1);
+        const targetUrl = url.substr(queryValueIndex + kv[0].length + 1);
 
         return targetUrl;
       }

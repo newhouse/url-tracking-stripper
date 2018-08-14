@@ -79,7 +79,7 @@ const KNOWN_REDIRECTS = [
     patterns: [
       // BUG: Does not work
       // ${SCHEMA}linksynergy.${SUBDOMAIN}.com${PATH}?
-      `${SCHEMA}linksynergy.walmart.com${PATH}?`
+      `${SCHEMA}linksynergy.walmart.com/fs-bin/click?`
     ],
     types: ['main_frame']
   },
@@ -93,6 +93,16 @@ const KNOWN_REDIRECTS = [
   },
   {
     name: 'ValueClick',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.dpbolvw.net${PATH}?`,
+      `${SCHEMA}www.tkqlhce.com${PATH}?`,
+      `${SCHEMA}www.anrdoezrs.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'ValueClick 2',
     targetParam: 'URL',
     patterns: [
       `${SCHEMA}www.dpbolvw.net${PATH}?`,
@@ -130,15 +140,8 @@ const KNOWN_REDIRECTS = [
     name: 'Connexity',
     targetParam: 't',
     patterns: [
-      `${SCHEMA}rd.connexity.net/rd?`
-    ],
-    types: ['main_frame']
-  },
-  {
-    // bizrate
-    name: 'Pricegrabber',
-    targetParam: 't',
-    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.bizrate.com${PATH}?`,
+      `${SCHEMA}rd.connexity.net/rd?`,
       `${SCHEMA}rd.shop.pricegrabber.com/rd2?`
     ],
     types: ['main_frame']
@@ -267,6 +270,8 @@ const KNOWN_REDIRECTS = [
     name: 'SJV',
     targetParam: 'u',
     patterns: [
+      // TODO: bug
+      // http://eddie-bauer-us.sjv.io/c/10451/390289/5671?subid1=9920284a9f8611e8be4baeb9af6f605e0INT&u=http%3A%2F%2Fwww.eddiebauer.com%2Fbrowse%2Fclearance%2F_%2FN-y%3FisClearCat%3Dtrue%26tab%3Dclearance%26cm_sp%3Dtopnav-_-Clearance-_-main%26previousPage%3DGNAV&level=4&tpsync=yes&tpsync=yes&tpsync=yes&tpsync=yes&dst=&brid=&dstsig=&dst=&brid=&dstsig=&dst=&brid=&dstsig=&dst=&brid=&dstsig=&dst=&brid=&dstsig=
       `${SCHEMA}${SUBDOMAIN}.sjv.io${PATH}?`
     ],
     types: ['main_frame']
@@ -358,14 +363,6 @@ const KNOWN_REDIRECTS = [
     targetParam: 'u2',
     patterns: [
       `${SCHEMA}clicks.slickdeals.net${PATH}?`
-    ],
-    types: ['main_frame']
-  },
-  {
-    name: 'Bizrate',
-    targetParam: 't',
-    patterns: [
-      `${SCHEMA}${SUBDOMAIN}.bizrate.com${PATH}?`
     ],
     types: ['main_frame']
   },
@@ -515,19 +512,35 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}apiservices.krxd.net/click_tracker/track?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'xg4ken',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}6005.xg4ken.com/trk/v1?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Voltage Search',
+    targetParam: 'durl',
+    patterns: [
+      `${SCHEMA}tracking.voltagesearch.com/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Prosperent',
+    targetParam: 'location',
+    patterns: [
+      `${SCHEMA}prosperent.com/api/linkaffiliator/redirect?`
+    ],
+    types: ['main_frame']
   }
 ];
 
-// TODO: BUG: if the target destination URL exists within a link where
-// there are two of the same target parameters that are not properly
-// encoded, then the website will not be redirected correctly.
-// Possible Fix: scan for the first target param, execute, then
-// follow up on the second URL.
-
-// example URL:
-// http://clickserve.dartsearch.net/link/click?lid=99999999999999999&ds_dest_url=
-// http://clickserve.dartsearch.net/link/click?lid=00000000000000000&ds_dest_url=
-// https://www.bestbuy.com/site/amazon-fire-tv-stick-with-alexa-voice-remote-black/5477500.p%3FskuId%3D5477500
+// TODO: BUG - shareasale, linksynergy.walmart.com do not work
+// http://www.shareasale.com/r.cfm?u=101512&b=450685&m=45519&afftrack=6d08263e9d1c11e8b8aa8e7a0d52cbc40INT&urllink=www.reebok.com%2Fus%2Fmen-daily_deal%3FSSAID%3D101512%26cm_mmc%3DRbkaffiliates_SAS-_-101512-_-None-_-banner-_-dv%3AeCom-_-cn%3A450685-_-pc%3ANone%26cm_mmc1%3DUS%26cm_mmc2%3Dreebok-NA-eCom-Affiliates-101512-None-None-US-450685-None%26dclid%3DCN7ttJq34dwCFRq_TwodW2EODw
 
 // TODO: cj.dotomi, emjcd, cannot parse from URL
 // TODO: Prioritize over other extensions, cannot bypass blocked url
