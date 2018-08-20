@@ -11,6 +11,9 @@ const QS_VALUE            = '<QSVALUE>';
 const QS_KVS              = '<QSKVS>';
 const TARGET_PARAM_IS_QS  = '<TARGET_IS_QS>';
 
+// TODO
+const TARGET_PARAM_NO_QS  = '<TARGET_NO_QS>';
+
 
 const KNOWN_REDIRECTS = [
   {
@@ -195,6 +198,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame', 'ping']
   },
   {
+    name: 'Rover - Internal Site 2',
+    targetParam: 'loc',
+    patterns: [
+      `${SCHEMA}rover.ebay.com${PATH}?`
+    ],
+    types: ['main_frame', 'ping']
+  },
+  {
     name: 'Rover - External Site',
     targetParam: 'url',
     patterns: [
@@ -215,6 +226,14 @@ const KNOWN_REDIRECTS = [
     targetParam: 'location',
     patterns: [
       `${SCHEMA}www.amazon.com/gp/redirect.html?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Amazon - Email',
+    targetParam: 'U',
+    patterns: [
+      `${SCHEMA}www.amazon.com/gp/r.html?`
     ],
     types: ['main_frame']
   },
@@ -270,8 +289,6 @@ const KNOWN_REDIRECTS = [
     name: 'SJV',
     targetParam: 'u',
     patterns: [
-      // TODO: bug
-      // http://eddie-bauer-us.sjv.io/c/10451/390289/5671?subid1=9920284a9f8611e8be4baeb9af6f605e0INT&u=http%3A%2F%2Fwww.eddiebauer.com%2Fbrowse%2Fclearance%2F_%2FN-y%3FisClearCat%3Dtrue%26tab%3Dclearance%26cm_sp%3Dtopnav-_-Clearance-_-main%26previousPage%3DGNAV&level=4&tpsync=yes&tpsync=yes&tpsync=yes&tpsync=yes&dst=&brid=&dstsig=&dst=&brid=&dstsig=&dst=&brid=&dstsig=&dst=&brid=&dstsig=&dst=&brid=&dstsig=
       `${SCHEMA}${SUBDOMAIN}.sjv.io${PATH}?`
     ],
     types: ['main_frame']
@@ -296,7 +313,6 @@ const KNOWN_REDIRECTS = [
     name: 'Linkshare',
     targetParam: 'url',
     patterns: [
-      // This pattern works, but does not remove trackers at end
       `${SCHEMA}${SUBDOMAIN}.com/Linkshare?`
     ],
     types: ['main_frame']
@@ -536,11 +552,26 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}prosperent.com/api/linkaffiliator/redirect?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Dotomi',
+    targetParam: TARGET_PARAM_NO_QS,
+    patterns: [
+      `${SCHEMA}cj.dotomi.com.com/links-t/`
+    ],
+    types: ['main_frame']
   }
 ];
 
-// TODO: BUG - shareasale, linksynergy.walmart.com do not work
-// http://www.shareasale.com/r.cfm?u=101512&b=450685&m=45519&afftrack=6d08263e9d1c11e8b8aa8e7a0d52cbc40INT&urllink=www.reebok.com%2Fus%2Fmen-daily_deal%3FSSAID%3D101512%26cm_mmc%3DRbkaffiliates_SAS-_-101512-_-None-_-banner-_-dv%3AeCom-_-cn%3A450685-_-pc%3ANone%26cm_mmc1%3DUS%26cm_mmc2%3Dreebok-NA-eCom-Affiliates-101512-None-None-US-450685-None%26dclid%3DCN7ttJq34dwCFRq_TwodW2EODw
+// TODO: BUG: some urls do not have their tracking stripped if a redirect is 
+// followed yet is not the final url and is not a handled redirect
+// ex. Slickdeals
+// fixed with hacky fix
+
+// http://cj.dotomi.com/links-t/7278242/type/dlg/sid/xxxxx/https://www.bedbathandbeyond.com/store/static/coupons?sid=WW64ea0ffc2343b42ba4f2c5b0
+
+// TODO: Make sure tracking is only stripped if the url is an 
+// unhandled redirect. 
 
 // TODO: cj.dotomi, emjcd, cannot parse from URL
 // TODO: Prioritize over other extensions, cannot bypass blocked url
@@ -560,11 +591,11 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   // Pluck out the param and the patterns
   const originalTargetParam   = KNOWN_REDIRECT.targetParam;
   const targetParam           = originalTargetParam === TARGET_PARAM_IS_QS ? '*' : originalTargetParam;
-  const orginalPatterns       = KNOWN_REDIRECT.patterns;
+  const originalPatterns       = KNOWN_REDIRECT.patterns;
   const types                 = KNOWN_REDIRECT.types;
 
   // Make sure everything looks good
-  if (!(targetParam && orginalPatterns && orginalPatterns.length && types && types.length)) {
+  if (!(targetParam && originalPatterns && originalPatterns.length && types && types.length)) {
     return;
   }
 
@@ -589,7 +620,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   const newClipboardRegexes = [];
 
   // Go through each of these patterns and create any combinations we need to
-  orginalPatterns.forEach(originalPattern => {
+  originalPatterns.forEach(originalPattern => {
 
     // If it's the entire query string...
     if (originalTargetParam === TARGET_PARAM_IS_QS) {
@@ -597,8 +628,16 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
       // The regex only needs 1 variation which includes optional query string key/values
       const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_VALUE}`);
       newClipboardRegexes.push(new RegExp(regexPattern));
-    }
-    else {
+    } else if (originalTargetParam === TARGET_PARAM_NO_QS) {
+
+      // TODO: make sure implementation is correct
+
+      newPatterns.push(replacePlaceholders(`${originalPattern}*\/http`));
+      // The regex only needs 1 variation which includes optional query string key/values
+      const regexPattern = replacePlaceholdersRegex(`${originalPattern}*\/http`);
+      newClipboardRegexes.push(new RegExp(regexPattern));
+
+    } else {
 
       // Create the key/value placeholder for the target param
       const targetParamKv = `${targetParam}=${QS_VALUE}`;
@@ -673,7 +712,15 @@ function extractRedirectTarget(url, targetParam = 'url') {
   // See if we can find a target in the URL.
   let target = findQueryParam(targetParam, url);
 
-  if (typeof target === 'string' && target.startsWith('http')) {
+  // Some URLs do not start with 'http' in the value of the target parameter
+  // ex. www.website.com
+  // TODO: Figure out a way to find if a URL is valid
+
+  if (typeof target === 'string') {
+    // make sure the url is valid when decoded
+    if (!target.startsWith('http')) {
+      target = 'http://' + target;
+    }
     return decodeURIComponent(target);
   }
 
@@ -712,6 +759,7 @@ function followRedirect(url) {
 
 module.exports = {
   TARGET_PARAM_IS_QS,
+  TARGET_PARAM_NO_QS,
   KNOWN_REDIRECTS,
   REDIRECT_DATA_BY_TARGET_PARAM,
   escapeRegExp,

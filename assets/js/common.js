@@ -26,11 +26,40 @@ function findQueryParam(targetParam, url) {
     return false;
   }
 
+  // TODO: Better handling
+  // Attempt to handle redirects for websites like dotomi, e.g.
+  // http://cj.dotomi.com/links-t/000000/type/dlg/sid/xxxxxxxxx/https://www.bedbathandbeyond.com/store/static/coupons
+  if (targetParam === '/http' ) {
+
+    let isHttps = true;
+
+    let targetValueIndex = url.indexOf('/https');
+    if (targetValueIndex === -1) {
+      targetValueIndex = url.indexOf('/http');
+      isHttps = false;
+    }
+
+    let targetUrl = '';
+
+    if (isHttps) {
+      const values = url.split('https');
+      targetUrl = 'https' + values[1];
+    } else {
+      const values = url.split();
+      targetUrl = 'http' + values[1];
+    }
+
+    if (targetUrl === '') {
+      return false;
+    }
+
+    return targetUrl;
+  }
+
   // Find the first occurrance of '?' character. I've seen URLs that have embedded
   // URLs that are not properly encoded, e.g.:
   // https://www.google.com/url?hl=en&q=http://t.dd.delta.org/r/?id%3Dxxxxx,yyyyyy,zzzzz&source=gmail&ust=1516647918588000&usg=AFQjCNEV1C1cwHSrU8r1kyYmaPe4IAsb-Q
   const queryIndex = url.indexOf('?');
-
   if (queryIndex === -1) {
     return false;
   }
@@ -66,7 +95,7 @@ function findQueryParam(targetParam, url) {
 
         // if i = 0, then '?' is the target, otherwise search for '&'
         let queryValueIndex = -1;
-        if (i = 0) { 
+        if (i === 0) { 
           queryValueIndex = url.indexOf('?' + targetParam) + 1;
         } else {
           queryValueIndex = url.indexOf('&' + targetParam) + 1;

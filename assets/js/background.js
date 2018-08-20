@@ -149,7 +149,13 @@ function registerRedirectHandlers() {
       if (targetUrl !== finalUrl) {
         changeManager.storeChanges(details.tabId, targetUrl, finalUrl, CHANGE_TYPE_TRACKING_STRIP);
       }
+
+      // Not a great fix for the time being, but it works.
+      // Fixes bug where blockandreload would also try to redirect the url
+      // gives errors in chrome. Assuming because blockAndReload is listening
+      // to onBeforeRequest as well.
       unRegisterBlockAndReloadHandler();
+      registerBlockAndReloadHandler();
 
       return { redirectUrl: finalUrl };
     };
@@ -258,7 +264,6 @@ function registerBlockAndReloadHandler() {
     types:  ["main_frame"]
   };
   const extra = ["blocking"];
-
   // Monitor WebRequests so that we may block and re-load them without tracking params
   chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
 }

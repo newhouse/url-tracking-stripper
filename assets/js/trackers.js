@@ -100,6 +100,20 @@ const TRACKERS_BY_ROOT = {
     't'
   ],
 
+  // Amazon Emails
+  'pd_rd_': [
+    'i',
+    'r',
+    'w',
+    'wg'
+  ],
+
+  // ebay Emails
+  '_trk': [
+    'sid',
+    'parms'
+  ],
+
   // unsure
   'c3': [
     'ch',
@@ -109,6 +123,12 @@ const TRACKERS_BY_ROOT = {
   // unsure
   'cm_': [
     'mmc',
+    'mmc1',
+    'mmc2',
+    'mmca1',
+    'mmca2',
+    'mmca3',
+    'mmca4',
     're',
     'sp',
     'cat',
@@ -125,11 +145,19 @@ const TRACKERS_BY_ROOT = {
   ],
 
   // unsure
+  '_bta_': [
+    'c',
+    'tid'
+  ],
+
+  // unsure
   'mi_': [
     'u',
     'xml_params',
     'url',
-    'eaddr'
+    'eaddr',
+    'ecmp',
+    'place_key'
   ],
 
   // unsure
@@ -217,6 +245,15 @@ const TRACKERS_BY_ROOT = {
     '13',
   ],
 
+  'aw': [
+    'at',
+    'cr',
+    'dv',
+    'kw',
+    'nw',
+    'ug'
+  ],
+
   // matomo Tracking HTTP API
   '': [
     '_cvar',
@@ -282,12 +319,6 @@ const TRACKERS_BY_ROOT = {
     'catargetid',
     'trackingid',
     'tp',
-    'awkw',
-    'awat',
-    'awnw',
-    'awcr',
-    'awdv',
-    'awug',
     'mrkgcl',
     'mrkgadid',
     'adpos',
@@ -304,15 +335,15 @@ const TRACKERS_BY_ROOT = {
     // Alibaba-family 'super position model' tracker:
     // https://github.com/newhouse/url-tracking-stripper/issues/38
     'spm',
-    // Slickdeals Related - Adobe Ref.
+    // Slickdeals Related - Adobe Ref. 'tid' required
+    'adobeRef',
     'afsrc',
     'trd',
     'sdtid',
-    'tid',
     'sdtrk',
-    'pv',
-    'au',
     'a',
+    'au',
+    'pv',
     'avad',
     'nm_mc',
     'loc',
@@ -320,7 +351,8 @@ const TRACKERS_BY_ROOT = {
     'tag',
     'referrer',
     'srcref',
-    // id
+    'PublisherName',
+    // id - 'mid' used for facebook
     'AFFID',
     '_cmp',
     '_ebid',
@@ -332,6 +364,7 @@ const TRACKERS_BY_ROOT = {
     'AID',
     'clickid',
     'clkid',
+    'cgid',
     'dclid',
     'ehid',
     'eid',
@@ -339,7 +372,6 @@ const TRACKERS_BY_ROOT = {
     'flyer_run_id',
     'jid',
     'lkid',
-    'mid',
     'mktID',
     'nid',
     'oid',
@@ -430,6 +462,8 @@ const TRACKERS_BY_ROOT = {
     // Adobe Coldfusion
     'CFID',
     'CFTOKEN',
+    // Humble Bundle Email
+    'mcID',
     // misc
     'lnm',
     'campaign',
@@ -465,7 +499,14 @@ const TRACKERS_BY_ROOT = {
     'item_name',
     'author',
     'src',
-    'x1'
+    'x1',
+    'associateid',
+    'publisherId',
+    'tracking',
+    'mlink',
+    'clink',
+    'plattr',
+    '_ref'
   ]
 };
 
