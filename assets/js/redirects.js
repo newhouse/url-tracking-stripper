@@ -560,7 +560,16 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}cj.dotomi.com.com/links-t/`
     ],
     types: ['main_frame']
-  }
+  },
+  // REDIRECTS SUCH AS "ARE YOU SURE YOU WANT TO LEAVE OUR SITE?" USE AT OWN RISK
+  {
+    name: 'Steam',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}steamcommunity.com/linkfilter/?`
+    ],
+    types: ['main_frame']
+  },
 ];
 
 // TODO: BUG: some urls do not have their tracking stripped if a redirect is 

@@ -341,6 +341,7 @@ const TRACKERS_BY_ROOT = {
     'trd',
     'sdtid',
     'sdtrk',
+    'pno',
     'a',
     'au',
     'pv',
