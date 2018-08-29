@@ -6,17 +6,22 @@ const TRACKERS_BY_ROOT = {
 
   // Google's Urchin Tracking Module
   'utm_': [
-    'source',
-    'medium',
-    'term',
     'campaign',
-    'content',
-    'name',
+    'campaignid',
+    'channel',
     'cid',
-    'reader',
-    'viz_id',
+    'content',
+    'expid',
+    'item',
+    'medium',
+    'name',
     'pubreferrer',
-    'swu'
+    'reader',
+    'referrer',
+    'source',
+    'swu',
+    'term',
+    'viz_id'
   ],
 
   // Adobe Omniture SiteCatalyst
@@ -27,6 +32,22 @@ const TRACKERS_BY_ROOT = {
   // Adobe Omniture SiteCatalyst
   'ic': [
     'id'
+  ],
+
+  // KevyMail
+  'k': [
+    'c_id',
+    'e_id',
+    'el_id'
+  ],
+
+  // comScore Digital Analytix
+  'ns_': [
+    'campaign',
+    'mchannel',
+    'source',
+    'linkname',
+    'fee'
   ],
 
   // Hubspot
@@ -47,6 +68,15 @@ const TRACKERS_BY_ROOT = {
     'eid'
   ],
 
+  // Oracle Eloqua
+  'elq': [
+    'TrackID',
+    'aid',
+    'at',
+    'CampaignId',
+    ''
+  ],
+
   // Simple Reach
   'sr_': [
     'share'
@@ -58,10 +88,254 @@ const TRACKERS_BY_ROOT = {
     'id'
   ],
 
+  // Web Trends
+  'WT.': [
+    'mc_id',
+    'srch',
+    'ac',
+    'qs_osrc',
+    'pn_sku',
+    'z_eCTAid',
+    'z_edatesent'
+  ],
+
+  // ZiffDavis Related
+  'pf_rd_': [
+    'i',
+    'm',
+    'p',
+    'r',
+    's',
+    't'
+  ],
+
+  // Amazon Emails
+  'pd_rd_': [
+    'i',
+    'r',
+    'w',
+    'wg'
+  ],
+
+  // ebay Emails
+  '_trk': [
+    'sid',
+    'parms'
+  ],
+
+  // unsure
+  'c3': [
+    'ch',
+    'nid'
+  ],
+
+  // unsure
+  'cm_': [
+    'mmc',
+    'mmc1',
+    'mmc2',
+    'mmca1',
+    'mmca2',
+    'mmca3',
+    'mmca4',
+    're',
+    'sp',
+    'cat',
+    'ite',
+    'pla',
+    'ven'
+  ],
+
+  // unsure
+  'cvo': [
+    'src',
+    '_campaign',
+    '_cid'
+  ],
+
+  // unsure
+  '_bta_': [
+    'c',
+    'tid'
+  ],
+
+  // unsure
+  'mi_': [
+    'u',
+    'xml_params',
+    'url',
+    'eaddr',
+    'ecmp',
+    'place_key',
+    'target_url'
+  ],
+
+  // unsure
+  'sp_': [
+    'source',
+    'campaign'
+  ],
+
+  // unsure
+  'ran': [
+    'MID',
+    'EAID',
+    'SiteID'
+  ],
+
+  // unsure
+  'ci_': [
+    'mcc',
+    'src',
+    'sku',
+  ],
+
+  // unsure
+  'hv': [
+    'adid',
+    'pos',
+    'netw',
+    'rand',
+    'pone',
+    'ptwo',
+    'qmt',
+    'dev',
+    'dvcmdl',
+    'locint',
+    'locphy',
+    'targid',
+  ],
+
+  // unsure
+  'kbr_': [
+    'source',
+    'medium',
+    'content',
+    'campaign'
+  ],
+
+  // unsure
+  'mr:': [
+    'trackingCode',
+    'referralID',
+    'device',
+    'adType',
+    'ad',
+    'keyword',
+    'match',
+    'tid',
+    'ploc',
+    'iloc',
+    'store',
+    'filter'
+  ],
+
+  'pt_': [
+    'source',
+    'medium',
+    'campaign',
+    'adgroup',
+    'keyword',
+  ],
+
+  'wl': [
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
+    '13',
+  ],
+
+  'aw': [
+    'at',
+    'cr',
+    'dv',
+    'kw',
+    'nw',
+    'ug'
+  ],
+
+  // matomo Tracking HTTP API
+  '': [
+    '_cvar',
+    '_id',
+    '_idts',
+    '_idvc',
+    '_rck',
+    '_rcn',
+    '_viewts',
+    'action_name',
+    'apiv',
+    'c_i',
+    'c_n',
+    'c_p',
+    'c_t',
+    'cid',
+    'e_a',
+    'e_c',
+    'e_n',
+    'e_v',
+    'idsite',
+    'ma_fs',
+    'ma_h',
+    'ma_id',
+    'ma_le',
+    'ma_mt',
+    'ma_pn',
+    'ma_ps',
+    'ma_re',
+    'ma_st',
+    'ma_ti',
+    'ma_ttp',
+    'ma_w',
+    'rand',
+    'rec',
+    'res',
+    'uid',
+    'urlref'
+  ],
+
   // Non-prefixy and 1-offs
   '': [
     // Google Click Identifier
     'gclid',
+    'gclsrc',
+    // Google Search Query Tracking
+    'ei',
+    'gs_l',
+    'oq',
+    'aqs',
+    'sourceid',
+    // Google Shopping Tracking 'sa', 'ved' break redirects
+    'biw',
+    'bih',
+    'dpr',
+    'vet',
+    // Google Related
+    'pla_country',
+    'CAGPSPN',
+    'CAAGID',
+    'CATCI',
+    'cadevice',
+    'catargetid',
+    'trackingid',
+    'tp',
+    'mrkgcl',
+    'mrkgadid',
+    'adpos',
+    'creative',
+    'camptype',
+    'scid',
+    'sc_intid',
     // Unknown
     'ncid',
     // Unknown
@@ -70,11 +344,206 @@ const TRACKERS_BY_ROOT = {
     'ref',
     // Alibaba-family 'super position model' tracker:
     // https://github.com/newhouse/url-tracking-stripper/issues/38
-    'spm'
+    'spm',
+    // Slickdeals Related - Adobe Ref. 'tid' required
+    'adobeRef',
+    'afsrc',
+    'trd',
+    'sdtid',
+    'sdtrk',
+    'pno',
+    'a',
+    'au',
+    'pv',
+    'avad',
+    'nm_mc',
+    'loc',
+    'location',
+    'tag',
+    'referrer',
+    'srcref',
+    'PublisherName',
+    'sdop',
+    'sdpid',
+    'pdfid',
+    'mw_aref',
+    // id - 'mid' used for facebook
+    'AFFID',
+    '_cmp',
+    '_ebid',
+    '_mid',
+    'acampID',
+    'affID',
+    'afid',
+    'aid',
+    'AID',
+    'campid',
+    'clickid',
+    'clkid',
+    'cgid',
+    'customid',
+    'dclid',
+    'ehid',
+    'eid',
+    'et_rid',
+    'flyer_run_id',
+    'jid',
+    'lkid',
+    'mktID',
+    'nid',
+    'oid',
+    'qid',
+    'siteid',
+    'siteID',
+    'source_id',
+    'sourceid',
+    'src_bizid',
+    'tmcampid',
+    'trkid',
+    // iTunes
+    'pt',
+    'ct',
+    'at',
+    // Fanatical
+    'aff_track',
+    'afftrack',
+    // Walmart
+    'u1',
+    'affillinktype',
+    // Linkshare
+    'LinkshareID',
+    'PartnerID',
+    'banner_type',
+    // Coupon Cabin
+    'irgwc',
+    // Amazon - 's', 'm' break other sites
+    'th',
+    // Dotomi
+    'CJPIXEL',
+    // Misc
+    'AFS',
+    'cj_pub_sid',
+    'clickref',
+    'psc', // amazon
+    // yelp
+    'website_link_type',
+    'ak_t',
+    'wtExtendSource',
+    // ValueClick
+    'CI',
+    'RI',
+    'RD',
+    'CJEVENT',
+    'cjevent',
+    // Bizrate Related
+    'affcmpid',
+    'tmode',
+    'veh',
+    'wmlspartner',
+    'selectedSellerId',
+    'adid',
+    // ZiffDavis via Techbargains
+    'ascsubtag',
+    'click_attribution',
+    'clickGuid',
+    'device',
+    'item_type',
+    'link_type',
+    'link_text',
+    'original_name',
+    'page_location',
+    'pf_rd_p',
+    'smid',
+    'source',
+    'tag',
+    'tracker',
+    'vendor',
+    'zd_ptax',
+    // Groupon Deal API 'sid' breaks some sites
+    'wid',
+    'tsToken',
+    // ListHub Query String API - 'ip', not included
+    'clid',
+    'eo',
+    'et',
+    'ev',
+    'lkey',
+    'mp',
+    'pr',
+    'ua',
+    'up',
+    // AppNexus: Impression Tracker Service
+    'advertiser_id',
+    'ancost',
+    'cachebuster',
+    // Adobe Coldfusion
+    'CFID',
+    'CFTOKEN',
+    // Humble Bundle Email
+    'mcID',
+    // Yandex Openstat
+    '_openstat',
+    // Ebay Related
+    '_udlo',
+    '_udhi',
+    'LH_CAds',
+    '_sadis',
+    '_sacat',
+    '_trksid',
+    // misc
+    'amp',
+    'lnm',
+    'campaign',
+    'CMP',
+    'linkCode',
+    'linkId',
+    'camp',
+    'cnc',
+    'pvid',
+    'CELL',
+    'CAWELAID',
+    'omid',
+    'partner',
+    'subid',
+    'dsi',
+    'CID',
+    'mkwid',
+    'source',
+    's_kwcid',
+    'iid',
+    'kid',
+    'chn',
+    'kclid',
+    'adgroup',
+    'CPNG',
+    'LID',
+    'track',
+    'jcmp',
+    'is_retargeting',
+    'rmatt',
+    'medium',
+    'item_id',
+    'item_name',
+    'author',
+    'src',
+    'x1',
+    'associateid',
+    'publisherId',
+    'tracking',
+    'mlink',
+    'clink',
+    'plattr',
+    '_ref',
+    '_ke',
+    'trk_msg',
+    'trk_contact',
+    'trk_sid'
   ]
 };
 
-
+// TODO: Some sites, level QS must = 0 otherwise cookie error
+// TODO: Site specific QS removal
+// TODO: Tracking + Statistics
 
 // Go through all the trackers by their root and turn them into a big regex...
 const TRACKER_REGEXES_BY_ROOT = {};

@@ -82,7 +82,6 @@ const STUFF_BY_STRIPPING_METHOD_ID = {
 };
 
 
-
 /*******************************************************
 *      ___        _ _            _
 *     | _ \___ __| (_)_ _ ___ __| |_ ___
@@ -100,6 +99,7 @@ function unRegisterRedirectHandlers() {
   // eslint-disable-next-line no-cond-assign
   while (handler = REDIRECT_HANDLERS.pop()) {
     chrome.webRequest.onBeforeRequest.removeListener(handler);
+    chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
   }
 }
 
@@ -143,20 +143,34 @@ function registerRedirectHandlers() {
       // Save the fact that we stripped something for indication later on.
       changeManager.storeChanges(details.tabId, details.url, targetUrl, CHANGE_TYPE_REDIRECT_SKIP);
       // Return this redirect URL in order to actually redirect the tab
-      return { redirectUrl: targetUrl };
+
+      const finalUrl = removeTrackersFromUrl(targetUrl);
+      if (targetUrl !== finalUrl) {
+        changeManager.storeChanges(details.tabId, targetUrl, finalUrl, CHANGE_TYPE_TRACKING_STRIP);
+      }
+
+      // Not a great fix for the time being, but it works.
+      // Fixes bug where blockandreload would also try to redirect the url
+      // gives errors in chrome. Assuming because blockAndReload is listening
+      // to onBeforeRequest as well.
+      unRegisterBlockAndReloadHandler();
+      registerBlockAndReloadHandler();
+
+      return { redirectUrl: finalUrl };
     };
 
     // SAVE DAT FUNCTION SO WE CAN UNREGISTER IT LATER
     REDIRECT_HANDLERS.push(handler);
     // REGISTER IT AS A LISTENER
     chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
+    // Monitor for subsequent Navigations so that we may indicate if a change
+    // was made or not.
+    chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
   }
 }
 
-//
-//
-//*******************************************************
 
+//******************************************************
 
 
 /*******************************************************
@@ -186,15 +200,15 @@ function checkUrlForTrackers(originalUrl) {
   return (cleansedUrl && cleansedUrl != originalUrl) ? cleansedUrl : false;
 }
 
+
 // Helper to do both redirect following and tracker removal
 // in certain situations.
 function followRedirectAndRemoveTrackers(url) {
   return removeTrackersFromUrl(followRedirect(url));
 }
 
-//
-//
-//*******************************************************
+
+//******************************************************
 
 
 /*******************************************************
@@ -204,6 +218,7 @@ function followRedirectAndRemoveTrackers(url) {
 *     |_||_\__,_|_||_\__,_|_\___|_| /__/
 *
 */
+
 // Handler for doing History Change approach
 function historyChangeHandler(tabId, changeInfo, tab) {
   // If the change was not to the URL, we're done.
@@ -232,7 +247,6 @@ function historyChangeHandler(tabId, changeInfo, tab) {
 // Unregiser the Block and Reload Handler
 function unRegisterBlockAndReloadHandler() {
   chrome.webRequest.onBeforeRequest.removeListener(blockAndReloadHandler);
-  chrome.webNavigation.onCompleted.removeListener(webNavigationMonitor);
 }
 
 
@@ -248,12 +262,8 @@ function registerBlockAndReloadHandler() {
     types:  ["main_frame"]
   };
   const extra = ["blocking"];
-
   // Monitor WebRequests so that we may block and re-load them without tracking params
   chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
-  // Monitor for subsequent Navigations so that we may indicate if a change
-  // was made or not.
-  chrome.webNavigation.onCompleted.addListener(webNavigationMonitor);
 }
 
 
@@ -379,11 +389,8 @@ function onInstallHandler(details) {
   }
 }
 
-//
-//
-//*******************************************************
 
-
+//******************************************************
 
 
 // We may need to monitor navigation so that we can let the user know when we've
@@ -568,9 +575,6 @@ function restoreOptionsFromStorage() {
 }
 
 
-
-
-
 // Wrapper to create the context menu items. Have experienced weird permissions
 // behavior for updates (not installs), so eventually after a few versions
 // this pre-flight-check can probably be removed. v4.1.0
@@ -663,6 +667,7 @@ function _createContextMenus() {
     });
   }
 
+
   // Make this menu item if we should
   if (CONTEXT_MENU_CLEAN_AND_GO_ENABLED) {
 
@@ -699,7 +704,6 @@ function _createContextMenus() {
     });
   }
 }
-
 
 
 // OK, finally let's:
