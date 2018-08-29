@@ -29,7 +29,7 @@ function findQueryParam(targetParam, url) {
   // TODO: Better handling
   // Attempt to handle redirects for websites like dotomi, e.g.
   // http://cj.dotomi.com/links-t/000000/type/dlg/sid/xxxxxxxxx/https://www.bedbathandbeyond.com/store/static/coupons
-  if (targetParam === '/http' ) {
+  if (targetParam === '<TARGET_NO_QS>' ) {
 
     let isHttps = true;
 

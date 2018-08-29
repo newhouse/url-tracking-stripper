@@ -34,6 +34,13 @@ const TRACKERS_BY_ROOT = {
     'id'
   ],
 
+  // KevyMail
+  'k': [
+    'c_id',
+    'e_id',
+    'el_id'
+  ],
+
   // comScore Digital Analytix
   'ns_': [
     'campaign',
@@ -87,7 +94,9 @@ const TRACKERS_BY_ROOT = {
     'srch',
     'ac',
     'qs_osrc',
-    'pn_sku'
+    'pn_sku',
+    'z_eCTAid',
+    'z_edatesent'
   ],
 
   // ZiffDavis Related
@@ -157,7 +166,8 @@ const TRACKERS_BY_ROOT = {
     'url',
     'eaddr',
     'ecmp',
-    'place_key'
+    'place_key',
+    'target_url'
   ],
 
   // unsure
@@ -353,6 +363,10 @@ const TRACKERS_BY_ROOT = {
     'referrer',
     'srcref',
     'PublisherName',
+    'sdop',
+    'sdpid',
+    'pdfid',
+    'mw_aref',
     // id - 'mid' used for facebook
     'AFFID',
     '_cmp',
@@ -363,9 +377,11 @@ const TRACKERS_BY_ROOT = {
     'afid',
     'aid',
     'AID',
+    'campid',
     'clickid',
     'clkid',
     'cgid',
+    'customid',
     'dclid',
     'ehid',
     'eid',
@@ -465,7 +481,17 @@ const TRACKERS_BY_ROOT = {
     'CFTOKEN',
     // Humble Bundle Email
     'mcID',
+    // Yandex Openstat
+    '_openstat',
+    // Ebay Related
+    '_udlo',
+    '_udhi',
+    'LH_CAds',
+    '_sadis',
+    '_sacat',
+    '_trksid',
     // misc
+    'amp',
     'lnm',
     'campaign',
     'CMP',
@@ -507,7 +533,11 @@ const TRACKERS_BY_ROOT = {
     'mlink',
     'clink',
     'plattr',
-    '_ref'
+    '_ref',
+    '_ke',
+    'trk_msg',
+    'trk_contact',
+    'trk_sid'
   ]
 };
 

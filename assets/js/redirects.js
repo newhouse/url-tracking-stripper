@@ -95,6 +95,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Walmart Email Tracking',
+    targetParam: 'extra',
+    patterns: [
+      `${SCHEMA}tracking01.walmart.com/track?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'ValueClick',
     targetParam: 'url',
     patterns: [
@@ -246,6 +254,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'Amazon - Adsystem',
+    targetParam: 'rd',
+    patterns: [
+      `${SCHEMA}s.amazon-adsystem.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'Mediaplex',
     targetParam: 'MPRE',
     patterns: [
@@ -379,6 +395,14 @@ const KNOWN_REDIRECTS = [
     targetParam: 'u2',
     patterns: [
       `${SCHEMA}clicks.slickdeals.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Slickdeals - 2',
+    targetParam: 'u2',
+    patterns: [
+      `${SCHEMA}slickdeals.net${PATH}?`
     ],
     types: ['main_frame']
   },
@@ -554,10 +578,74 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
-    name: 'Dotomi',
-    targetParam: TARGET_PARAM_NO_QS,
+    name: 'KevyMail',
+    targetParam: 'url',
     patterns: [
-      `${SCHEMA}cj.dotomi.com.com/links-t/`
+      `${SCHEMA}${SUBDOMAIN}.clk.kevymail.com${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Deref-GMX',
+    targetParam: 'redirectUrl',
+    patterns: [
+      `${SCHEMA}deref-gmx.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'LinkedIn',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.linkedin.com/redir/redirect?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Webgains',
+    targetParam: 'wgtarget',
+    patterns: [
+      `${SCHEMA}track.webgains.com/click.html?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'GeoRiot',
+    targetParam: 'GR_URL',
+    patterns: [
+      `${SCHEMA}target.georiot.com/Proxy.ashx?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'viglink',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}redirect.viglink.com/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Vans',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.vans.com/webapp/wcs/stores/servlet/LinkShareGateway?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'EastBay',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.eastbay.com/linkshare.cfm?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Dotomi',
+    targetParam: "<TARGET_NO_QS>",
+    patterns: [
+      `${SCHEMA}cj.dotomi.com${PATH}`
     ],
     types: ['main_frame']
   },
@@ -570,14 +658,87 @@ const KNOWN_REDIRECTS = [
     ],
     types: ['main_frame']
   },
+  {
+    name: 'Disqus',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}disq.us${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Digidip',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.digidip.net${PATH}?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'SoundCloud',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}exit.sc/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'DigitalTrends',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}www.digitaltrends.com/go/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Google Plus',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}plus.url.google.com/url?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Instagram',
+    targetParam: 'u',
+    patterns: [
+      `${SCHEMA}l.instagram.com/?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Slack',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}slack-redir.net/link?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Tumblr',
+    targetParam: 'z',
+    patterns: [
+      `${SCHEMA}t.umblr.com/redirect?`
+    ],
+    types: ['main_frame']
+  },
+  {
+    name: 'Curse',
+    targetParam: 'remoteUrl',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.curseforge.com/linkout?`
+    ],
+    types: ['main_frame']
+  },
 ];
+
+// TODO: https://prf.hn/click/camref:000000/destination:https%3A%2F%2Fwww.sprint.com%2Fen%2Fshop%2Foffers%2Ffree-unlimited.html%3FECID%3Dvanity%3A1yearfree
+// TODO: http://cj.dotomi.com/links-t/7278242/type/dlg/sid/xxxxx/https://www.bedbathandbeyond.com/store/static/coupons?sid=WW64ea0ffc2343b42ba4f2c5b0
 
 // TODO: BUG: some urls do not have their tracking stripped if a redirect is 
 // followed yet is not the final url and is not a handled redirect
 // ex. Slickdeals
 // fixed with hacky fix
-
-// http://cj.dotomi.com/links-t/7278242/type/dlg/sid/xxxxx/https://www.bedbathandbeyond.com/store/static/coupons?sid=WW64ea0ffc2343b42ba4f2c5b0
 
 // TODO: Make sure tracking is only stripped if the url is an 
 // unhandled redirect. 
@@ -637,14 +798,16 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
       // The regex only needs 1 variation which includes optional query string key/values
       const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_VALUE}`);
       newClipboardRegexes.push(new RegExp(regexPattern));
-    } else if (originalTargetParam === TARGET_PARAM_NO_QS) {
+    // } else if (originalTargetParam === TARGET_PARAM_NO_QS) {
 
-      // TODO: make sure implementation is correct
+    //   // TODO: make sure implementation is correct
 
-      newPatterns.push(replacePlaceholders(`${originalPattern}*\/http`));
-      // The regex only needs 1 variation which includes optional query string key/values
-      const regexPattern = replacePlaceholdersRegex(`${originalPattern}*\/http`);
-      newClipboardRegexes.push(new RegExp(regexPattern));
+    //   const targetParamNoKv = ``;
+
+    //   newPatterns.push(replacePlaceholders(`${originalPattern}*\/http`));
+    //   // The regex only needs 1 variation which includes optional query string key/values
+    //   const regexPattern = replacePlaceholdersRegex(`${originalPattern}*\/http`);
+    //   newClipboardRegexes.push(new RegExp(regexPattern));
 
     } else {
 
@@ -727,7 +890,15 @@ function extractRedirectTarget(url, targetParam = 'url') {
 
   if (typeof target === 'string') {
     // make sure the url is valid when decoded
-    if (!target.startsWith('http')) {
+    if (target.indexOf('http') !== -1) {
+      // check helps urls where the target is preceded by misc. characters
+      // http://tracking01.walmart.com/track?type=click&extra=&&&http://www.walmart.com/account/communicationsandprivacy
+      if (target.indexOf('https') !== -1) {
+        target = target.substr(target.indexOf('https'));
+      } else {
+        target = target.substr(target.indexOf('http'));
+      }
+    } else if (!target.startsWith('http')) {
       target = 'http://' + target;
     }
     return decodeURIComponent(target);

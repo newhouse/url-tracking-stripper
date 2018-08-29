@@ -82,7 +82,6 @@ const STUFF_BY_STRIPPING_METHOD_ID = {
 };
 
 
-
 /*******************************************************
 *      ___        _ _            _
 *     | _ \___ __| (_)_ _ ___ __| |_ ___
@@ -170,10 +169,8 @@ function registerRedirectHandlers() {
   }
 }
 
-//
-//
-//*******************************************************
 
+//******************************************************
 
 
 /*******************************************************
@@ -203,15 +200,15 @@ function checkUrlForTrackers(originalUrl) {
   return (cleansedUrl && cleansedUrl != originalUrl) ? cleansedUrl : false;
 }
 
+
 // Helper to do both redirect following and tracker removal
 // in certain situations.
 function followRedirectAndRemoveTrackers(url) {
   return removeTrackersFromUrl(followRedirect(url));
 }
 
-//
-//
-//*******************************************************
+
+//******************************************************
 
 
 /*******************************************************
@@ -221,6 +218,7 @@ function followRedirectAndRemoveTrackers(url) {
 *     |_||_\__,_|_||_\__,_|_\___|_| /__/
 *
 */
+
 // Handler for doing History Change approach
 function historyChangeHandler(tabId, changeInfo, tab) {
   // If the change was not to the URL, we're done.
@@ -391,11 +389,8 @@ function onInstallHandler(details) {
   }
 }
 
-//
-//
-//*******************************************************
 
-
+//******************************************************
 
 
 // We may need to monitor navigation so that we can let the user know when we've
@@ -580,9 +575,6 @@ function restoreOptionsFromStorage() {
 }
 
 
-
-
-
 // Wrapper to create the context menu items. Have experienced weird permissions
 // behavior for updates (not installs), so eventually after a few versions
 // this pre-flight-check can probably be removed. v4.1.0
@@ -675,6 +667,7 @@ function _createContextMenus() {
     });
   }
 
+
   // Make this menu item if we should
   if (CONTEXT_MENU_CLEAN_AND_GO_ENABLED) {
 
@@ -711,7 +704,6 @@ function _createContextMenus() {
     });
   }
 }
-
 
 
 // OK, finally let's:
