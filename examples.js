@@ -15,6 +15,10 @@ const hostEtc = 'https://foo.com/path/to/whatever';
 // SPECIFIC TRACKER EXAMPLES WE WANT TO ADD IN
 const trackerExamples = [
   {
+    fromm: 'https://mobile.twitter.com/rob_dodson/status/1054769558253256704?fbclid=IwAR1oP2nniRZt0LKF3DcjHWMBz1XYdRk7Q5S7RRldbCVc0zSPuHVWRlvmq2Q',
+    too: 'https://mobile.twitter.com/rob_dodson/status/1054769558253256704'
+  },
+  {
     fromm: 'https://stripe.com/blog/ending-bitcoin-support?utm_source=newsletter&utm_medium=email&utm_campaign=&stream=top-stories',
     too: 'https://stripe.com/blog/ending-bitcoin-support?stream=top-stories'
   },
