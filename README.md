@@ -43,6 +43,9 @@ Adobe Omniture SiteCatalyst
 - `ICID`
 - `icid`
 
+Facebook
+- `fbclid`
+
 Hubspot
 - `_hsenc`
 - `_hsmi`
