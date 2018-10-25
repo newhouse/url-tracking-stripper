@@ -43,6 +43,9 @@ Adobe Omniture SiteCatalyst
 - `ICID`
 - `icid`
 
+Facebook
+- `fbclid`
+
 Hubspot
 - `_hsenc`
 - `_hsmi`
@@ -88,7 +91,7 @@ and choose which one is right for you:
    - For even more privacy, I recommend the below "Block and Re-load + Skip Redirects" option below.
 
 3) __Block and Re-load + Skip Redirects__:
-   - This approach is nearly identicle to the above "Block And Re-load" Stripping Method.
+   - This approach is nearly identical to the above "Block And Re-load" Stripping Method.
    - However this one adds the __*most privacy*__ due to the fact that this method [Skips Known Redirects](#skip-known-redirects) that may track you via an intermediate page load - see below for more info.
 
 

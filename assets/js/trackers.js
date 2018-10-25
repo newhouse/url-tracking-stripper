@@ -60,6 +60,8 @@ const TRACKERS_BY_ROOT = {
 
   // Non-prefixy and 1-offs
   '': [
+    // Facebook Click Identifier
+    'fbclid',
     // Google Click Identifier
     'gclid',
     // Unknown
