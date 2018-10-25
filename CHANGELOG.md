@@ -1,3 +1,6 @@
+- 4.2.2:
+    + Facebook `fclid`.
+    + Added trackers for `comScore Digital Analytix`
 - 4.2.1:
     + Added tracker for `Commission Factory`.
 - 4.2.0:
