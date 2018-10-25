@@ -32,6 +32,14 @@ const KNOWN_REDIRECTS = [
     types: ['main_frame']
   },
   {
+    name: 'YouTube Redirect',
+    targetParam: 'q',
+    patterns: [
+      `${SCHEMA}www.youtube.com/redirect?`
+    ],
+    types: ['main_frame']
+  },
+  {
     name: 'RedirectingAt',
     targetParam: 'url',
     patterns: [

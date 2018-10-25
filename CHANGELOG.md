@@ -1,6 +1,8 @@
+- 4.2.3:
+    + Added `YouTube` to known redirect handlers.
 - 4.2.2:
     + Facebook `fclid`.
-    + Added trackers for `comScore Digital Analytix`
+    + Added trackers for `comScore Digital Analytix`.
 - 4.2.1:
     + Added tracker for `Commission Factory`.
 - 4.2.0:
