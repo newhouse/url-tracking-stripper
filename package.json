@@ -19,6 +19,7 @@
     "test": "make test"
   },
   "dependencies": {
+    "atob": ">=2.1.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2 ",
     "babel-preset-env": "^1.6.1",
@@ -26,6 +27,7 @@
     "gulp-clean": "^0.4.0",
     "gulp-zip": "^4.1.0",
     "lodash": "^4.17.5",
+    "randomatic": ">=3.0.0",
     "run-sequence": "^2.2.1",
     "webpack": "^3.11.0",
     "webpack-stream": "^4.0.2"
