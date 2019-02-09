@@ -61,7 +61,6 @@ gulp.task('lib-uglified', function() {
 
 // HTML
 gulp.task('html', function() {
-  console.log('htmling...');
   return gulp.src('./assets/**.html')
     .pipe(gulp.dest(`./${TARGET_DIR}`));
 });
@@ -131,6 +130,13 @@ gulp.task('webpack-uglified', function() {
 });
 
 
+// WATCH FILES...
+gulp.task('watch', function watch() {
+  gulp.watch('./assets/**/*', gulp.series(['webpack']));
+  gulp.watch('./assets/**.html', gulp.series(['html']));
+  gulp.watch('./assets/manifest.json', gulp.series(['manifest']));
+  console.log('watching...');
+});
 
 /*
 * NON-UGLIFIED BUILD PROCESS
@@ -138,14 +144,7 @@ gulp.task('webpack-uglified', function() {
 * $ gulp dev
 */
 // BUILD AND WATCH NON-UGLIFIED
-gulp.task('dev', done => {
-  console.log('Watching...');
-  gulp.watch('./assets/**/*', gulp.series(['webpack']));
-  gulp.watch('./assets/**.html', gulp.series(['html']));
-  gulp.watch('./assets/manifest.json', gulp.series(['manifest']));
-
-  return gulp.series(['clean', 'move', 'webpack']);
-});
+gulp.task('dev', gulp.series('webpack', 'watch'));
 
 // BUILD AND ZIP NON-UGLIFIED
 gulp.task('build', function() {
@@ -160,7 +159,7 @@ gulp.task('build', function() {
 */
 // BUILD AND ZIP UGLIFIED
 gulp.task('default', function() {
-  gulp.series('clean-uglified', 'move-uglified', 'webpack-uglified', 'zip-uglified');
+  return gulp.series(['clean-uglified', 'move-uglified', 'webpack-uglified', 'zip-uglified']);
 });
 
 

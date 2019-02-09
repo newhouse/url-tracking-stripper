@@ -28,7 +28,6 @@
     "gulp-zip": "^4.1.0",
     "lodash": "4.17.11",
     "randomatic": ">=3.0.0",
-    "run-sequence": "^2.2.1",
     "webpack": "^3.11.0",
     "webpack-stream": "^4.0.2"
   },
