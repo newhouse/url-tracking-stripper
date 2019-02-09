@@ -16,6 +16,7 @@ const TARGET_UGLIFIED_DIR     = 'chrome_uglified';
 
 // CLEAN
 gulp.task('clean', function () {
+  console.log('cleanin...');
   return gulp.src(`${TARGET_DIR}/`, {read: false})
     .pipe(clean());
 });
@@ -60,6 +61,7 @@ gulp.task('lib-uglified', function() {
 
 // HTML
 gulp.task('html', function() {
+  console.log('htmling...');
   return gulp.src('./assets/**.html')
     .pipe(gulp.dest(`./${TARGET_DIR}`));
 });
@@ -101,14 +103,18 @@ gulp.task('manifest-uglified', function() {
 
 
 // MOVE FOR DEV
-gulp.task('move', ['images', 'lib', 'html', 'favicon', 'manifest']);
+gulp.task('move', () => {
+  console.log('movin...');
+  return gulp.series(['images', 'lib', 'html', 'favicon', 'manifest']);
+});
 
 // MOVE FOR UGLIFIED
-gulp.task('move-uglified', ['images-uglified', 'lib-uglified', 'html-uglified', 'favicon-uglified', 'manifest-uglified']);
+gulp.task('move-uglified', gulp.parallel(['images-uglified', 'lib-uglified', 'html-uglified', 'favicon-uglified', 'manifest-uglified']));
 
 
 // WEBPACK
 gulp.task('webpack', function() {
+  console.log("packin...");
   // PACK NON-UGLIFIED
   return gulp.src('./assets')
     .pipe(webpackStream(webpackConfig.debug, webpack))
@@ -132,19 +138,18 @@ gulp.task('webpack-uglified', function() {
 * $ gulp dev
 */
 // BUILD AND WATCH NON-UGLIFIED
-gulp.task('dev', function() {
-  runSequence('clean', 'move', 'webpack');
-
-  gulp.watch('./assets/**/*', ['webpack']);
-  gulp.watch('./assets/**.html', ['html']);
-  gulp.watch('./assets/manifest.json', ['manifest']);
-
+gulp.task('dev', done => {
   console.log('Watching...');
+  gulp.watch('./assets/**/*', gulp.series(['webpack']));
+  gulp.watch('./assets/**.html', gulp.series(['html']));
+  gulp.watch('./assets/manifest.json', gulp.series(['manifest']));
+
+  return gulp.series(['clean', 'move', 'webpack']);
 });
 
 // BUILD AND ZIP NON-UGLIFIED
 gulp.task('build', function() {
-  runSequence('clean', 'move', 'webpack', 'zip');
+  gulp.series('clean', 'move', 'webpack', 'zip');
 });
 
 
@@ -155,7 +160,7 @@ gulp.task('build', function() {
 */
 // BUILD AND ZIP UGLIFIED
 gulp.task('default', function() {
-  runSequence('clean-uglified', 'move-uglified', 'webpack-uglified', 'zip-uglified');
+  gulp.series('clean-uglified', 'move-uglified', 'webpack-uglified', 'zip-uglified');
 });
 
 
