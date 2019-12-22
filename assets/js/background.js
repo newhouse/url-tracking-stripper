@@ -295,33 +295,38 @@ function registerBlockAndReloadHandlers() {
   //      - Many URLs patterns, so more load on Chrome.
   //
 
-  // Man, I hope the order of these matters and only 1 gets triggered
-  for (let domainRule in DOMAIN_RULES) {
-    const urlPatterns = domainRule.generateUrlPatterns();
-    const applicableTrackers = domainRule.getApplicableTrackers();
-    console.log({
-      urlPatterns,
-      applicableTrackers,
-    });
+  console.log({DOMAIN_RULES});
+  // console.log({domainRule});
+  // const urlPatterns = domainRule.generateUrlPatterns();
+  // const applicableTrackers = domainRule.getApplicableTrackers();
+  // console.log({
+  //   urlPatterns,
+  //   applicableTrackers,
+  // });
 
-    // We are only concerned with URLs that appear to have tracking parameters in them
-    // and are in the main frame
-    const filters = {
-      urls: urlPatterns,
-      // generateTrackerPatternsArray
-      types: ["main_frame"]
-    };
-    const extra = ["blocking"];
+  // We are only concerned with URLs that appear to have tracking parameters in them
+  // and are in the main frame
+  const filters = {
+    urls: ["*://*/*"],
+    // generateTrackerPatternsArray
+    types: ["main_frame"]
+  };
+  const extra = ["blocking"];
 
-    const handler = details => {
-      return blockAndReloadHandler(details, applicableTrackers);
-    };
+  // const handler = details => {
+  //   console.log("maybe enacting");
+  //   console.log({
+  //     urlPatterns,
+  //     applicableTrackers,
+  //     details,
+  //   });
+  //   return blockAndReloadHandler(details, applicableTrackers);
+  // };
 
-    BLOCK_AND_REDIRECT_HANDLERS.push(handler);
+  // BLOCK_AND_REDIRECT_HANDLERS.push(handler);
 
-    // Monitor WebRequests so that we may block and re-load them without tracking params
-    chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
-  }
+  // Monitor WebRequests so that we may block and re-load them without tracking params
+  chrome.webRequest.onBeforeRequest.addListener(blockAndReloadHandler, filters, extra);
 
   // Monitor for subsequent Navigations so that we may indicate if a change
   // was made or not.
@@ -330,21 +335,44 @@ function registerBlockAndReloadHandlers() {
 
 
 // Handler for doing Block Web-request and Re-load approach
-function blockAndReloadHandler(details, applicableTrackers) {
-  if (!details.url) {
+function blockAndReloadHandler(details/*, applicableTrackers*/) {
+  const {
+    tabId,
+    url,
+  } = details;
+
+  if (!url) {
     return {};
   }
-
-  const {
-    tabId
-  } = details;
 
   const tabHasChangeForType = changeManager.tabHasChangeForType(tabId, CHANGE_TYPE_TRACKING_STRIP);
   console.log({tabHasChangeForType});
-
   if (tabHasChangeForType) {
     return {};
   }
+
+  const parsedUrl = new URL(url);
+  console.log({parsedUrl});
+
+  // const hostname = getHostnameFromUrl(url);
+  const hostname = parsedUrl.hostname;
+
+  console.log({hostname});
+
+  let matchingDomainRule = null;
+  for (let i in DOMAIN_RULES) {
+    let domainRule = DOMAIN_RULES[i];
+    if (domainRule.hostnameMatches(hostname)) {
+      matchingDomainRule = domainRule;
+      break;
+    }
+  }
+
+  if (!matchingDomainRule) {
+    return {};
+  }
+
+  const applicableTrackers = matchingDomainRule.getApplicableTrackers();
 
   // Returns false if we didn't replace anything, but let's use what
   // we had for cleansedUrl in that case as it could have

@@ -107,6 +107,30 @@ class DomainMatcher {
     });
   }
 
+  hostnameMatches(hostname) {
+    console.log("hostnameMatches");
+    console.log({me: this, hostname});
+
+    if (!(this.hostname && hostname)) {
+      return false;
+    }
+
+    if (this.contains && hostname.includes(this.hostname)) {
+      return true;
+    }
+    if (this.startWith && hostname.endsWith(this.hostname)) {
+      return true;
+    }
+    if (this.endsWith && hostname.endsWith(this.hostname)) {
+      return true;
+    }
+    if (this.equals && hostname === this.hostname) {
+      return true;
+    }
+
+    return false;
+  }
+
   generateHostPatterns() {
 <<<<<<< HEAD
     if (this.patterns) {
@@ -164,6 +188,10 @@ class DomainRule {
 
   getDomainMatcher() {
     return this.domainMatcher;
+  }
+
+  hostnameMatches(hostname) {
+    return this.domainMatcher.hostnameMatches(hostname);
   }
 
   getApplicableTrackers() {
