@@ -108,16 +108,20 @@ class DomainMatcher {
   }
 
   generateHostPatterns() {
+<<<<<<< HEAD
     if (this.patterns) {
       return this.patterns;
     }
 
+=======
+>>>>>>> feels ok
     const {
       hostname,
     } = this;
 
     const patterns = [];
     if (this.contains) {
+<<<<<<< HEAD
       patterns.push(`*://*.${hostname}.*/`);
     }
     else {
@@ -126,13 +130,26 @@ class DomainMatcher {
       }
       if (this.endsWith) {
         patterns.push(`*://*.${hostname}/`);
+=======
+      patterns.push(`*://*${hostname}*/`);
+    }
+    else {
+      if (this.startWith) {
+        patterns.push(`*://${hostname}*/`);
+      }
+      if (this.endsWith) {
+        patterns.push(`*://*${hostname}/`);
+>>>>>>> feels ok
       }
       if (this.equals) {
         patterns.push(`*://${hostname}/`);
       }
     }
+<<<<<<< HEAD
 
     return this.patterns = patterns;
+=======
+>>>>>>> feels ok
   }
 }
 
@@ -212,7 +229,10 @@ for (let root in TRACKERS_BY_ROOT) {
 
 const TRACKER_REGEXES_BY_TRACKER = ALL_TRACKERS.reduce((memo, tracker) => {
   memo[tracker] = new RegExp("((^|&)" + tracker + "=[^&#]*)", "ig");
+<<<<<<< HEAD
   return memo;
+=======
+>>>>>>> feels ok
 }, {});
 
 

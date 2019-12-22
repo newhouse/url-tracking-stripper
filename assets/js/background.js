@@ -295,11 +295,8 @@ function registerBlockAndReloadHandlers() {
   //      - Many URLs patterns, so more load on Chrome.
   //
 
-  console.log({DOMAIN_RULES});
-
   // Man, I hope the order of these matters and only 1 gets triggered
-  DOMAIN_RULES.forEach(domainRule => {
-    console.log({domainRule});
+  for (let domainRule in DOMAIN_RULES) {
     const urlPatterns = domainRule.generateUrlPatterns();
     const applicableTrackers = domainRule.getApplicableTrackers();
     console.log({
@@ -317,12 +314,6 @@ function registerBlockAndReloadHandlers() {
     const extra = ["blocking"];
 
     const handler = details => {
-      console.log("maybe enacting");
-      console.log({
-        urlPatterns,
-        applicableTrackers,
-        details,
-      });
       return blockAndReloadHandler(details, applicableTrackers);
     };
 
@@ -330,7 +321,7 @@ function registerBlockAndReloadHandlers() {
 
     // Monitor WebRequests so that we may block and re-load them without tracking params
     chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
-  });
+  }
 
   // Monitor for subsequent Navigations so that we may indicate if a change
   // was made or not.
