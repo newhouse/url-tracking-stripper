@@ -241,6 +241,54 @@ function registerBlockAndReloadHandler() {
   // Unregister the handler before re-registering it
   unRegisterBlockAndReloadHandler();
 
+  // It seems to me that there are 3 approaches here:
+  // (Option A)
+  //    1) Register 1 listener with 1 URL that intercepts all URLs.
+  //    2) Determine if the hostname matches any in the config
+  //    3) Remove any applicable trackers
+  //
+  //    Pros:
+  //      - Just 1 listener registered, so only 1 called.
+  //      - Just 1 URL pattern, so less load on Chrome.
+  //      - Simpler.
+  //
+  //    Cons:
+  //      - Many non-matching URLs will be passed to this.
+  //      - As the list of domain overrides increases, the time complexity
+  //        of this will increase...in JS.
+  //      - Feels very naive.
+  //
+  // (Option B)
+  //    1) Register 1 listener with many URLs: 1 for each tracker that will
+  //       match any host
+  //    2) Determine which config the hostname matches (it ought to be at least 1
+  //       with the default * being the final option)
+  //    3) Remove any applicable trackers.
+  //
+  //    Pros:
+  //      - Just 1 listener registered, so only 1 called.
+  //      - Much more targeted: there's a very high chance that something will need
+  //        to be removed.
+  //
+  //    Cons:
+  //       - Many URLs patterns, so more load on Chrome.
+  //       - As the list of domain overrides increases, the time complexity
+  //         of this will increase...in JS.
+  //
+  // (Option C)
+  //    1) Register many listeners with many URLs:
+  //       1 listener for each domain, with many URLs for each tracker in that domain's config
+  //    2) Trackers to remove are contained in the callback for the listener, and are removed.
+  //
+  //    Pros:
+  //      - Extremely targeted: every time this is called, something should be removed
+  //      - Constant time in JS-land: no need to loop through domain overrides each time.
+  //
+  //    Cons:
+  //      - Registering lots of listeners
+  //      - Many URLs patterns, so more load on Chrome.
+  //
+
   // We are only concerned with URLs that appear to have tracking parameters in them
   // and are in the main frame
   const filters = {
