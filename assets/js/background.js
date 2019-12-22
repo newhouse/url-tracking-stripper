@@ -247,8 +247,11 @@ function registerBlockAndReloadHandlers() {
   // Unregister the handlers before re-registering them
   unRegisterBlockAndReloadHandlers();
 
+  console.log({DOMAIN_RULES});
+
   // Man, I hope the order of these matters and only 1 gets triggered
-  for (let domainRule in DOMAIN_RULES) {
+  DOMAIN_RULES.forEach(domainRule => {
+    console.log({domainRule});
     const urlPatterns = domainRule.generateUrlPatterns();
     const applicableTrackers = domainRule.getApplicableTrackers();
     console.log({
@@ -266,6 +269,12 @@ function registerBlockAndReloadHandlers() {
     const extra = ["blocking"];
 
     const handler = details => {
+      console.log("maybe enacting");
+      console.log({
+        urlPatterns,
+        applicableTrackers,
+        details,
+      });
       return blockAndReloadHandler(details, applicableTrackers);
     };
 
@@ -273,7 +282,7 @@ function registerBlockAndReloadHandlers() {
 
     // Monitor WebRequests so that we may block and re-load them without tracking params
     chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
-  }
+  });
 
   // Monitor for subsequent Navigations so that we may indicate if a change
   // was made or not.
@@ -287,9 +296,22 @@ function blockAndReloadHandler(details, applicableTrackers) {
     return {};
   }
 
+  const {
+    tabId
+  } = details;
+
+  const tabHasChangeForType = changeManager.tabHasChangeForType(tabId, CHANGE_TYPE_TRACKING_STRIP);
+  console.log({tabHasChangeForType});
+
+  if (tabHasChangeForType) {
+    return {};
+  }
+
   // Returns false if we didn't replace anything, but let's use what
   // we had for cleansedUrl in that case as it could have
   const cleansedUrl = checkUrlForTrackers(details.url, applicableTrackers);
+  console.log({cleansedUrl});
+
   // If no cleaned URL then there's nothing to do to this request
   if (!cleansedUrl) {
     // Return an empty object, which indicates we're not blocking/redirecting this
@@ -513,6 +535,15 @@ const changeManager = {
       cleansedUrl,
       type
     });
+  },
+
+  tabHasChangeForType: (tabId, type = CHANGE_TYPE_TRACKING_STRIP) => {
+    const changesForTabId = changeManager.changesByTabId[tabId];
+    if (!changesForTabId) {
+      return false;
+    }
+
+    return changesForTabId.some(change => (change && change.type === type));
   }
 };
 

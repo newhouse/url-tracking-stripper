@@ -108,25 +108,31 @@ class DomainMatcher {
   }
 
   generateHostPatterns() {
+    if (this.patterns) {
+      return this.patterns;
+    }
+
     const {
       hostname,
     } = this;
 
     const patterns = [];
     if (this.contains) {
-      patterns.push(`*://*${hostname}*/`);
+      patterns.push(`*://*.${hostname}.*/`);
     }
     else {
       if (this.startWith) {
-        patterns.push(`*://${hostname}*/`);
+        // patterns.push(`*://${hostname}*/`);
       }
       if (this.endsWith) {
-        patterns.push(`*://*${hostname}/`);
+        patterns.push(`*://*.${hostname}/`);
       }
       if (this.equals) {
         patterns.push(`*://${hostname}/`);
       }
     }
+
+    return this.patterns = patterns;
   }
 }
 
@@ -206,6 +212,7 @@ for (let root in TRACKERS_BY_ROOT) {
 
 const TRACKER_REGEXES_BY_TRACKER = ALL_TRACKERS.reduce((memo, tracker) => {
   memo[tracker] = new RegExp("((^|&)" + tracker + "=[^&#]*)", "ig");
+  return memo;
 }, {});
 
 
