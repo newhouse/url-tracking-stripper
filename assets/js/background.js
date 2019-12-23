@@ -57,13 +57,9 @@ let clipper;
 const STUFF_BY_STRIPPING_METHOD_ID = {
   [STRIPPING_METHOD_HISTORY_CHANGE]: {
     html: "History Change (cosmetic only)",
-    add: function() {
-      // Monitor tab updates so that we may update the history/url to not contain tracking params
-      chrome.tabs.onUpdated.addListener(historyChangeHandler);
-    },
-    remove: function() {
-      chrome.tabs.onUpdated.removeListener(historyChangeHandler);
-    }
+    // Monitor tab updates so that we may update the history/url to not contain tracking params
+    add: () => chrome.tabs.onUpdated.addListener(historyChangeHandler),
+    remove: () => chrome.tabs.onUpdated.removeListener(historyChangeHandler),
   },
   [STRIPPING_METHOD_BLOCK_AND_RELOAD]: {
     html: "Block and Re-load (increased privacy)",
@@ -72,17 +68,16 @@ const STUFF_BY_STRIPPING_METHOD_ID = {
   },
   [STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS]: {
     html: "Block and Re-load + Skip Redirects (most privacy!)",
-    add: function() {
+    add: () => {
       registerRedirectHandlers();
       registerBlockAndReloadHandlers();
     },
-    remove: function() {
+    remove: () => {
       unRegisterRedirectHandlers();
       unRegisterBlockAndReloadHandlers();
     }
   }
 };
-
 
 
 /*******************************************************
@@ -113,31 +108,29 @@ function registerRedirectHandlers() {
 
   for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
     const {
-      patterns,
+      patterns: urls,
       types
     } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
 
     // Don't do anything stupid.
-    if (!(patterns && patterns.length && types && types.length)) {
+    if (!(urls && urls.length && types && types.length)) {
       continue;
     }
 
     const filters = {
-      urls: patterns,
-      types: types,
+      urls,
+      types,
     };
     const extra = ["blocking"];
 
-    const handler = details => {
+    const handler = (details) => {
       // If this is to be excepted this time, then do not block.
       if (exceptionsManager.isExceptedUrl(details.url)) {
-        // Return nothing to do nothing.
         return {};
       }
 
       const targetUrl = extractRedirectTarget(details.url, targetParam);
       if (!targetUrl) {
-        // Return nothing to do nothing.
         return {};
       }
 
@@ -297,21 +290,16 @@ function registerBlockAndReloadHandlers() {
 
   console.log({DOMAIN_RULES});
 
-  // Man, I hope the order of these matters and only 1 gets triggered
   DOMAIN_RULES.forEach(domainRule => {
-    console.log({domainRule});
     const urlPatterns = domainRule.generateUrlPatterns();
-    const applicableTrackers = domainRule.getApplicableTrackers();
+    const trackers = domainRule.getApplicableTrackers();
     console.log({
       urlPatterns,
-      applicableTrackers,
+      trackers,
     });
 
-    // We are only concerned with URLs that appear to have tracking parameters in them
-    // and are in the main frame
     const filters = {
       urls: urlPatterns,
-      // generateTrackerPatternsArray
       types: ["main_frame"]
     };
     const extra = ["blocking"];
@@ -320,12 +308,13 @@ function registerBlockAndReloadHandlers() {
       console.log("maybe enacting");
       console.log({
         urlPatterns,
-        applicableTrackers,
+        trackers,
         details,
       });
-      return blockAndReloadHandler(details, applicableTrackers);
+      return blockAndReloadHandler(details, trackers);
     };
 
+    // Store this handler for later so that it can be unregistered
     BLOCK_AND_REDIRECT_HANDLERS.push(handler);
 
     // Monitor WebRequests so that we may block and re-load them without tracking params
@@ -339,7 +328,7 @@ function registerBlockAndReloadHandlers() {
 
 
 // Handler for doing Block Web-request and Re-load approach
-function blockAndReloadHandler(details, applicableTrackers) {
+function blockAndReloadHandler(details, trackers) {
   if (!details.url) {
     return {};
   }
@@ -348,6 +337,7 @@ function blockAndReloadHandler(details, applicableTrackers) {
     tabId
   } = details;
 
+  // Has another handler already been run? If so, do nothing more.
   const tabHasChangeForType = changeManager.tabHasChangeForType(tabId, CHANGE_TYPE_TRACKING_STRIP);
   console.log({tabHasChangeForType});
 
@@ -355,9 +345,8 @@ function blockAndReloadHandler(details, applicableTrackers) {
     return {};
   }
 
-  // Returns false if we didn't replace anything, but let's use what
-  // we had for cleansedUrl in that case as it could have
-  const cleansedUrl = checkUrlForTrackers(details.url, applicableTrackers);
+  // Returns false if we didn't replace anything
+  const cleansedUrl = checkUrlForTrackers(details.url, trackers);
   console.log({cleansedUrl});
 
   // If no cleaned URL then there's nothing to do to this request
@@ -372,7 +361,9 @@ function blockAndReloadHandler(details, applicableTrackers) {
   // Save the fact that we stripped something for indication later on.
   changeManager.storeChanges(details.tabId, details.url, cleansedUrl, CHANGE_TYPE_TRACKING_STRIP);
   // Redirect the browser to the cleansed URL and be done here
-  return { redirectUrl: cleansedUrl };
+  return {
+    redirectUrl: cleansedUrl,
+  };
 }
 
 
