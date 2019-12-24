@@ -1,3 +1,5 @@
+- 5.0.0:
+    + Private whitelisting and blacklisting.
 - 4.2.3:
     + Added `YouTube` to known redirect handlers.
 - 4.2.2:
