@@ -1,20 +1,22 @@
 'use strict';
 
 const {
-  getOptionsFromStorage
+  getOptionsFromStorage,
 }                                               = require('./common');
 
 const {
-  DOMAIN_RULES,
   removeTrackersFromUrl,
-  // generateTrackerPatternsArray,
 }                                               = require('./trackers');
 
 const {
   REDIRECT_DATA_BY_TARGET_PARAM,
   extractRedirectTarget,
-  followRedirect
+  followRedirect,
 }                                               = require('./redirects');
+
+const {
+  DOMAIN_RULES,
+}                                               = require('./rules');
 
 const {
   REASON_INSTALL,
@@ -31,6 +33,7 @@ const {
   STRIPPING_METHOD_BLOCK_AND_RELOAD_SKIP_REDIRECTS,
   CHANGE_TYPE_REDIRECT_SKIP,
   CHANGE_TYPE_TRACKING_STRIP,
+  CHANGE_TYPE_BEEN_CHECKED,
   CONTEXT_MENU_COPY_CLEAN_ID,
   CONTEXT_MENU_COPY_CLEAN_TEXT,
   CONTEXT_MENU_CLEAN_AND_GO_ID,
@@ -123,7 +126,7 @@ function registerRedirectHandlers() {
     };
     const extra = ["blocking"];
 
-    const handler = (details) => {
+    const handler = details => {
       // If this is to be excepted this time, then do not block.
       if (exceptionsManager.isExceptedUrl(details.url)) {
         return {};
@@ -167,7 +170,7 @@ function registerRedirectHandlers() {
 
 // Let's check a URL to see if there's anything to strip from it. Will return
 // false if there was nothing to strip out
-function checkUrlForTrackers(originalUrl, applicableTrackers) {
+function checkUrlForTrackers(originalUrl, trackers) {
   // If the URL is "excepted", that means we should not try to strip any junk
   // from it, so we're done here.
   if (exceptionsManager.isExceptedUrl(originalUrl)) {
@@ -175,7 +178,7 @@ function checkUrlForTrackers(originalUrl, applicableTrackers) {
   }
 
   // The URL to cleanse starts out as the original URL
-  const cleansedUrl = removeTrackersFromUrl(originalUrl, applicableTrackers);
+  const cleansedUrl = removeTrackersFromUrl(originalUrl, trackers);
 
   // If it looks like we altered the URL, return a cleansed URL, otherwise false
   return (cleansedUrl && cleansedUrl != originalUrl) ? cleansedUrl : false;
@@ -288,37 +291,40 @@ function registerBlockAndReloadHandlers() {
   //      - Many URLs patterns, so more load on Chrome.
   //
 
-  console.log({DOMAIN_RULES});
+  const starDomainRule = DOMAIN_RULES[DOMAIN_RULES.length - 1];
 
   DOMAIN_RULES.forEach(domainRule => {
     const urlPatterns = domainRule.generateUrlPatterns();
     const trackers = domainRule.getApplicableTrackers();
-    console.log({
-      urlPatterns,
-      trackers,
+    const hostPatterns = domainRule.generateHostPatterns();
+
+    // Actually try to remove tracking...
+    const realHandler = details => (blockAndReloadHandler(details, trackers));
+    // Fires as a backup to ensure that other domain rules (namely the * rule) don't
+    // strip things in case the domain-specific rule's trackers were not matched
+    // and passed to the real handler
+    const decoyHandler = details => (changeManager.storeChanges(details.tabId, details.url, details.url, CHANGE_TYPE_BEEN_CHECKED));
+
+    const tuples = [[urlPatterns, realHandler]];
+    // Only add the decoy if it's not the * domain rule
+    if (domainRule !== starDomainRule) {
+      tuples.push([hostPatterns, decoyHandler]);
+    }
+
+    // Register these
+    tuples.forEach(([urls, handler]) => {
+      const filters = {
+        urls,
+        types: ["main_frame"]
+      };
+      const extra = ["blocking"];
+
+      // Store this handler for later so that it can be unregistered
+      BLOCK_AND_REDIRECT_HANDLERS.push(handler);
+
+      // Monitor WebRequests so that we may block and re-load them without tracking params
+      chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
     });
-
-    const filters = {
-      urls: urlPatterns,
-      types: ["main_frame"]
-    };
-    const extra = ["blocking"];
-
-    const handler = details => {
-      console.log("maybe enacting");
-      console.log({
-        urlPatterns,
-        trackers,
-        details,
-      });
-      return blockAndReloadHandler(details, trackers);
-    };
-
-    // Store this handler for later so that it can be unregistered
-    BLOCK_AND_REDIRECT_HANDLERS.push(handler);
-
-    // Monitor WebRequests so that we may block and re-load them without tracking params
-    chrome.webRequest.onBeforeRequest.addListener(handler, filters, extra);
   });
 
   // Monitor for subsequent Navigations so that we may indicate if a change
@@ -329,7 +335,7 @@ function registerBlockAndReloadHandlers() {
 
 // Handler for doing Block Web-request and Re-load approach
 function blockAndReloadHandler(details, trackers) {
-  if (!details.url) {
+  if (!(details && details.url)) {
     return {};
   }
 
@@ -338,20 +344,18 @@ function blockAndReloadHandler(details, trackers) {
   } = details;
 
   // Has another handler already been run? If so, do nothing more.
-  const tabHasChangeForType = changeManager.tabHasChangeForType(tabId, CHANGE_TYPE_TRACKING_STRIP);
-  console.log({tabHasChangeForType});
-
-  if (tabHasChangeForType) {
+  const tabHasChangeForAnyOfTypes = changeManager.tabHasChangeForAnyOfTypes(tabId, [CHANGE_TYPE_TRACKING_STRIP, CHANGE_TYPE_BEEN_CHECKED]);
+  // Don't do anything
+  if (tabHasChangeForAnyOfTypes) {
     return {};
   }
 
   // Returns false if we didn't replace anything
   const cleansedUrl = checkUrlForTrackers(details.url, trackers);
-  console.log({cleansedUrl});
 
   // If no cleaned URL then there's nothing to do to this request
   if (!cleansedUrl) {
-    // Return an empty object, which indicates we're not blocking/redirecting this
+    changeManager.storeChanges(details.tabId, details.url, cleansedUrl, CHANGE_TYPE_BEEN_CHECKED);
     return {};
   }
 
@@ -541,10 +545,11 @@ const changeManager = {
   // eslint-disable-next-line no-unused-vars
   indicateChange: function(tabId, cleansedUrl) {
     // Get the changes for this tabId
-    const changes = changeManager.changesByTabId[tabId];
+    const changes = (changeManager.changesByTabId[tabId] || []).filter(change => {
+      return change && change.type != CHANGE_TYPE_BEEN_CHECKED;
+    });
 
-    // If we have change data for a tab and the URLs appear to match, let's update the pageAction
-    if (changes && changes.length) {
+    if (changes.length > 0) {
       const title = 'URL Changed!';
       // Show the pageAction for this tab
       chrome.pageAction.show(tabId);
@@ -558,11 +563,11 @@ const changeManager = {
       const url = `info.html?title=${encodeURIComponent(title)}&changes=${encodeURIComponent(JSON.stringify(changes))}`;
       // We can pass params into the URL like any other webpage, which is useful for dynamically generating the content:
       chrome.pageAction.setPopup({tabId: tabId, popup: url});
-
-      // Once we've updated the pageAction, we should clear out the change for that tab
-      // so that it does not show for any subsequent navigation (re-load, etc)
-      changeManager.clearTab(tabId);
     }
+
+    // Once we've updated the pageAction, we should clear out the change for that tab
+    // so that it does not show for any subsequent navigation (re-load, etc)
+    changeManager.clearTab(tabId);
   },
 
   // If we made changes to a URL for a tab, let's keep that information around so that
@@ -576,14 +581,18 @@ const changeManager = {
     });
   },
 
-  tabHasChangeForType: (tabId, type = CHANGE_TYPE_TRACKING_STRIP) => {
+  tabHasChangeForAnyOfTypes: (tabId, types) => {
     const changesForTabId = changeManager.changesByTabId[tabId];
     if (!changesForTabId) {
       return false;
     }
 
-    return changesForTabId.some(change => (change && change.type === type));
-  }
+    return changesForTabId.some(change => (change && types.includes(change.type)));
+  },
+
+  tabHasChangeForType: (tabId, type = CHANGE_TYPE_TRACKING_STRIP) => {
+    return this.tabHasChangeForAnyOfTypes(tabId, [type]);
+  },
 };
 
 
