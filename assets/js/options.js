@@ -102,8 +102,8 @@ function restoreOptions() {
     // Set the appropriate radio button to be selected.
     document.getElementById(generateRadioId(items[STORAGE_KEY_STRIPPING_METHOD_TO_USE])).checked = true;
     // Set the value for the Context Menu checkboxes
-    document.getElementById('context_menu_copy_clean').checked = items[CONTEXT_MENU_COPY_CLEAN_ID] == true;
-    document.getElementById('context_menu_clean_go').checked = items[CONTEXT_MENU_CLEAN_AND_GO_ID] == true;
+    document.getElementById('context_menu_copy_clean').checked = items[CONTEXT_MENU_COPY_CLEAN_ID] === true;
+    document.getElementById('context_menu_clean_go').checked = items[CONTEXT_MENU_CLEAN_AND_GO_ID] === true;
   });
 }
 
