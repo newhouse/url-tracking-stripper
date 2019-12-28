@@ -24,9 +24,7 @@
     "http://*/*",
     "https://*/*"
   ],
-  "optional_permissions": [
-    "contextMenus"
-  ],
+  "optional_permissions": [],
   "options_ui": {
     "page": "options.html",
     "chrome_style": true
