@@ -73,6 +73,7 @@ const TRACKERS_BY_ROOT = {
     // Facebook Click Identifier
     // http://thisinterestsme.com/facebook-fbclid-parameter/
     'fbclid',
+    'srcid',
     // Google Click Identifier
     'gclid',
     // Some other Google Click thing
@@ -89,34 +90,18 @@ const TRACKERS_BY_ROOT = {
   ]
 };
 
+const ALL_TRACKERS = Object.keys(TRACKERS_BY_ROOT).reduce((trackers, root) => {
+  TRACKERS_BY_ROOT[root].forEach(suffix => trackers.push(root + suffix));
+  return trackers;
+}, []);
 
-
-// Go through all the trackers by their root and turn them into a big regex...
-const TRACKER_REGEXES_BY_ROOT = {};
-for (let root in TRACKERS_BY_ROOT) {
-  // Old way, matching at the end 1 or unlimited times.
-  // TRACKER_REGEXES_BY_ROOT[root] = new RegExp("((^|&)" + root + "(" + TRACKERS_BY_ROOT[root].join('|') + ")=[^&#]+)", "ig");
-  // New way, matching at the end 0 or unlimited times. Hope this doesn't come back to be a problem.
-  TRACKER_REGEXES_BY_ROOT[root] = new RegExp("((^|&)" + root + "(" + TRACKERS_BY_ROOT[root].join('|') + ")=[^&#]*)", "ig");
-}
-
-
-// Generate the URL patterns used for webRequest filtering
-// https://developer.chrome.com/extensions/match_patterns
-function generateTrackerPatternsArray() {
-  const array = [];
-  for (let root in TRACKERS_BY_ROOT) {
-    for (let i=0; i < TRACKERS_BY_ROOT[root].length; i++) {
-      array.push( "*://*/*?*" + root + TRACKERS_BY_ROOT[root][i] + "=*" );
-    }
-  }
-
-  return array;
-}
-
+const TRACKER_REGEXES_BY_TRACKER = ALL_TRACKERS.reduce((memo, tracker) => {
+  memo[tracker] = new RegExp("((^|&)" + tracker + "=[^&#]*)", "ig");
+  return memo;
+}, {});
 
 // Actually strip out the tracking codes/parameters from a URL and return the cleansed URL
-function removeTrackersFromUrl(url) {
+function removeTrackersFromUrl(url, trackers) {
   if (!url) return url;
 
   const urlPieces = url.split('?');
@@ -126,13 +111,9 @@ function removeTrackersFromUrl(url) {
     return url;
   }
 
-  // Go through all the pattern roots
-  for (let root in TRACKER_REGEXES_BY_ROOT) {
-    // If we see the root in the params part, then we should probably try to do some replacements
-    if (urlPieces[1].indexOf(root) !== -1) {
-      urlPieces[1] = urlPieces[1].replace(TRACKER_REGEXES_BY_ROOT[root], '');
-    }
-  }
+  trackers.forEach(tracker => {
+    urlPieces[1] = urlPieces[1].replace(TRACKER_REGEXES_BY_TRACKER[tracker], '');
+  });
 
   // If we've collapsed the URL to the point where there's an '&' against the '?'
   // then we need to get rid of that.
@@ -144,9 +125,9 @@ function removeTrackersFromUrl(url) {
 }
 
 
+
+
 module.exports = {
-  TRACKERS_BY_ROOT,
-  TRACKER_REGEXES_BY_ROOT,
-  generateTrackerPatternsArray,
-  removeTrackersFromUrl
+  ALL_TRACKERS,
+  removeTrackersFromUrl,
 };

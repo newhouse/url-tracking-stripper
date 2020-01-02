@@ -19,6 +19,7 @@ const Consts = {
   // Need to be User-friendly looking as they're used for display purposes
   CHANGE_TYPE_TRACKING_STRIP                        : 'Tracking Stripped',
   CHANGE_TYPE_REDIRECT_SKIP                         : 'Redirect Skipped',
+  CHANGE_TYPE_BEEN_CHECKED                          : 'Been-checked No-op',
 
   CONTEXT_MENU_COPY_CLEAN_ID                        : 'COPY_AND_CLEAN',
   CONTEXT_MENU_COPY_CLEAN_TEXT                      : 'Copy and Clean Link',
