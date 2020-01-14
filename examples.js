@@ -19,6 +19,10 @@ const trackerExamples = [
     too: 'https://mobile.twitter.com/rob_dodson/status/1054769558253256704'
   },
   {
+    fromm: 'https://www.instagram.com/p/B7ToSDrg44K/?igshid=36gmy2rkwpsg',
+    too: 'https://www.instagram.com/p/B7ToSDrg44K/'
+  },
+  {
     fromm: 'https://stripe.com/blog/ending-bitcoin-support?utm_source=newsletter&utm_medium=email&utm_campaign=&stream=top-stories',
     too: 'https://stripe.com/blog/ending-bitcoin-support?stream=top-stories'
   },

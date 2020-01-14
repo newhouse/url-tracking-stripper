@@ -73,6 +73,8 @@ const TRACKERS_BY_ROOT = {
     // Facebook Click Identifier
     // http://thisinterestsme.com/facebook-fbclid-parameter/
     'fbclid',
+    // Instagram Share Identifier
+    'igshid',
     'srcid',
     // Google Click Identifier
     'gclid',
