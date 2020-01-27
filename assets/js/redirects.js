@@ -93,6 +93,7 @@ const KNOWN_REDIRECTS = [
   {
     name: 'Tradedoubler',
     targetParam: 'url',
+    paramDelimiters: ['&', '('],
     patterns: [
       `${SCHEMA}${SUBDOMAIN}.tradedoubler.com/click?`
     ],
@@ -126,7 +127,13 @@ const KNOWN_REDIRECTS = [
     name: 'Slack',
     targetParam: 'url',
     patterns: [
-      `${SCHEMA}slack-redir.net/link?`
+      `${SCHEMA}slack-redir.net/link?`,
+    ],
+    types: ['main_frame']
+    name: 'Digidip',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}${SUBDOMAIN}.digidip.net/visit?`,
     ],
     types: ['main_frame']
   }
@@ -139,19 +146,22 @@ const KNOWN_REDIRECTS = [
 // using a closure-like approach to prevent having to scan the URL again
 // to figure out which pattern it matched, and then finally extract the
 // target for that pattern. Should result in things being much faster in
-// then end.
+// the end.
 // Use 'var' here so that it's not scoped incorrectly.
 var REDIRECT_DATA_BY_TARGET_PARAM = {};
 
 KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
 
   // Pluck out the param and the patterns
-  const targetParam       = KNOWN_REDIRECT.targetParam;
-  const orginalPatterns   = KNOWN_REDIRECT.patterns;
-  const types             = KNOWN_REDIRECT.types;
+  const {
+    targetParam,
+    paramDelimiters = ['&'],
+    patterns: orginalPatterns,
+    types,
+  } = KNOWN_REDIRECT;
 
   // Make sure everything looks good
-  if (!(targetParam && orginalPatterns && orginalPatterns.length && types && types.length)) {
+  if (!(targetParam && orginalPatterns && orginalPatterns.length && types && types.length && paramDelimiters && paramDelimiters.length)) {
     return;
   }
 
@@ -160,7 +170,7 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
     REDIRECT_DATA_BY_TARGET_PARAM[targetParam] = {
       patterns: [],
       regexes: [],
-      types: []
+      types: [],
     };
   }
 
@@ -198,6 +208,8 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   // Add these regexes to the array of regexes for this target param
   REDIRECT_DATA_BY_TARGET_PARAM[targetParam].regexes.push(...newClipboardRegexes);
 });
+
+console.log(REDIRECT_DATA_BY_TARGET_PARAM);
 
 
 // Escape all of the literals
@@ -246,15 +258,17 @@ function replacePlaceholdersCreateExample(pattern) {
 
 
 // Extract the redirect target from a URL given the target parameter
-function extractRedirectTarget(url, targetParam = 'url') {
-  // See if we can find a target in the URL.
-  let target = findQueryParam(targetParam, url);
+function extractRedirectTarget(url, targetParam = 'url', paramDelimitters = ['&']) {
+  for (let paramDelimitter of paramDelimitters) {
+    // See if we can find a target in the URL.
+    let target = findQueryParam(targetParam, url, paramDelimitter);
 
-  if (typeof target === 'string' && target.startsWith('http')) {
-    return decodeURIComponent(target);
-  }
+    if (typeof target === 'string' && target.startsWith('http')) {
+      return decodeURIComponent(target);
+    }
+  };
 
-  return false;
+  return false
 }
 
 
@@ -267,7 +281,8 @@ function followRedirect(url) {
   for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
     // Get the regexes for this target param
     const {
-      regexes = []
+      regexes = [],
+      paramDelimiters = ['&'],
     } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
 
     // Go through each regex for this target param
@@ -275,7 +290,7 @@ function followRedirect(url) {
       regex = regexes[i];
       // If the URL matches this redirect pattern, then extract the redirect.
       if (regex.test(url)) {
-        url = extractRedirectTarget(url, targetParam) || url;
+        url = extractRedirectTarget(url, targetParam, paramDelimiters) || url;
         // All done with this regex stuff.
         break outerLoop;
       }

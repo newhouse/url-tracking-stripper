@@ -19,12 +19,18 @@ function getOptionsFromStorage(cb, options) {
 }
 
 
-function findQueryParam(targetParam, url) {
+function findQueryParam(targetParam, url, paramDelimiter = '&') {
   url = url || window.location.href;
 
-  if (!(targetParam && url)) {
+  if (!(targetParam && url && paramDelimiter)) {
     return false;
   }
+
+  // For now we'll support query stryings that take one of 2 forms:
+  // 1) key1=value1&key2=value2&key3=value3
+  // 2) key1(value1)key2(value2)key3(value3)
+  // So...base the key/value delimitter based on the param delimitter
+  const kvDelimitter = paramDelimiter === '&' ? '=' : '(';
 
   // Find the first occurrance of '?' character. I've seen URLs that have embedded
   // URLs that are not properly encoded, e.g.:
@@ -42,7 +48,7 @@ function findQueryParam(targetParam, url) {
   if (queryString) {
 
     // Get the key/value pairs from the query string
-    const keyVals = queryString.split('&');
+    const keyVals = queryString.split(paramDelimiter);
     // Figure out how many pairs we have
     const kvsLength = keyVals.length;
     // For each iteration fo the loop
@@ -50,13 +56,15 @@ function findQueryParam(targetParam, url) {
 
     for(let i=0; i < kvsLength; i++) {
       // Get this key/value pair and split it up into its pieces
-      kv = keyVals[i].split('=');
+      kv = keyVals[i].split(kvDelimitter);
       // We are looking for "url=blahblahblah", so see if this is the one
       if (kv[0] === targetParam) {
         return kv[1];
       }
     }
   }
+
+  return false;
 }
 
 
