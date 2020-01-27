@@ -8,7 +8,8 @@ const SCHEMA          = '<SCHEMA>';
 const SUBDOMAIN       = '<SUBDOMAIN>';
 const PATH            = '<PATH>';
 const QS_VALUE        = '<QSVALUE>';
-const QS_KVS          = '<QSKVS>';
+const QS_KVS_1        = '<QSKVS1>';
+const QS_KVS_2        = '<QSKVS2>';
 
 
 const KNOWN_REDIRECTS = [
@@ -93,7 +94,7 @@ const KNOWN_REDIRECTS = [
   {
     name: 'Tradedoubler',
     targetParam: 'url',
-    paramDelimiters: ['&', '('],
+    paramDelimiters: ['&', ')'],
     patterns: [
       `${SCHEMA}${SUBDOMAIN}.tradedoubler.com/click?`
     ],
@@ -166,13 +167,12 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   }
 
   // Prep the Object if necessary
-  if (!(REDIRECT_DATA_BY_TARGET_PARAM[targetParam])) {
-    REDIRECT_DATA_BY_TARGET_PARAM[targetParam] = {
-      patterns: [],
-      regexes: [],
-      types: [],
-    };
-  }
+  REDIRECT_DATA_BY_TARGET_PARAM[targetParam] = REDIRECT_DATA_BY_TARGET_PARAM[targetParam] || {
+    paramDelimiters: [],
+    patterns: [],
+    regexes: [],
+    types: [],
+  };
 
   // Go through every 'type' for this redirect
   types.forEach(type => {
@@ -182,24 +182,38 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
     }
   });
 
+  paramDelimiters.forEach(paramDelimiter => {
+    if (!REDIRECT_DATA_BY_TARGET_PARAM[targetParam].paramDelimiters.includes(paramDelimiter)) {
+      REDIRECT_DATA_BY_TARGET_PARAM[targetParam].paramDelimiters.push(paramDelimiter);
+    }
+  });
+
   const newPatterns = [];
   const newClipboardRegexes = [];
 
   // Go through each of these patterns and create any combinations we need to
   orginalPatterns.forEach(originalPattern => {
+    paramDelimiters.forEach(paramDelimiter => {
+      // For now we'll support query stryings that take one of 2 forms:
+      // 1) key1=value1&key2=value2&key3=value3
+      // 2) key1(value1)key2(value2)key3(value3)
+      // So...base the key/value delimiter based on the param delimiter
+      const kvDelimiter = paramDelimiter === '&' ? '=' : '(';
+      const kvPlaceholder = paramDelimiter === '&' ? QS_KVS_1 : QS_KVS_2;
 
-    // Create the key/value placeholder for the target param
-    const targetParamKv = `${targetParam}=${QS_VALUE}`;
+      // Create the key/value placeholder for the target param
+      const targetParamKv = `${targetParam}${kvDelimiter}${QS_VALUE}`;
 
-    // We need to generate a few variations on this original pattern for URL matching
-    // 1) support the URL param as the first param
-    newPatterns.push(replacePlaceholders(`${originalPattern}${targetParamKv}`));
-    // 2) support the URL param as a non-first param
-    newPatterns.push(replacePlaceholders(`${originalPattern}${QS_KVS}${targetParamKv}`));
+      // We need to generate a few variations on this original pattern for URL matching
+      // 1) support the URL param as the first param
+      newPatterns.push(replacePlaceholders(`${originalPattern}${targetParamKv}`));
+      // 2) support the URL param as a non-first param
+      newPatterns.push(replacePlaceholders(`${originalPattern}${kvPlaceholder}${targetParamKv}`));
 
-    // The regex only needs 1 variation which includes optional query string key/values
-    const regexPattern = replacePlaceholdersRegex(`${originalPattern}${QS_KVS}${targetParamKv}`);
-    newClipboardRegexes.push(new RegExp(regexPattern));
+      // The regex only needs 1 variation which includes optional query string key/values
+      const regexPattern = replacePlaceholdersRegex(`${originalPattern}${kvPlaceholder}${targetParamKv}`);
+      newClipboardRegexes.push(new RegExp(regexPattern));
+    });
   });
 
   // Add these patterns to the array of patterns for this target param
@@ -208,9 +222,6 @@ KNOWN_REDIRECTS.forEach(KNOWN_REDIRECT => {
   // Add these regexes to the array of regexes for this target param
   REDIRECT_DATA_BY_TARGET_PARAM[targetParam].regexes.push(...newClipboardRegexes);
 });
-
-console.log(REDIRECT_DATA_BY_TARGET_PARAM);
-
 
 // Escape all of the literals
 function escapeRegExp(str) {
@@ -223,7 +234,8 @@ function replacePlaceholders(pattern) {
     .replace(SCHEMA, '*://')
     .replace(SUBDOMAIN, '*')
     .replace(PATH, '/*')
-    .replace(QS_KVS, '*&')
+    .replace(QS_KVS_1, '*&')
+    .replace(QS_KVS_2, '*)')
     .replace(QS_VALUE, '*');
 }
 
@@ -237,12 +249,14 @@ function replacePlaceholdersRegex(pattern) {
     // This one required text on either side of the '=' sign, when I've seen
     // some places build junk that would not match. Not sure if this is a good idea
     // to "fix" or not.
-    // pattern = pattern.replace(QS_KVS, '([\\w]+\\=[\\w]+\\&)*');
+    // pattern = pattern.replace(QS_KVS_1, '([\\w]+\\=[\\w]+\\&)*');
     // This would be the "fix" for the above. It allows blanks on either side of the
     // '=' sign.
-    // pattern = pattern.replace(QS_KVS, '([\\w*+\\=[\\w]*\\&)*');
+    // pattern = pattern.replace(QS_KVS_1, '([\\w*+\\=[\\w]*\\&)*');
     // OK, this one handles even more scenarios that are acceptable
-    .replace(QS_KVS, '([\\w*+\\=?[\\w]*\\&)*')
+    .replace(QS_KVS_1, '([\\w*+\\=?[\\w]*\\&)*')
+    // foo(bar)baz(bop)...
+    .replace(QS_KVS_2, '(\\w*\\(\\w*\\))*')
     .replace(QS_VALUE, '\\w');
 }
 
@@ -252,16 +266,16 @@ function replacePlaceholdersCreateExample(pattern) {
     .replace(SCHEMA, 'https://')
     .replace(SUBDOMAIN, 'foo')
     .replace(PATH, '/path/to/whatever')
-    .replace(QS_KVS, '&')
+    .replace(QS_KVS_1, '&')
     .replace(QS_VALUE, 'foo');
 }
 
 
 // Extract the redirect target from a URL given the target parameter
-function extractRedirectTarget(url, targetParam = 'url', paramDelimitters = ['&']) {
-  for (let paramDelimitter of paramDelimitters) {
+function extractRedirectTarget(url, targetParam = 'url', paramDelimiters = ['&']) {
+  for (let paramDelimiter of paramDelimiters) {
     // See if we can find a target in the URL.
-    let target = findQueryParam(targetParam, url, paramDelimitter);
+    let target = findQueryParam(targetParam, url, paramDelimiter);
 
     if (typeof target === 'string' && target.startsWith('http')) {
       return decodeURIComponent(target);

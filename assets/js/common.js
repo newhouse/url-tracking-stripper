@@ -29,8 +29,8 @@ function findQueryParam(targetParam, url, paramDelimiter = '&') {
   // For now we'll support query stryings that take one of 2 forms:
   // 1) key1=value1&key2=value2&key3=value3
   // 2) key1(value1)key2(value2)key3(value3)
-  // So...base the key/value delimitter based on the param delimitter
-  const kvDelimitter = paramDelimiter === '&' ? '=' : '(';
+  // So...base the key/value delimiter based on the param delimiter
+  const kvDelimiter = paramDelimiter === '&' ? '=' : '(';
 
   // Find the first occurrance of '?' character. I've seen URLs that have embedded
   // URLs that are not properly encoded, e.g.:
@@ -56,7 +56,7 @@ function findQueryParam(targetParam, url, paramDelimiter = '&') {
 
     for(let i=0; i < kvsLength; i++) {
       // Get this key/value pair and split it up into its pieces
-      kv = keyVals[i].split(kvDelimitter);
+      kv = keyVals[i].split(kvDelimiter);
       // We are looking for "url=blahblahblah", so see if this is the one
       if (kv[0] === targetParam) {
         return kv[1];
