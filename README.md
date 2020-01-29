@@ -46,6 +46,9 @@ Adobe Omniture SiteCatalyst
 Facebook
 - `fbclid`
 
+Instagram
+- `igshid`
+
 Hubspot
 - `_hsenc`
 - `_hsmi`
