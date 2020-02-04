@@ -64,6 +64,10 @@ const redirectExamples = [
   {
     fromm: 'https://t.cfjump.com/6421/t/42872?Url=http%3a%2f%2fwww.google.com%2fsearch%3fq%3dhi',
     too: 'http://www.google.com/search?q=hi'
+  },
+  {
+    fromm: 'https://slack-redir.net/link?url=https%3A%2F%2Fwww.google.com%2fsearch%3fq%3dhi',
+    too: 'https://www.google.com/search?q=hi'
   }
 ];
 
