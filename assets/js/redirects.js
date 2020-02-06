@@ -121,6 +121,14 @@ const KNOWN_REDIRECTS = [
       `${SCHEMA}t.cfjump.com${PATH}?`
     ],
     types: ['main_frame']
+  },
+  {
+    name: 'Slack',
+    targetParam: 'url',
+    patterns: [
+      `${SCHEMA}slack-redir.net/link?`
+    ],
+    types: ['main_frame']
   }
 ];
 
