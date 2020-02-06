@@ -128,6 +128,7 @@ Thanks to the following:
 - [jenntn](http://www.jenntn.com/) for donating the work on the logos and design.
 - [Pablo Massa](http://pablomassa.com/) for some great UI suggestions that I ended up implementing.
 - [Menzo Wijmenga](https://github.com/menzow) for contributing code and ideas for new features/enhancements.
+- [jnozsc](https://github.com/jnozsc) for contributing trackers and redirects.
 
 # Version History
 __Version history has been moved to the [CHANGELOG](https://github.com/newhouse/url-tracking-stripper/blob/master/CHANGELOG.md). Please look at that for changes.__

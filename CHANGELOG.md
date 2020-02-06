@@ -1,3 +1,6 @@
+- 5.0.1:
+    + Added `Slack` to known redirect handlers.
+    + Instagram `igshid`
 - 5.0.0:
     + Private whitelisting and blacklisting.
 - 4.2.3:
