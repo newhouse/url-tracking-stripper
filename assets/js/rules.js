@@ -101,6 +101,13 @@ const DEFAULT_DOMAIN_RULES = [
     whitelist: ALL_TRACKERS,
   }),
   new DomainRule({
+    domainMatcher: new DomainMatcher('code.videolan.org', {
+      endsWith: true,
+    }),
+    blacklist: ['ref'],
+    whitelist: ALL_TRACKERS,
+  }),
+  new DomainRule({
     domainMatcher: new DomainMatcher('steampowered.com', {
       endsWith: true,
     }),
