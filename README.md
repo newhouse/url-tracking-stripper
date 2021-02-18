@@ -39,7 +39,7 @@ Google's Urchin Tracking Module & Google Adwords
 - `utm_swu`
 - `gclid`
 
-Adobe Omniture SiteCatalyst
+Adobe Adobe Analytics
 - `ICID`
 - `icid`
 
@@ -56,11 +56,11 @@ Hubspot
 Marketo
 - `mkt_tok`
 
-MailChimp
+Mailchimp
 - `mc_cid`
 - `mc_eid`
 
-Simple Reach
+SimpleReach
 - `sr_share`
 
 Vero
