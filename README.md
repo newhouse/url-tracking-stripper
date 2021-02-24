@@ -39,7 +39,7 @@ Google's Urchin Tracking Module & Google Adwords
 - `utm_swu`
 - `gclid`
 
-Adobe Adobe Analytics
+Adobe Analytics
 - `ICID`
 - `icid`
 
