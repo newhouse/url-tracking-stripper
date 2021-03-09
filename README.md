@@ -67,6 +67,9 @@ Vero
 - `vero_conv`
 - `vero_id`
 
+Redfin
+- `riftinfo`
+
 Unknown
 - `nr_email_referer`
 - `ncid`

@@ -86,6 +86,9 @@ const TRACKERS_BY_ROOT = {
     'nr_email_referer',
     // Generic-ish. Facebook, Product Hunt and others
     'ref',
+    // Redfin base64 encoded parameters
+    // https://github.com/newhouse/url-tracking-stripper/issues/80
+    'riftinfo',
     // Alibaba-family 'super position model' tracker:
     // https://github.com/newhouse/url-tracking-stripper/issues/38
     'spm'
