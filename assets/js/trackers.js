@@ -6,17 +6,17 @@ const TRACKERS_BY_ROOT = {
 
   // Google's Urchin Tracking Module
   'utm_': [
-    'source',
-    'medium',
-    'term',
     'campaign',
-    'content',
-    'name',
     'cid',
-    'reader',
-    'viz_id',
+    'content',
+    'medium',
+    'name',
     'pubreferrer',
-    'swu'
+    'reader',
+    'source',
+    'swu',
+    'term',
+    'viz_id'
   ],
 
   // Adobe Omniture SiteCatalyst
@@ -50,11 +50,11 @@ const TRACKERS_BY_ROOT = {
   // comScore Digital Analytix?
   // http://www.about-digitalanalytics.com/comscore-digital-analytix-url-campaign-generator
   'ns_': [
-    'source',
-    'mchannel',
     'campaign',
+    'fee',
     'linkname',
-    'fee'
+    'mchannel',
+    'source'
   ],
 
   // Simple Reach
@@ -88,7 +88,28 @@ const TRACKERS_BY_ROOT = {
     'ref',
     // Alibaba-family 'super position model' tracker:
     // https://github.com/newhouse/url-tracking-stripper/issues/38
-    'spm'
+    'spm',
+    // lecho.be & avira
+    'M_BT',
+    //sciencesetavenir.fr
+    'xtor',
+    // vice.com
+    'ref',
+    // wired.com
+    'bxid',
+    'cndid',
+    'esrc',
+    'hasha',
+    'hashb',
+    'hashc',
+    'mbid',
+    'source',
+    'utm_brand',
+    'utm_mailing',
+    // pinterest.com
+    'e_t',
+    'news_hub_id',
+    'rcpt'
   ]
 };
 
