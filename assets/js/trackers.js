@@ -86,6 +86,7 @@ const TRACKERS_BY_ROOT = {
     'nr_email_referer',
     // Generic-ish. Facebook, Product Hunt and others
     'ref',
+    'ref_',
     // Alibaba-family 'super position model' tracker:
     // https://github.com/newhouse/url-tracking-stripper/issues/38
     'spm'
