@@ -112,7 +112,8 @@ function registerRedirectHandlers() {
   for (let targetParam in REDIRECT_DATA_BY_TARGET_PARAM) {
     const {
       patterns: urls,
-      types
+      types,
+      paramDelimiters = ['&'],
     } = REDIRECT_DATA_BY_TARGET_PARAM[targetParam];
 
     // Don't do anything stupid.
@@ -132,7 +133,7 @@ function registerRedirectHandlers() {
         return {};
       }
 
-      const targetUrl = extractRedirectTarget(details.url, targetParam);
+      const targetUrl = extractRedirectTarget(details.url, targetParam, paramDelimiters);
       if (!targetUrl) {
         return {};
       }
