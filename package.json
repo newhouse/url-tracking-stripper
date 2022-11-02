@@ -23,7 +23,7 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2 ",
     "babel-preset-env": "^1.6.1",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
     "gulp-zip": "^4.1.0",
     "lodash": "^4.17.19",
